@@ -1,54 +1,32 @@
 "use client"
-import { useState, useEffect } from "react"
+
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Send } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { checkSendPermission, getUserDailyLimit } from "@/app/lib/send-permissions"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 interface SendDialogProps {
   emailId: string
   fromAddress: string
-  userId: string  // 新增：用于权限校验的用户ID
   onSendSuccess?: () => void
 }
 
-export function SendDialog({ emailId, fromAddress, userId, onSendSuccess }: SendDialogProps) {
+export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [to, setTo] = useState("")
   const [subject, setSubject] = useState("")
   const [content, setContent] = useState("")
-  // 新增配额相关状态
-  const [remainingEmails, setRemainingEmails] = useState<number>(0)
-  const [dailyLimit, setDailyLimit] = useState<number>(0)
-  const [loadingLimits, setLoadingLimits] = useState(false)
-  
   const { toast } = useToast()
-
-  // 获取配额信息
-  const fetchLimits = async () => {
-    if (!open) return
-    setLoadingLimits(true)
-    try {
-      const permission = await checkSendPermission(userId)
-      const limit = await getUserDailyLimit(userId)
-      setRemainingEmails(permission.remainingEmails || 0)
-      setDailyLimit(limit > 0 ? limit : 0)
-    } catch (error) {
-      console.error("获取配额失败:", error)
-    } finally {
-      setLoadingLimits(false)
-    }
-  }
-
-  // 对话框打开/关闭时更新配额
-  useEffect(() => {
-    fetchLimits()
-  }, [open, userId])
 
   const handleSend = async () => {
     if (!to.trim() || !subject.trim() || !content.trim()) {
@@ -78,14 +56,17 @@ export function SendDialog({ emailId, fromAddress, userId, onSendSuccess }: Send
         return
       }
 
-      toast({ title: "成功", description: "邮件已发送" })
+      toast({
+        title: "成功",
+        description: "邮件已发送"
+      })
       setOpen(false)
       setTo("")
       setSubject("")
       setContent("")
+      
       onSendSuccess?.()
-      // 发送成功后更新配额
-      fetchLimits()
+    
     } catch {
       toast({
         title: "错误",
@@ -103,8 +84,8 @@ export function SendDialog({ emailId, fromAddress, userId, onSendSuccess }: Send
         <Tooltip>
           <DialogTrigger asChild>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
+              <Button 
+                variant="ghost" 
                 size="sm"
                 className="h-8 gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
               >
@@ -120,16 +101,7 @@ export function SendDialog({ emailId, fromAddress, userId, onSendSuccess }: Send
       </TooltipProvider>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            发送新邮件
-            {loadingLimits ? (
-              <span className="text-sm text-muted-foreground">加载中...</span>
-            ) : dailyLimit > 0 ? (
-              <span className="text-sm text-muted-foreground">
-                剩余: {remainingEmails}/{dailyLimit}
-              </span>
-            ) : null}
-          </DialogTitle>
+          <DialogTitle>发送新邮件</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="text-sm text-muted-foreground">
@@ -162,5 +134,3 @@ export function SendDialog({ emailId, fromAddress, userId, onSendSuccess }: Send
         </div>
       </DialogContent>
     </Dialog>
-  )
-}
