@@ -151,7 +151,7 @@ export function ThreeColumnLayout() {
                   }}
                   className="text-sm text-primary shrink-0"
                 >
-                  ← 返回
+                  ← 上一页
                 </button>
                 <div className="flex-1 flex justify-between items-center gap-2 min-w-0">
                   <div className="flex items-center gap-2">
@@ -187,7 +187,7 @@ export function ThreeColumnLayout() {
                   onClick={() => setSelectedMessageId(null)}
                   className="text-sm text-primary"
                 >
-                  ← 返回
+                  ← 上一页
                 </button>
                 <span className="text-sm font-medium">邮件内容</span>
               </div>
