@@ -90,7 +90,7 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
                 className="h-8 gap-2 hover:bg-primary/10 hover:text-primary transition-colors"
               >
                 <Send className="h-4 w-4" />
-                <span className="hidden sm:inline">发送新邮件</span>
+                <span className="hidden sm:inline">发送邮件</span>
               </Button>
             </TooltipTrigger>
           </DialogTrigger>
