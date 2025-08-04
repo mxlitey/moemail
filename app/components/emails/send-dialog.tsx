@@ -134,3 +134,5 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
         </div>
       </DialogContent>
     </Dialog>
+  )
+}
