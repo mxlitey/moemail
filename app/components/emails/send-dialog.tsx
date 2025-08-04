@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"  // 补充 useEffect 导入
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -27,36 +27,6 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
   const [subject, setSubject] = useState("")
   const [content, setContent] = useState("")
   const { toast } = useToast()
-  // 新增配额相关状态
-  const [quota, setQuota] = useState<string>("加载中...")
-  const [quotaError, setQuotaError] = useState<string>("")
-
-  // 新增：获取配额的函数
-  const fetchEmailQuota = async () => {
-    try {
-      const response = await fetch("/api/email-limit", {
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      })
-      const data = await response.json()
-
-      if (data.error) {
-        setQuotaError(data.error)
-        setQuota("获取失败")
-        return
-      }
-
-      setQuota(data.limitDisplay)
-    } catch (err) {
-      console.error("获取邮件配额失败:", err)
-      setQuota("获取失败")
-    }
-  }
-
-  // 新增：组件挂载时获取配额
-  useEffect(() => {
-    fetchEmailQuota()
-  }, [])
 
   const handleSend = async () => {
     if (!to.trim() || !subject.trim() || !content.trim()) {
@@ -96,8 +66,7 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
       setContent("")
       
       onSendSuccess?.()
-      fetchEmailQuota()  // 发送成功后更新配额
-
+    
     } catch {
       toast({
         title: "错误",
@@ -132,17 +101,7 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
       </TooltipProvider>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>
-            发送新邮件
-            {/* 新增：显示配额信息 */}
-            <span style={{ 
-              marginLeft: "8px", 
-              fontSize: "0.8em", 
-              color: quotaError ? "#ef4444" : "#64748b"
-            }}>
-              (配额: {quota})
-            </span>
-          </DialogTitle>
+          <DialogTitle>发送新邮件</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="text-sm text-muted-foreground">
