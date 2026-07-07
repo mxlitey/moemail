@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,6 +15,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import {
+  detectPlatform,
+  buildBody,
+  SAMPLE_MESSAGE,
+  type Platform,
+} from "@/lib/webhook"
 
 export function WebhookConfig() {
   const t = useTranslations("profile.webhook")
@@ -39,6 +45,19 @@ export function WebhookConfig() {
       .catch(console.error)
       .finally(() => setInitialLoading(false))
   }, [])
+
+  // 根据当前 URL 实时识别平台，并生成与实际发送一致的请求体示例
+  const { platform, exampleBody } = useMemo(() => {
+    const detected = url ? detectPlatform(url) : "generic"
+    const raw = buildBody(detected, SAMPLE_MESSAGE, url || undefined)
+    let pretty = raw
+    try {
+      pretty = JSON.stringify(JSON.parse(raw), null, 2)
+    } catch {
+      pretty = raw
+    }
+    return { platform: detected as Platform, exampleBody: pretty }
+  }, [url])
 
   if (initialLoading) {
     return (
@@ -184,25 +203,25 @@ export function WebhookConfig() {
 
             {showDocs && (
               <div className="rounded-md bg-muted p-4 text-sm space-y-3">
+                <p>
+                  {t("docs.detectedPlatform", { platform: t(`platforms.${platform}`) })}
+                </p>
+
                 <p>{t("docs.intro")}</p>
                 <pre className="bg-background p-2 rounded text-xs">
-                  Content-Type: application/json{'\n'}
-                  X-Webhook-Event: new_message
+                  {`Content-Type: application/json${platform === "telegram" ? "" : "\nX-Webhook-Event: new_message"}`}
                 </pre>
 
                 <p>{t("docs.exampleBody")}</p>
                 <pre className="bg-background p-2 rounded text-xs overflow-auto">
-                  {`{
-  "emailId": "email-uuid",
-  "messageId": "message-uuid",
-  "fromAddress": "sender@example.com",
-  "subject": "${t("docs.subject")}",
-  "content": "${t("docs.content")}",
-  "html": "${t("docs.html")}",
-  "receivedAt": "2024-01-01T12:00:00.000Z",
-  "toAddress": "your-email@${window.location.host}"
-}`}
+                  {exampleBody}
                 </pre>
+
+                {(platform === "feishu" || platform === "dingtalk" || platform === "wechat") && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("docs.keywordHint", { platform: t(`platforms.${platform}`) })}
+                  </p>
+                )}
               </div>
             )}
           </div>

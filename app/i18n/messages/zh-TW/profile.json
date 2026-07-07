@@ -90,9 +90,20 @@
     "saveFailed": "儲存設定失敗",
     "testSuccess": "Webhook 測試成功",
     "testFailed": "Webhook 測試失敗",
+    "platforms": {
+      "feishu": "飛書",
+      "dingtalk": "釘釘",
+      "wechat": "企業微信",
+      "discord": "Discord",
+      "slack": "Slack",
+      "telegram": "Telegram",
+      "generic": "通用"
+    },
     "docs": {
       "intro": "當收到新郵件時，我們會向設定的 URL 發送 POST 請求，請求標頭包含:",
       "exampleBody": "請求體範例:",
+      "detectedPlatform": "已識別平台：{platform}",
+      "keywordHint": "提示：建立 {platform} 機器人時，安全設定請選擇「自訂關鍵字」並填入「📧」或「郵件」（通知內容已包含該關鍵字），無需啟用簽章驗證。",
       "subject": "郵件主旨",
       "content": "郵件文字內容",
       "html": "郵件 HTML 內容"

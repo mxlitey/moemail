@@ -90,9 +90,20 @@
     "saveFailed": "Failed to save configuration",
     "testSuccess": "Webhook test successful",
     "testFailed": "Webhook test failed",
+    "platforms": {
+      "feishu": "Feishu",
+      "dingtalk": "DingTalk",
+      "wechat": "WeChat Work",
+      "discord": "Discord",
+      "slack": "Slack",
+      "telegram": "Telegram",
+      "generic": "Generic"
+    },
     "docs": {
       "intro": "When a new email is received, we will send a POST request to the configured URL with the following headers:",
       "exampleBody": "Request body example:",
+      "detectedPlatform": "Detected platform: {platform}",
+      "keywordHint": "Tip: When creating a {platform} bot, set the security option to \"Custom Keywords\" and use \"📧\" or \"email\" (the notification content already includes it). No signature verification is needed.",
       "subject": "Email Subject",
       "content": "Email text content",
       "html": "Email HTML content"

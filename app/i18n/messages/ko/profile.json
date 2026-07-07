@@ -90,9 +90,20 @@
     "saveFailed": "설정 저장에 실패했습니다",
     "testSuccess": "Webhook 테스트 성공",
     "testFailed": "Webhook 테스트 실패",
+    "platforms": {
+      "feishu": "Feishu",
+      "dingtalk": "DingTalk",
+      "wechat": "WeChat Work",
+      "discord": "Discord",
+      "slack": "Slack",
+      "telegram": "Telegram",
+      "generic": "일반"
+    },
     "docs": {
       "intro": "새 이메일을 받으면 다음 헤더와 함께 설정된 URL로 POST 요청을 보냅니다:",
       "exampleBody": "요청 본문 예시:",
+      "detectedPlatform": "인식된 플랫폼: {platform}",
+      "keywordHint": "팁: {platform} 봇 생성 시 보안 설정에서 \"사용자 정의 키워드\"를 선택하고 \"📧\" 또는 \"이메일\"을 입력하세요 (알림 내용에 이미 포함되어 있음). 서명 검증은 필요하지 않습니다.",
       "subject": "이메일 제목",
       "content": "이메일 텍스트 내용",
       "html": "이메일 HTML 내용"

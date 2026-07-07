@@ -90,9 +90,20 @@
     "saveFailed": "設定の保存に失敗しました",
     "testSuccess": "Webhook テストに成功しました",
     "testFailed": "Webhook テストに失敗しました",
+    "platforms": {
+      "feishu": "Feishu",
+      "dingtalk": "DingTalk",
+      "wechat": "WeChat Work",
+      "discord": "Discord",
+      "slack": "Slack",
+      "telegram": "Telegram",
+      "generic": "汎用"
+    },
     "docs": {
       "intro": "新しいメールを受信すると、設定した URL に POST リクエストを送信します。リクエストヘッダーには以下が含まれます:",
       "exampleBody": "リクエストボディ例:",
+      "detectedPlatform": "認識されたプラットフォーム: {platform}",
+      "keywordHint": "ヒント: {platform} ボット作成時、セキュリティ設定で「カスタムキーワード」を選択し「📧」または「メール」を入力してください（通知内容に既に含まれています）。署名検証は不要です。",
       "subject": "メール件名",
       "content": "メールテキスト内容",
       "html": "メール HTML 内容"

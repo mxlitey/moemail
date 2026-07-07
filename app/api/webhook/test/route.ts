@@ -1,7 +1,6 @@
-import { callWebhook } from "@/lib/webhook"
+import { callWebhook, SAMPLE_MESSAGE } from "@/lib/webhook"
 import { WEBHOOK_CONFIG } from "@/config"
 import { z } from "zod"
-import { EmailMessage } from "@/lib/webhook"
 
 export const runtime = "edge"
 
@@ -16,16 +15,7 @@ export async function POST(request: Request) {
 
     await callWebhook(url, {
       event: WEBHOOK_CONFIG.EVENTS.NEW_MESSAGE,
-      data: {
-        emailId: "123456789",
-        messageId: '987654321',
-        fromAddress: "sender@example.com",
-        subject: "Test Email",
-        content: "This is a test email.",
-        html: "<p>This is a <strong>test</strong> email.</p>",
-        receivedAt: "2023-03-01T12:00:00Z",
-        toAddress: "recipient@example.com"
-      } as EmailMessage
+      data: SAMPLE_MESSAGE
     })
 
     return Response.json({ success: true })
@@ -36,4 +26,4 @@ export async function POST(request: Request) {
       { status: 400 }
     )
   }
-} 
+}
