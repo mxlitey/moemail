@@ -49,8 +49,29 @@ function extractTelegramChatId(url: string): string | null {
 
 // 根据平台构造请求体（纯函数，前端文档区与后端发送共用同一份逻辑）
 export function buildBody(platform: Platform, data: EmailMessage, url?: string): string {
-  const text = `📧 ${data.subject}\n发件人：${data.fromAddress}\n\n${data.content}`
-  const markdown = `### 📧 ${data.subject}\n\n**发件人**：${data.fromAddress}\n\n${data.content}`
+  // 各平台统一展示 EmailMessage 的全部字段，与通用 JSON 格式信息对齐
+  const text = [
+    `📧 ${data.subject}`,
+    `发件人：${data.fromAddress}`,
+    `收件人：${data.toAddress}`,
+    `时间：${data.receivedAt}`,
+    `邮件ID：${data.emailId}`,
+    `消息ID：${data.messageId}`,
+    "",
+    data.content,
+  ].join("\n")
+
+  const markdown = [
+    `### 📧 ${data.subject}`,
+    "",
+    `**发件人**：${data.fromAddress}`,
+    `**收件人**：${data.toAddress}`,
+    `**时间**：${data.receivedAt}`,
+    `**邮件ID**：${data.emailId}`,
+    `**消息ID**：${data.messageId}`,
+    "",
+    data.content,
+  ].join("\n")
 
   switch (platform) {
     case "feishu":
@@ -70,18 +91,38 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
       })
     case "discord":
       return JSON.stringify({
-        content: `**📧 ${data.subject}**\n发件人：${data.fromAddress}\n\n${data.content}`,
+        content: [
+          `**📧 ${data.subject}**`,
+          `发件人：${data.fromAddress}`,
+          `收件人：${data.toAddress}`,
+          `时间：${data.receivedAt}`,
+          `邮件ID：${data.emailId}`,
+          `消息ID：${data.messageId}`,
+          "",
+          data.content,
+        ].join("\n"),
       })
     case "slack":
       return JSON.stringify({
         text: `📧 ${data.subject}`,
         blocks: [
           {
+            type: "header",
+            text: { type: "plain_text", text: `📧 ${data.subject}` },
+          },
+          {
             type: "section",
-            text: {
-              type: "mrkdwn",
-              text: `*发件人*：${data.fromAddress}\n${data.content}`,
-            },
+            fields: [
+              { type: "mrkdwn", text: `*发件人*\n${data.fromAddress}` },
+              { type: "mrkdwn", text: `*收件人*\n${data.toAddress}` },
+              { type: "mrkdwn", text: `*时间*\n${data.receivedAt}` },
+              { type: "mrkdwn", text: `*邮件ID*\n${data.emailId}` },
+              { type: "mrkdwn", text: `*消息ID*\n${data.messageId}` },
+            ],
+          },
+          {
+            type: "section",
+            text: { type: "mrkdwn", text: data.content },
           },
         ],
       })
@@ -94,7 +135,7 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
       })
     }
     default:
-      // 通用 JSON：保留原始邮件数据结构
+      // 通用 JSON：保留原始邮件数据结构（全部字段）
       return JSON.stringify(data)
   }
 }
