@@ -47,8 +47,113 @@ function extractTelegramChatId(url: string): string | null {
   }
 }
 
+// HTML 实体解码
+function decodeHtmlEntities(s: string): string {
+  return s
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&nbsp;/g, " ")
+}
+
+// 最小化 HTML → Markdown 转换器，覆盖邮件常见标签，无 DOM 依赖，Worker/Edge 均可运行
+export function htmlToMarkdown(html: string): string {
+  if (!html) return ""
+  let s = html
+
+  // 移除 script/style 及其内容
+  s = s.replace(/<script[\s\S]*?<\/script>/gi, "")
+  s = s.replace(/<style[\s\S]*?<\/style>/gi, "")
+
+  // 标题 h1~h6 → 对应 # 数量
+  s = s.replace(/<h([1-6])[^>]*>([\s\S]*?)<\/h\1>/gi, (_m, lvl: string, inner: string) => {
+    return `\n${"#".repeat(Number(lvl))} ${stripTags(inner).trim()}\n`
+  })
+
+  // 加粗
+  s = s.replace(/<(b|strong)[^>]*>([\s\S]*?)<\/\1>/gi, (_m, _t, inner: string) => `**${stripTags(inner).trim()}**`)
+  // 斜体
+  s = s.replace(/<(i|em)[^>]*>([\s\S]*?)<\/\1>/gi, (_m, _t, inner: string) => `*${stripTags(inner).trim()}*`)
+  // 删除线
+  s = s.replace(/<(s|del|strike)[^>]*>([\s\S]*?)<\/\1>/gi, (_m, _t, inner: string) => `~~${stripTags(inner).trim()}~~`)
+
+  // 链接 <a href="url">text</a>
+  s = s.replace(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_m, href: string, inner: string) => {
+    const text = stripTags(inner).trim() || href
+    return `[${text}](${href})`
+  })
+
+  // 图片 <img src="url" alt="text">
+  s = s.replace(/<img\s+[^>]*src=["']([^"']+)["'][^>]*>/gi, (m, src: string) => {
+    const altMatch = m.match(/alt=["']([^"']*)["']/i)
+    return `![${altMatch ? altMatch[1] : ""}](${src})`
+  })
+
+  // 换行
+  s = s.replace(/<br\s*\/?>/gi, "\n")
+
+  // 列表：无序
+  s = s.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (_m, inner: string) => {
+    return "\n" + inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_lm: string, li: string) => `- ${stripTags(li).trim()}\n`)
+  })
+  // 列表：有序
+  s = s.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi, (_m, inner: string) => {
+    let idx = 1
+    return "\n" + inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_lm: string, li: string) => `${idx++}. ${stripTags(li).trim()}\n`)
+  })
+
+  // 引用
+  s = s.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, (_m, inner: string) => {
+    return "\n" + stripTags(inner).split("\n").map((l: string) => `> ${l}`).join("\n") + "\n"
+  })
+
+  // 分隔线
+  s = s.replace(/<hr\s*\/?>/gi, "\n---\n")
+
+  // 段落 / div → 换行
+  s = s.replace(/<\/(p|div)>/gi, "\n\n")
+  s = s.replace(/<(p|div)[^>]*>/gi, "")
+
+  // 剥离其余所有标签
+  s = stripTags(s)
+
+  // 实体解码
+  s = decodeHtmlEntities(s)
+
+  // 压缩多余空行（超过 2 个换行压缩为 2 个）
+  s = s.replace(/\n{3,}/g, "\n\n").trim()
+
+  return s
+}
+
+// 剥离所有 HTML 标签，仅保留纯文本
+function stripTags(s: string): string {
+  return s.replace(/<[^>]+>/g, "")
+}
+
+// 剥离 Markdown 标记符号，用于不支持 md 的纯文本场景（如飞书 text 模式）
+function stripMarkdown(md: string): string {
+  return md
+    .replace(/^#{1,6}\s+/gm, "")        // 标题
+    .replace(/\*\*(.+?)\*\*/g, "$1")    // 加粗
+    .replace(/\*(.+?)\*/g, "$1")        // 斜体
+    .replace(/~~(.+?)~~/g, "$1")        // 删除线
+    .replace(/\[(.+?)\]\((.+?)\)/g, "$1") // 链接保留文本
+    .replace(/!\[(.*?)\]\((.+?)\)/g, "$1") // 图片保留 alt
+    .replace(/^>\s+/gm, "")             // 引用
+    .replace(/^[-*]\s+/gm, "")          // 无序列表
+    .replace(/^\d+\.\s+/gm, "")         // 有序列表
+    .replace(/^---$/gm, "")             // 分隔线
+    .trim()
+}
+
 // 根据平台构造请求体（纯函数，前端文档区与后端发送共用同一份逻辑）
 export function buildBody(platform: Platform, data: EmailMessage, url?: string): string {
+  // 优先用 html 转换的 markdown（保留格式），html 为空时回退纯文本 content
+  const bodyMarkdown = data.html ? htmlToMarkdown(data.html) : data.content
+
   // 各平台统一展示 EmailMessage 的全部字段，与通用 JSON 格式信息对齐
   const text = [
     `📧 ${data.subject}`,
@@ -58,7 +163,7 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
     `邮件ID：${data.emailId}`,
     `消息ID：${data.messageId}`,
     "",
-    data.content,
+    stripMarkdown(bodyMarkdown),
   ].join("\n")
 
   const markdown = [
@@ -70,7 +175,7 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
     `**邮件ID**：${data.emailId}`,
     `**消息ID**：${data.messageId}`,
     "",
-    data.content,
+    bodyMarkdown,
   ].join("\n")
 
   switch (platform) {
@@ -99,7 +204,7 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
           `邮件ID：${data.emailId}`,
           `消息ID：${data.messageId}`,
           "",
-          data.content,
+          bodyMarkdown,
         ].join("\n"),
       })
     case "slack":
@@ -122,7 +227,7 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
           },
           {
             type: "section",
-            text: { type: "mrkdwn", text: data.content },
+            text: { type: "mrkdwn", text: bodyMarkdown },
           },
         ],
       })
