@@ -3,8 +3,8 @@ import { drizzle } from 'drizzle-orm/d1'
 import { messages, emails, webhooks } from '../app/lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import PostalMime from 'postal-mime'
-import { WEBHOOK_CONFIG } from '../app/config/webhook'
-import { EmailMessage } from '../app/lib/webhook'
+import { WEBHOOK_CONFIG } from '../app/config'
+import { callWebhook } from '../app/lib/webhook'
 
 const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
   const db = drizzle(env.DB, { schema: { messages, emails, webhooks } })
@@ -38,22 +38,19 @@ const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
 
     if (webhook?.enabled) {
       try {
-        await fetch(webhook.url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'X-Webhook-Event': WEBHOOK_CONFIG.EVENTS.NEW_MESSAGE
-          },
-          body: JSON.stringify({
+        // 复用统一的平台适配逻辑（自动识别飞书/钉钉/企微等，含重试与业务码校验）
+        await callWebhook(webhook.url, {
+          event: WEBHOOK_CONFIG.EVENTS.NEW_MESSAGE,
+          data: {
             emailId: targetEmail.id,
             messageId: savedMessage.id,
-            fromAddress: savedMessage.fromAddress,
+            fromAddress: savedMessage.fromAddress ?? '',
             subject: savedMessage.subject,
-            content: savedMessage.content,
-            html: savedMessage.html,
+            content: savedMessage.content ?? '',
+            html: savedMessage.html ?? '',
             receivedAt: savedMessage.receivedAt.toISOString(),
             toAddress: targetEmail.address
-          } as EmailMessage)
+          }
         })
       } catch (error) {
         console.error('Failed to send webhook:', error)

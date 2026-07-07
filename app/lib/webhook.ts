@@ -1,4 +1,4 @@
-import { WEBHOOK_CONFIG } from "@/config"
+import { WEBHOOK_CONFIG } from "../config"
 
 export interface EmailMessage {
   emailId: string
