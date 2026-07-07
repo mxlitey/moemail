@@ -178,6 +178,11 @@
     "passwordInvalidDescription": "The password must be at least 8 characters long.",
     "passwordUpdateSuccess": "Password updated successfully",
     "passwordUpdateFailed": "Failed to update password",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "info": "Page {page}/{totalPages}, {total} total"
+    }
   }
 }

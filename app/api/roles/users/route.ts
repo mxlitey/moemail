@@ -1,23 +1,41 @@
 import { createDb } from "@/lib/db"
 import { users } from "@/lib/schema"
-import { eq, like, or } from "drizzle-orm"
+import { eq, like, or, sql } from "drizzle-orm"
 
 export const runtime = "edge"
+
+const DEFAULT_PAGE_SIZE = 10
+const MAX_PAGE_SIZE = 100
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const searchText = searchParams.get("search")?.trim() ?? ""
+    const page = Math.max(1, Number(searchParams.get("page")) || 1)
+    const pageSize = Math.min(
+      MAX_PAGE_SIZE,
+      Math.max(1, Number(searchParams.get("pageSize")) || DEFAULT_PAGE_SIZE)
+    )
 
     const db = createDb()
 
+    const whereCondition = searchText
+      ? or(
+          like(users.username, `%${searchText}%`),
+          like(users.email, `%${searchText}%`),
+        )
+      : undefined
+
+    // 查询总数
+    const totalResult = await db
+      .select({ count: sql<number>`count(*)` })
+      .from(users)
+      .where(whereCondition ?? sql`1=1`)
+    const total = Number(totalResult[0].count)
+
+    // 分页查询
     const userList = await db.query.users.findMany({
-      where: searchText
-        ? or(
-            like(users.username, `%${searchText}%`),
-            like(users.email, `%${searchText}%`),
-          )
-        : undefined,
+      where: whereCondition ?? undefined,
       with: {
         userRoles: {
           with: {
@@ -25,6 +43,9 @@ export async function GET(request: Request) {
           },
         },
       },
+      orderBy: (users, { asc }) => [asc(users.email), asc(users.id)],
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
     })
 
     return Response.json({
@@ -35,6 +56,9 @@ export async function GET(request: Request) {
         email: user.email,
         role: user.userRoles[0]?.role.name,
       })),
+      total,
+      page,
+      pageSize,
     })
   } catch (error) {
     console.error("Failed to fetch users:", error)

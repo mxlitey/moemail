@@ -178,6 +178,11 @@
     "passwordInvalidDescription": "비밀번호는 최소 8자 이상이어야 합니다.",
     "passwordUpdateSuccess": "비밀번호가 성공적으로 변경되었습니다",
     "passwordUpdateFailed": "비밀번호 변경에 실패했습니다",
-    "saving": "저장 중..."
+    "saving": "저장 중...",
+    "pagination": {
+      "prev": "이전",
+      "next": "다음",
+      "info": "{page}/{totalPages}페이지, 총 {total}명"
+    }
   }
 }

@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react"
 import { useTranslations, useLocale } from "next-intl"
 import { useRouter } from "next/navigation"
-import { ArrowLeft, Gem, Sword, User2, Crown, Loader2, Search, KeyRound, Trash2, RefreshCw } from "lucide-react"
+import { ArrowLeft, Gem, Sword, User2, Crown, Loader2, Search, KeyRound, Trash2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -70,6 +70,10 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
   const [refreshing, setRefreshing] = useState(false)
   const [searchText, setSearchText] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
+  const [page, setPage] = useState(1)
+  const [total, setTotal] = useState(0)
+  const PAGE_SIZE = 10
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
   const [updatingRoleId, setUpdatingRoleId] = useState<string | null>(null)
   const [userToDelete, setUserToDelete] = useState<UserItem | null>(null)
@@ -85,18 +89,21 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
     [ROLES.CIVILIAN]: tCard("roles.CIVILIAN"),
   } as const
 
-  const fetchUsers = useCallback(async (search?: string) => {
+  const fetchUsers = useCallback(async (search: string, targetPage: number) => {
     try {
       const url = new URL("/api/roles/users", window.location.origin)
       if (search) {
         url.searchParams.set("search", search)
       }
+      url.searchParams.set("page", String(targetPage))
+      url.searchParams.set("pageSize", String(PAGE_SIZE))
       const res = await fetch(url)
-      const data = await res.json() as { users?: UserItem[]; error?: string }
+      const data = await res.json() as { users?: UserItem[]; total?: number; error?: string }
       if (!res.ok) {
         throw new Error(data.error || t("fetchFailed"))
       }
       setUsers(data.users ?? [])
+      setTotal(data.total ?? 0)
     } catch (error) {
       toast({
         title: t("fetchFailed"),
@@ -104,30 +111,39 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
         variant: "destructive",
       })
       setUsers([])
+      setTotal(0)
     } finally {
       setLoading(false)
       setRefreshing(false)
     }
   }, [t, toast])
 
-  // 初次加载
-  useEffect(() => {
-    fetchUsers()
-  }, [fetchUsers])
-
-  // 搜索防抖
+  // 唯一的请求 effect：依赖 page 与 debouncedSearch，搜索/翻页均通过防抖触发
   useEffect(() => {
     setLoading(true)
     const timer = setTimeout(() => {
-      fetchUsers(debouncedSearch || undefined)
+      fetchUsers(debouncedSearch, page)
     }, 300)
     return () => clearTimeout(timer)
-  }, [debouncedSearch, fetchUsers])
+  }, [debouncedSearch, page, fetchUsers])
 
   const handleRefresh = () => {
     setRefreshing(true)
     setLoading(true)
-    fetchUsers(debouncedSearch || undefined)
+    fetchUsers(debouncedSearch, page)
+  }
+
+  const handlePageChange = (newPage: number) => {
+    const target = Math.max(1, Math.min(totalPages, newPage))
+    if (target === page) return
+    setPage(target)
+  }
+
+  // 搜索框输入：重置到第一页，防抖由主 effect 处理
+  const handleSearchChange = (value: string) => {
+    setSearchText(value)
+    setDebouncedSearch(value)
+    setPage(1)
   }
 
   const handleRoleChange = async (user: UserItem, newRole: RoleWithoutEmperor) => {
@@ -174,6 +190,11 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
         throw new Error(data.error || t("deleteFailed"))
       }
       setUsers(prev => prev.filter(u => u.id !== userToDelete.id))
+      setTotal(prev => Math.max(0, prev - 1))
+      // 当前页删空且不在第一页时，回退到上一页（由 page effect 自动重新拉取）
+      if (users.length === 1 && page > 1) {
+        setPage(page - 1)
+      }
       toast({
         title: t("deleteSuccess"),
         description: userToDelete.username || userToDelete.email || userToDelete.id,
@@ -255,10 +276,7 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
               value={searchText}
-              onChange={(e) => {
-                setSearchText(e.target.value)
-                setDebouncedSearch(e.target.value)
-              }}
+              onChange={(e) => handleSearchChange(e.target.value)}
               placeholder={t("searchPlaceholder")}
               className="pl-9"
             />
@@ -497,6 +515,44 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
                 )
               })}
             </div>
+
+            {/* 分页 */}
+            {total > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 pt-4 border-t">
+                <p className="text-xs text-muted-foreground">
+                  {t("pagination.info", {
+                    page,
+                    totalPages,
+                    total,
+                  })}
+                </p>
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2"
+                    disabled={page <= 1 || loading}
+                    onClick={() => handlePageChange(page - 1)}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    <span className="sr-only">{t("pagination.prev")}</span>
+                  </Button>
+                  <span className="text-sm px-2 tabular-nums">
+                    {page} / {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-2"
+                    disabled={page >= totalPages || loading}
+                    onClick={() => handlePageChange(page + 1)}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                    <span className="sr-only">{t("pagination.next")}</span>
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>

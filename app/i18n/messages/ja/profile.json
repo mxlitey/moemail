@@ -178,6 +178,11 @@
     "passwordInvalidDescription": "パスワードは 8 文字以上である必要があります。",
     "passwordUpdateSuccess": "パスワードを変更しました",
     "passwordUpdateFailed": "パスワードの変更に失敗しました",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "pagination": {
+      "prev": "前へ",
+      "next": "次へ",
+      "info": "{page}/{totalPages} ページ目、全 {total} 件"
+    }
   }
 }
