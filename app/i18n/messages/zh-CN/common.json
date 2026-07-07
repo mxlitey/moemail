@@ -13,7 +13,8 @@
     "login": "登录",
     "profile": "个人中心",
     "logout": "退出登录",
-    "backToMailbox": "返回邮箱"
+    "backToMailbox": "返回邮箱",
+    "backToProfile": "返回个人中心"
   },
   "github": "获取网站源代码"
 }

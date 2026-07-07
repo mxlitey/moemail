@@ -1,8 +1,49 @@
 import { createDb } from "@/lib/db"
 import { users } from "@/lib/schema"
-import { eq } from "drizzle-orm"
+import { eq, like, or } from "drizzle-orm"
 
 export const runtime = "edge"
+
+export async function GET(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const searchText = searchParams.get("search")?.trim() ?? ""
+
+    const db = createDb()
+
+    const userList = await db.query.users.findMany({
+      where: searchText
+        ? or(
+            like(users.username, `%${searchText}%`),
+            like(users.email, `%${searchText}%`),
+          )
+        : undefined,
+      with: {
+        userRoles: {
+          with: {
+            role: true,
+          },
+        },
+      },
+    })
+
+    return Response.json({
+      users: userList.map((user) => ({
+        id: user.id,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        role: user.userRoles[0]?.role.name,
+      })),
+    })
+  } catch (error) {
+    console.error("Failed to fetch users:", error)
+    return Response.json(
+      { error: "获取用户列表失败" },
+      { status: 500 }
+    )
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -46,4 +87,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-} 
+}

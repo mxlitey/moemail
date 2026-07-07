@@ -5,10 +5,9 @@ import { useTranslations, useLocale } from "next-intl"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
-import { Github, Settings, Crown, Sword, User2, Gem, Mail } from "lucide-react"
+import { Github, Settings, Crown, Sword, User2, Gem, Mail, ChevronRight } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { WebhookConfig } from "./webhook-config"
-import { PromotePanel } from "./promote-panel"
 import { EmailServiceConfig } from "./email-service-config"
 import { useRolePermission } from "@/hooks/use-role-permission"
 import { PERMISSIONS } from "@/lib/permissions"
@@ -60,6 +59,7 @@ const providerConfigs = {
 
 export function ProfileCard({ user }: ProfileCardProps) {
   const t = useTranslations("profile.card")
+  const tPromote = useTranslations("profile.roles")
   const tAuth = useTranslations("auth.signButton")
   const tWebhook = useTranslations("profile.webhook")
   const tNav = useTranslations("common.nav")
@@ -147,7 +147,22 @@ export function ProfileCard({ user }: ProfileCardProps) {
 
       {canManageConfig && <WebsiteConfigPanel />}
       {canManageConfig && <EmailServiceConfig />}
-      {canPromote && <PromotePanel />}
+      {canPromote && (
+        <button
+          type="button"
+          onClick={() => router.push(`/${locale}/profile/roles`)}
+          className="w-full bg-background rounded-lg border-2 border-primary/20 p-6 text-left hover:border-primary/40 transition-colors flex items-center gap-4 group"
+        >
+          <div className="flex items-center gap-2 flex-1">
+            <Crown className="w-5 h-5 text-primary" />
+            <div>
+              <h2 className="text-lg font-semibold">{tPromote("title")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{tPromote("description")}</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+        </button>
+      )}
       {canManageWebhook && <ApiKeyPanel />}
 
       <div className="flex flex-col sm:flex-row gap-4 px-1">

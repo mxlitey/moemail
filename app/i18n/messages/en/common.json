@@ -13,7 +13,8 @@
     "login": "Login",
     "profile": "Profile",
     "logout": "Logout",
-    "backToMailbox": "Back to Mailbox"
+    "backToMailbox": "Back to Mailbox",
+    "backToProfile": "Back to Profile"
   },
   "github": "Get Source Code"
 }

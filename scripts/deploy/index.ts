@@ -278,36 +278,48 @@ const pushPagesSecret = () => {
   console.log("🔐 Pushing environment secrets to Pages...");
 
   // 定义运行时所需的环境变量列表
-  const runtimeEnvVars = ['AUTH_GITHUB_ID', 'AUTH_GITHUB_SECRET', 'AUTH_SECRET'];
+  const runtimeEnvVars = [
+    'AUTH_GITHUB_ID',
+    'AUTH_GITHUB_SECRET',
+    'AUTH_GOOGLE_ID',
+    'AUTH_GOOGLE_SECRET',
+    'AUTH_SECRET',
+  ];
 
-  // 兼容老的部署方式，如果这些环境变量不存在，则说明是老的部署方式，跳过推送
-  for (const varName of runtimeEnvVars) {
-    if (!process.env[varName]) {
-      console.log(`🔐 Skipping pushing secrets to Pages...`);
-      return;
-    }
+  // AUTH_SECRET 是必需的，如果缺失则说明是老的部署方式，跳过推送
+  if (!process.env.AUTH_SECRET) {
+    console.log(`🔐 Skipping pushing secrets to Pages (AUTH_SECRET not set)...`);
+    return;
   }
-  
+
+  // 仅收集已设置的运行时环境变量，未设置的会被跳过（兼容仅使用一种 OAuth 提供商的场景）
+  const availableEnvVars = runtimeEnvVars.filter(varName => !!process.env[varName]);
+
+  if (availableEnvVars.length === 0) {
+    console.log(`🔐 Skipping pushing secrets to Pages (no runtime env vars set)...`);
+    return;
+  }
+
   try {
     // 确保.env文件存在
     if (!existsSync(resolve('.env'))) {
       setupEnvFile();
     }
-    
-    // 创建一个临时文件，只包含运行时所需的环境变量
+
+    // 创建一个临时文件，只包含已设置的运行时环境变量
     const envContent = readFileSync(resolve('.env'), 'utf-8');
     const runtimeEnvFile = resolve('.env.runtime');
-    
-    // 从.env文件中提取运行时变量
+
+    // 从.env文件中提取已设置的运行时变量
     const runtimeEnvContent = envContent
       .split('\n')
       .filter(line => {
         const trimmedLine = line.trim();
         // 跳过注释和空行
         if (!trimmedLine || trimmedLine.startsWith('#')) return false;
-        
-        // 检查是否为运行时所需的环境变量
-        for (const varName of runtimeEnvVars) {
+
+        // 检查是否为已设置的运行时所需的环境变量
+        for (const varName of availableEnvVars) {
           if (line.startsWith(`${varName} =`) || line.startsWith(`${varName}=`)) {
             return true;
           }
@@ -315,13 +327,13 @@ const pushPagesSecret = () => {
         return false;
       })
       .join('\n');
-    
+
     // 写入临时文件
     writeFileSync(runtimeEnvFile, runtimeEnvContent);
-    
+
     // 使用临时文件推送secrets
     execSync(`pnpm dlx wrangler pages secret bulk ${runtimeEnvFile}`, { stdio: "inherit" });
-    
+
     // 清理临时文件
     execSync(`rm ${runtimeEnvFile}`, { stdio: "inherit" });
     

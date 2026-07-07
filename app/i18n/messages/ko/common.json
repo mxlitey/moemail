@@ -13,7 +13,8 @@
     "login": "로그인",
     "profile": "프로필",
     "logout": "로그아웃",
-    "backToMailbox": "메일함으로 돌아가기"
+    "backToMailbox": "메일함으로 돌아가기",
+    "backToProfile": "프로필로 돌아가기"
   },
   "github": "소스 코드 받기"
 }
