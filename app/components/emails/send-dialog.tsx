@@ -18,10 +18,11 @@ import {
 interface SendDialogProps {
   emailId: string
   fromAddress: string
+  remainingEmails?: number
   onSendSuccess?: () => void
 }
 
-export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogProps) {
+export function SendDialog({ emailId, fromAddress, remainingEmails, onSendSuccess }: SendDialogProps) {
   const t = useTranslations("emails.send")
   const tList = useTranslations("emails.list")
   const tCommon = useTranslations("common.actions")
@@ -31,6 +32,10 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
   const [subject, setSubject] = useState("")
   const [content, setContent] = useState("")
   const { toast } = useToast()
+
+  // remainingEmails === undefined 代表无限（emperor 角色）；=== 0 代表今日已用尽
+  const isUnlimited = remainingEmails === undefined
+  const exhausted = !isUnlimited && remainingEmails === 0
 
   const handleSend = async () => {
     if (!to.trim() || !subject.trim() || !content.trim()) {
@@ -108,8 +113,15 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
           <DialogTitle>{t("title")}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <div className="text-sm text-muted-foreground">
-            {t("from")}: {fromAddress}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-muted-foreground">
+              {t("from")}: {fromAddress}
+            </span>
+            <span className={`font-medium ${exhausted ? "text-destructive" : "text-muted-foreground"}`}>
+              {isUnlimited
+                ? t("unlimited")
+                : t("remaining", { count: remainingEmails! })}
+            </span>
           </div>
           <Input
             value={to}
@@ -132,8 +144,8 @@ export function SendDialog({ emailId, fromAddress, onSendSuccess }: SendDialogPr
           <Button variant="outline" onClick={() => setOpen(false)} disabled={loading}>
             {tCommon("cancel")}
           </Button>
-          <Button onClick={handleSend} disabled={loading}>
-            {loading ? t("sending") : t("send")}
+          <Button onClick={handleSend} disabled={loading || exhausted}>
+            {loading ? t("sending") : exhausted ? t("dailyLimitReached") : t("send")}
           </Button>
         </div>
       </DialogContent>

@@ -72,8 +72,11 @@
     "success": "Email sent successfully",
     "failed": "Failed to send email",
     "dailyLimitReached": "Daily sending limit reached",
-    "dailyLimit": "Daily Limit: {count}/{max}",
-    "dailyLimitUnit": "emails/day"
+    "dailyLimit": "Daily limit: {count}/{max}",
+    "dailyLimitUnit": "emails/day",
+    "remaining": "{count} left today",
+    "unlimited": "Unlimited",
+    "noPermission": "No send permission"
   },
   "messageView": {
     "loading": "Loading message details...",

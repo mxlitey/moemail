@@ -73,7 +73,10 @@
     "failed": "發送郵件失敗",
     "dailyLimitReached": "已達每日發送上限",
     "dailyLimit": "每日限額：{count}/{max}",
-    "dailyLimitUnit": "封/天"
+    "dailyLimitUnit": "封/天",
+    "remaining": "今日剩餘 {count} 封",
+    "unlimited": "無限",
+    "noPermission": "無發件權限"
   },
   "messageView": {
     "loading": "載入郵件詳情...",

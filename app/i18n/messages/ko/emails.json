@@ -73,7 +73,10 @@
     "failed": "이메일 전송에 실패했습니다",
     "dailyLimitReached": "일일 전송 제한에 도달했습니다",
     "dailyLimit": "일일 제한: {count}/{max}",
-    "dailyLimitUnit": "이메일/일"
+    "dailyLimitUnit": "이메일/일",
+    "remaining": "오늘 {count}통 남음",
+    "unlimited": "무제한",
+    "noPermission": "발신 권한 없음"
   },
   "messageView": {
     "loading": "메시지 세부 정보 로딩 중...",

@@ -18,12 +18,16 @@ interface Email {
 
 export function ThreeColumnLayout() {
   const t = useTranslations("emails.layout")
+  const tSend = useTranslations("emails.send")
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null)
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
   const [selectedMessageType, setSelectedMessageType] = useState<'received' | 'sent'>('received')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const { copyToClipboard } = useCopy()
-  const { canSend: canSendEmails } = useSendPermission()
+  const { canSend: canSendEmails, remainingEmails, checkPermission } = useSendPermission()
+  // remainingEmails === undefined 代表无限（emperor 角色）
+  const isUnlimited = remainingEmails === undefined
+  const exhausted = !isUnlimited && remainingEmails === 0
 
   const columnClass = "border-2 border-primary/20 bg-background rounded-lg overflow-hidden flex flex-col"
   const headerClass = "p-2 border-b-2 border-primary/20 flex items-center justify-between shrink-0"
@@ -49,7 +53,24 @@ export function ThreeColumnLayout() {
 
   const handleSendSuccess = () => {
     setRefreshTrigger(prev => prev + 1)
+    // 刷新剩余发件量（发件后立即更新 Badge 与对话框内的数字）
+    checkPermission()
   }
+
+  // 发件按钮旁的剩余量徽标，桌面端与移动端共用
+  const remainingBadge = canSendEmails && (
+    <span
+      className={`text-xs px-2 py-0.5 rounded-full shrink-0 whitespace-nowrap ${
+        exhausted
+          ? "bg-destructive/10 text-destructive"
+          : "bg-muted text-muted-foreground"
+      }`}
+    >
+      {isUnlimited
+        ? tSend("unlimited")
+        : tSend("remaining", { count: remainingEmails! })}
+    </span>
+  )
 
   return (
     <div className="pb-5 pt-20 h-full flex flex-col">
@@ -82,11 +103,15 @@ export function ThreeColumnLayout() {
                     </div>
                   </div>
                   {selectedEmail && canSendEmails && (
-                    <SendDialog 
-                      emailId={selectedEmail.id} 
-                      fromAddress={selectedEmail.address}
-                      onSendSuccess={handleSendSuccess}
-                    />
+                    <div className="flex items-center gap-2 shrink-0">
+                      {remainingBadge}
+                      <SendDialog
+                        emailId={selectedEmail.id}
+                        fromAddress={selectedEmail.address}
+                        remainingEmails={remainingEmails}
+                        onSendSuccess={handleSendSuccess}
+                      />
+                    </div>
                   )}
                 </div>
               ) : (
@@ -163,11 +188,15 @@ export function ThreeColumnLayout() {
                     </div>
                   </div>
                   {canSendEmails && (
-                    <SendDialog 
-                      emailId={selectedEmail.id} 
-                      fromAddress={selectedEmail.address}
-                      onSendSuccess={handleSendSuccess}
-                    />
+                    <div className="flex items-center gap-2 shrink-0">
+                      {remainingBadge}
+                      <SendDialog
+                        emailId={selectedEmail.id}
+                        fromAddress={selectedEmail.address}
+                        remainingEmails={remainingEmails}
+                        onSendSuccess={handleSendSuccess}
+                      />
+                    </div>
                   )}
                 </div>
               </div>
