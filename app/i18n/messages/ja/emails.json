@@ -12,8 +12,8 @@
     "selectEmail": "メールボックスを選択してメッセージを表示",
     "messageContent": "メール内容",
     "selectMessage": "メールを選択して詳細を表示",
-    "backToEmailList": "← メールボックス一覧に戻る",
-    "backToMessageList": "← メッセージ一覧に戻る"
+    "backToEmailList": "← 戻る",
+    "backToMessageList": "← 戻る"
   },
   "list": {
     "emailCount": "{count}/{max} 個のメールボックス",

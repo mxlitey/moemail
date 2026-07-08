@@ -12,8 +12,8 @@
     "selectEmail": "選擇郵箱查看訊息",
     "messageContent": "郵件內容",
     "selectMessage": "選擇郵件查看詳情",
-    "backToEmailList": "← 返回郵箱列表",
-    "backToMessageList": "← 返回訊息列表"
+    "backToEmailList": "← 返回",
+    "backToMessageList": "← 返回"
   },
   "list": {
     "emailCount": "{count}/{max} 個郵箱",

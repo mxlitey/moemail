@@ -12,8 +12,8 @@
     "selectEmail": "Select an email to view messages",
     "messageContent": "Message Content",
     "selectMessage": "Select a message to view details",
-    "backToEmailList": "← Back to Email List",
-    "backToMessageList": "← Back to Message List"
+    "backToEmailList": "← Back",
+    "backToMessageList": "← Back"
   },
   "list": {
     "emailCount": "{count}/{max} emails",
