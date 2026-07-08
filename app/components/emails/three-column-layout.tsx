@@ -189,7 +189,6 @@ export function ThreeColumnLayout() {
                   </div>
                   {canSendEmails && (
                     <div className="flex items-center gap-2 shrink-0">
-                      {remainingBadge}
                       <SendDialog
                         emailId={selectedEmail.id}
                         fromAddress={selectedEmail.address}
