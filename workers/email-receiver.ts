@@ -23,9 +23,14 @@ const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
       return
     }
 
+    // 优先使用邮件 From: 头中的地址（RFC 5322 真实发件人）
+    // message.from 是 SMTP 信封发件人（MAIL FROM），经 Resend 等第三方发件服务中转时
+    // 会被改写成 bounce 地址（如 xxx@send.g8.pt），不能代表真实发件人
+    const fromAddress = parsedMessage.from?.address || message.from
+
     const savedMessage = await db.insert(messages).values({
       emailId: targetEmail.id,
-      fromAddress: message.from,
+      fromAddress,
       subject: parsedMessage.subject || '(无主题)',
       content: parsedMessage.text || '',
       html: parsedMessage.html || '',
