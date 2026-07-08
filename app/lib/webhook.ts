@@ -154,7 +154,7 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
   // 优先用 html 转换的 markdown（保留格式），html 为空时回退纯文本 content
   const bodyMarkdown = data.html ? htmlToMarkdown(data.html) : data.content
 
-  // 各平台统一展示 EmailMessage 的全部 8 个字段，与通用 JSON 格式信息对齐
+  // 各平台统一展示 EmailMessage 的全部字段，与通用 JSON 格式信息对齐
   const text = [
     `📧 ${data.subject}`,
     `发件人：${data.fromAddress}`,
@@ -162,8 +162,6 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
     `时间：${data.receivedAt}`,
     `邮件ID：${data.emailId}`,
     `消息ID：${data.messageId}`,
-    `内容：${data.content}`,
-    `HTML：${data.html}`,
     "",
     stripMarkdown(bodyMarkdown),
   ].join("\n")
@@ -176,8 +174,6 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
     `**时间**：${data.receivedAt}`,
     `**邮件ID**：${data.emailId}`,
     `**消息ID**：${data.messageId}`,
-    `**内容**：${data.content}`,
-    `**HTML**：${data.html}`,
     "",
     bodyMarkdown,
   ].join("\n")
@@ -207,8 +203,6 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
           `时间：${data.receivedAt}`,
           `邮件ID：${data.emailId}`,
           `消息ID：${data.messageId}`,
-          `内容：${data.content}`,
-          `HTML：${data.html}`,
           "",
           bodyMarkdown,
         ].join("\n"),
@@ -229,8 +223,6 @@ export function buildBody(platform: Platform, data: EmailMessage, url?: string):
               { type: "mrkdwn", text: `*时间*\n${data.receivedAt}` },
               { type: "mrkdwn", text: `*邮件ID*\n${data.emailId}` },
               { type: "mrkdwn", text: `*消息ID*\n${data.messageId}` },
-              { type: "mrkdwn", text: `*内容*\n${data.content}` },
-              { type: "mrkdwn", text: `*HTML*\n${data.html}` },
             ],
           },
           {
