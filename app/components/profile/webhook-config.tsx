@@ -52,8 +52,16 @@ export function WebhookConfig() {
     const raw = buildBody(detected, SAMPLE_MESSAGE, url || undefined)
     let pretty = raw
     try {
-      // 美化 JSON 后，把字符串值里转义的 \n 还原为真正的换行，避免示例挤在一行
-      pretty = JSON.stringify(JSON.parse(raw), null, 2).replace(/\\n/g, "\n")
+      // 美化 JSON 后，把字符串值里转义的 \n 还原为真正的换行，
+      // 并按当前行缩进 + 2 对齐，避免示例挤在一行且缩进混乱
+      const json = JSON.stringify(JSON.parse(raw), null, 2)
+      pretty = json
+        .split("\n")
+        .map((line) => {
+          const indent = (line.match(/^\s*/) || [""])[0]
+          return line.replace(/\\n/g, "\n" + indent + "  ")
+        })
+        .join("\n")
     } catch {
       pretty = raw
     }
