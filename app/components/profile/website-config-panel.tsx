@@ -81,7 +81,10 @@ export function WebsiteConfigPanel() {
         }),
       })
 
-      if (!res.ok) throw new Error(t("saveFailed"))
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({})) as { error?: string }
+        throw new Error(data.error || t("saveFailed"))
+      }
 
       toast({
         title: t("saveSuccess"),

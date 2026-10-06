@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { ROLES } from "@/lib/permissions"
+import { MESSAGE_PLACEHOLDERS } from "@/config"
 
 type BroadcastRole = "all" | "emperor" | "duke" | "knight" | "civilian"
 
@@ -37,7 +38,7 @@ const ROLE_OPTIONS: BroadcastRole[] = [
   ROLES.CIVILIAN,
 ]
 
-export function BroadcastPanel() {
+export function BroadcastSection() {
   const t = useTranslations("profile.broadcast")
   const tCard = useTranslations("profile.card")
   const tCommon = useTranslations("common.actions")
@@ -128,70 +129,73 @@ export function BroadcastPanel() {
   }
 
   return (
-    <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Megaphone className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
+    <section className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Megaphone className="w-4 h-4 text-primary" />
+        <h3 className="text-base font-semibold">{t("title")}</h3>
       </div>
 
-      <div className="space-y-4">
-        <p className="text-xs text-muted-foreground">{t("description")}</p>
+      <p className="text-xs text-muted-foreground">{t("description")}</p>
 
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">{t("role")}</Label>
-          <Select value={role} onValueChange={(value) => setRole(value as BroadcastRole)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ROLE_OPTIONS.map((value) => (
-                <SelectItem key={value} value={value}>
-                  {roleLabel(value)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="broadcast-subject" className="text-sm font-medium">
-            {t("subject")}
-          </Label>
-          <Input
-            id="broadcast-subject"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            placeholder={t("subjectPlaceholder")}
-            disabled={sending}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="broadcast-content" className="text-sm font-medium">
-            {t("content")}
-          </Label>
-          <Textarea
-            id="broadcast-content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={t("contentPlaceholder")}
-            rows={5}
-            disabled={sending}
-          />
-        </div>
-
-        {estimate && (
-          <p className="text-xs text-muted-foreground">
-            {sending
-              ? t("sending", { done: sent, total: estimate.total })
-              : t("estimate", { count: estimate.total, chunks: estimate.chunks })}
-          </p>
-        )}
-
-        <Button onClick={() => setConfirmOpen(true)} disabled={!canSend} className="w-full">
-          {sending ? t("sending", { done: sent, total: estimate?.total ?? 0 }) : t("send")}
-        </Button>
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">{t("role")}</Label>
+        <Select value={role} onValueChange={(value) => setRole(value as BroadcastRole)}>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ROLE_OPTIONS.map((value) => (
+              <SelectItem key={value} value={value}>
+                {roleLabel(value)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="broadcast-subject" className="text-sm font-medium">
+          {t("subject")}
+        </Label>
+        <Input
+          id="broadcast-subject"
+          value={subject}
+          onChange={(e) => setSubject(e.target.value)}
+          placeholder={t("subjectPlaceholder")}
+          disabled={sending}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="broadcast-content" className="text-sm font-medium">
+          {t("content")}
+        </Label>
+        <Textarea
+          id="broadcast-content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder={t("contentPlaceholder")}
+          rows={5}
+          disabled={sending}
+        />
+        <p className="text-xs text-muted-foreground">
+          {t("placeholderHint", {
+            placeholders: MESSAGE_PLACEHOLDERS.map((key) => `{${key}}`).join(" "),
+          })}
+        </p>
+      </div>
+
+      {estimate && (
+        <p className="text-xs text-muted-foreground">
+          {sending
+            ? t("sending", { done: sent, total: estimate.total })
+            : t("estimate", { count: estimate.total, chunks: estimate.chunks })}
+        </p>
+      )}
+
+      <Button onClick={() => setConfirmOpen(true)} disabled={!canSend} className="w-full">
+        {sending ? t("sending", { done: sent, total: estimate?.total ?? 0 }) : t("send")}
+      </Button>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
@@ -210,6 +214,6 @@ export function BroadcastPanel() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </section>
   )
 }

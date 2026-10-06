@@ -189,7 +189,7 @@ export const {
 
       // 首次登录时开通系统收件箱（内部幂等，并在创建时写入欢迎消息）
       try {
-        await ensureSystemInbox(db, user.id)
+        await ensureSystemInbox(db, user.id, getRequestContext().env.SITE_CONFIG)
       } catch (error) {
         console.error('Error ensuring system inbox:', error)
       }

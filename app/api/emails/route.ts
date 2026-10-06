@@ -1,4 +1,5 @@
 import { createDb } from "@/lib/db"
+import { getRequestContext } from "@cloudflare/next-on-pages"
 import { and, eq, gt, like, lt, or, sql } from "drizzle-orm"
 import { NextResponse } from "next/server"
 import { emails } from "@/lib/schema"
@@ -26,7 +27,7 @@ export async function GET(request: Request) {
   try {
     // 系统收件箱单独获取，固定在邮箱列表顶部展示
     if (type === 'system') {
-      const { inbox } = await ensureSystemInbox(db, userId)
+      const { inbox } = await ensureSystemInbox(db, userId, getRequestContext().env.SITE_CONFIG)
       return NextResponse.json({
         emails: [inbox],
         nextCursor: null,

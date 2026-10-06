@@ -132,6 +132,21 @@
     "saveSuccess": "設定儲存成功",
     "saveFailed": "儲存設定失敗"
   },
+  "messageCenter": {
+    "title": "訊息中心設定",
+    "description": "管理系統訊息：新使用者開通訊息中心時收到的歡迎訊息，以及主動推送給使用者的系統廣播"
+  },
+  "welcome": {
+    "title": "歡迎訊息",
+    "description": "新使用者首次登入開通訊息中心時收到的第一則訊息。留空則使用預設文案，僅對之後新開通的使用者生效。",
+    "subject": "訊息標題",
+    "content": "訊息內容",
+    "placeholderHint": "可用佔位符：{placeholders}",
+    "save": "儲存設定",
+    "saving": "儲存中...",
+    "saveSuccess": "設定儲存成功",
+    "saveFailed": "儲存設定失敗"
+  },
   "broadcast": {
     "title": "系統廣播",
     "description": "向使用者的訊息中心發送通知，支援依角色篩選收件人",
@@ -141,6 +156,7 @@
     "subjectPlaceholder": "輸入通知標題",
     "content": "內容",
     "contentPlaceholder": "輸入通知內容",
+    "placeholderHint": "可用佔位符：{placeholders}（僅作用於標題與內容）",
     "estimate": "將向 {count} 位使用者發送，預計分 {chunks} 次完成",
     "send": "發送廣播",
     "sending": "發送中（{done}/{total}）",

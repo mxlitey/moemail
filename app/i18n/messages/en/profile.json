@@ -132,6 +132,21 @@
     "saveSuccess": "Configuration saved successfully",
     "saveFailed": "Failed to save configuration"
   },
+  "messageCenter": {
+    "title": "Message Center",
+    "description": "Manage system messages: the welcome message new users receive, and broadcasts pushed to users"
+  },
+  "welcome": {
+    "title": "Welcome Message",
+    "description": "The first message a new user receives when their message center is created on first sign-in. Leave blank to use the default text; only affects users onboarded afterwards.",
+    "subject": "Message Subject",
+    "content": "Message Content",
+    "placeholderHint": "Available placeholders: {placeholders}",
+    "save": "Save Configuration",
+    "saving": "Saving...",
+    "saveSuccess": "Configuration saved successfully",
+    "saveFailed": "Failed to save configuration"
+  },
   "broadcast": {
     "title": "System Broadcast",
     "description": "Send a notification to users' message center, with optional role filtering",
@@ -141,6 +156,7 @@
     "subjectPlaceholder": "Enter notification subject",
     "content": "Content",
     "contentPlaceholder": "Enter notification content",
+    "placeholderHint": "Available placeholders: {placeholders} (applies to subject and content only)",
     "estimate": "Will send to {count} users, estimated {chunks} batches",
     "send": "Send broadcast",
     "sending": "Sending ({done}/{total})",

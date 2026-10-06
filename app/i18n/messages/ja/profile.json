@@ -132,6 +132,21 @@
     "saveSuccess": "設定を保存しました",
     "saveFailed": "設定の保存に失敗しました"
   },
+  "messageCenter": {
+    "title": "メッセージセンター設定",
+    "description": "システムメッセージを管理します：新規ユーザーが受け取るウェルカムメッセージと、ユーザーへ配信する一斉通知"
+  },
+  "welcome": {
+    "title": "ウェルカムメッセージ",
+    "description": "新規ユーザーが初回ログインでメッセージセンターを開設したときに受け取る最初のメッセージです。空欄の場合は既定の文面を使用し、以降に開設したユーザーにのみ反映されます。",
+    "subject": "件名",
+    "content": "本文",
+    "placeholderHint": "使用可能なプレースホルダー：{placeholders}",
+    "save": "設定を保存",
+    "saving": "保存中...",
+    "saveSuccess": "設定を保存しました",
+    "saveFailed": "設定の保存に失敗しました"
+  },
   "broadcast": {
     "title": "システム一斉通知",
     "description": "ユーザーのメッセージセンターに通知を送信します（ロールで絞り込み可能）",
@@ -141,6 +156,7 @@
     "subjectPlaceholder": "通知の件名を入力",
     "content": "内容",
     "contentPlaceholder": "通知の内容を入力",
+    "placeholderHint": "使用可能なプレースホルダー：{placeholders}（件名と本文のみに適用）",
     "estimate": "{count} 人のユーザーに送信予定、約 {chunks} 回に分けて実行します",
     "send": "一斉送信",
     "sending": "送信中（{done}/{total}）",

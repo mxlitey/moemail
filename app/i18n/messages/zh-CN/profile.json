@@ -132,6 +132,21 @@
     "saveSuccess": "配置保存成功",
     "saveFailed": "保存配置失败"
   },
+  "messageCenter": {
+    "title": "消息中心配置",
+    "description": "管理系统消息：新用户开通消息中心时收到的欢迎消息，以及主动推送给用户的系统广播"
+  },
+  "welcome": {
+    "title": "欢迎消息",
+    "description": "新用户首次登录开通消息中心时收到的第一条消息。留空则使用默认文案，仅对之后新开通的用户生效。",
+    "subject": "消息标题",
+    "content": "消息内容",
+    "placeholderHint": "可用占位符：{placeholders}",
+    "save": "保存配置",
+    "saving": "保存中...",
+    "saveSuccess": "配置保存成功",
+    "saveFailed": "保存配置失败"
+  },
   "broadcast": {
     "title": "系统广播",
     "description": "向用户的消息中心发送通知，支持按角色筛选收件人",
@@ -141,6 +156,7 @@
     "subjectPlaceholder": "输入通知标题",
     "content": "内容",
     "contentPlaceholder": "输入通知内容",
+    "placeholderHint": "可用占位符：{placeholders}（仅作用于标题与正文）",
     "estimate": "将向 {count} 位用户发送，预计分 {chunks} 次完成",
     "send": "发送广播",
     "sending": "发送中（{done}/{total}）",

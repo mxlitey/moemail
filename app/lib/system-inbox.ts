@@ -1,6 +1,13 @@
 import type { Db } from "./db"
-import { emails, messages } from "./schema"
+import { emails, messages, users } from "./schema"
 import { and, eq, gt, inArray, notLike } from "drizzle-orm"
+import {
+  WELCOME_SUBJECT_KEY,
+  WELCOME_CONTENT_KEY,
+  renderMessageTemplate,
+  resolveWelcomeTemplate,
+} from "../config"
+import type { PlaceholderContext } from "../config"
 
 /**
  * 系统收件箱地址不带 "@" 后缀。
@@ -54,11 +61,6 @@ export type SystemMessageInput = {
 
 export type EmailRow = typeof emails.$inferSelect
 
-const WELCOME_MESSAGE: SystemMessageInput = {
-  subject: "欢迎使用 MoeMail",
-  content: "您的消息中心已开通，系统通知（角色变更、密码重置、配额调整、邮箱过期等）会汇总到这里。",
-}
-
 export function isSystemInbox(address: string | null | undefined): boolean {
   return !!address && !address.includes("@")
 }
@@ -81,11 +83,16 @@ function toMessageValues(emailId: string, input: SystemMessageInput) {
 
 /**
  * 确保用户拥有系统收件箱；首次创建时一并写入欢迎消息（仅创建时发生，幂等）。
+ *
+ * siteConfig 用于读取管理员自定义的欢迎文案，未传入时使用内置默认值
+ * （Worker 环境没有 SITE_CONFIG 绑定，走默认值；该路径仅在用户从未登录过时才会创建收件箱）。
+ *
  * 注意：批量场景请使用 ensureSystemInboxes，它不会补发欢迎消息。
  */
 export async function ensureSystemInbox(
   db: Db,
-  userId: string
+  userId: string,
+  siteConfig?: KVNamespace
 ): Promise<{ inbox: EmailRow; created: boolean }> {
   const rows = await db.query.emails.findMany({
     where: eq(emails.userId, userId),
@@ -120,7 +127,30 @@ export async function ensureSystemInbox(
 
   // 直接写入欢迎消息：此处不能再走 insertSystemMessage，否则会重复触发 ensureSystemInbox
   try {
-    await db.insert(messages).values(toMessageValues(inbox.id, WELCOME_MESSAGE))
+    const [rawSubject, rawContent] = siteConfig
+      ? await Promise.all([
+          siteConfig.get(WELCOME_SUBJECT_KEY),
+          siteConfig.get(WELCOME_CONTENT_KEY),
+        ])
+      : [null, null]
+
+    const template = resolveWelcomeTemplate(rawSubject, rawContent)
+
+    // 占位符上下文只在创建路径上查询，不影响已存在收件箱的热路径
+    const user = await db.query.users.findFirst({ where: eq(users.id, userId) })
+    const ctx: PlaceholderContext = {
+      userId,
+      username: user?.username,
+      name: user?.name,
+      email: user?.email,
+    }
+
+    await db.insert(messages).values(
+      toMessageValues(inbox.id, {
+        subject: renderMessageTemplate(template.subject, ctx),
+        content: renderMessageTemplate(template.content, ctx),
+      })
+    )
   } catch (error) {
     console.error("Failed to insert welcome message:", error)
   }
