@@ -174,10 +174,159 @@ export function buildDefaultBody(data: EmailMessage): string {
   return JSON.stringify(data)
 }
 
+// 把 JSON 字符串字面量内部的真实换行/制表符转义为 \n / \t，
+// 让用户可以在模板里直接换行书写（保持可读），字符串外的换行（结构缩进）保持不变。
+function escapeNewlinesInJsonStrings(input: string): string {
+  let result = ""
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i]
+
+    if (!inString) {
+      if (ch === '"') inString = true
+      result += ch
+      continue
+    }
+
+    if (escaped) {
+      result += ch
+      escaped = false
+      continue
+    }
+
+    if (ch === "\\") {
+      result += ch
+      escaped = true
+      continue
+    }
+
+    if (ch === '"') {
+      result += ch
+      inString = false
+      continue
+    }
+
+    if (ch === "\r") {
+      result += "\\n"
+      if (input[i + 1] === "\n") i++
+      continue
+    }
+
+    if (ch === "\n") {
+      result += "\\n"
+      continue
+    }
+
+    if (ch === "\t") {
+      result += "\\t"
+      continue
+    }
+
+    if (ch < " ") {
+      result += `\\u${ch.charCodeAt(0).toString(16).padStart(4, "0")}`
+      continue
+    }
+
+    result += ch
+  }
+
+  return result
+}
+
+// 去掉多行文本中续行的公共缩进（首行不动，纯空白行不参与计算）
+function dedentMultiline(content: string): string {
+  const lines = content.split("\n")
+  if (lines.length < 2) return content
+
+  let minIndent = Infinity
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i]
+    if (line.trim() === "") continue
+    const indent = line.length - line.replace(/^[ \t]+/, "").length
+    if (indent < minIndent) minIndent = indent
+  }
+
+  if (!Number.isFinite(minIndent) || minIndent === 0) return content
+
+  const stripPattern = new RegExp(`^[ \\t]{0,${minIndent}}`)
+  for (let i = 1; i < lines.length; i++) {
+    lines[i] = lines[i].replace(stripPattern, "")
+  }
+  return lines.join("\n")
+}
+
+// 对 JSON 字符串字面量内部的多行文本去掉公共缩进（仅处理真实换行）
+function dedentJsonStringBlocks(input: string): string {
+  let result = ""
+  let content = ""
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < input.length; i++) {
+    const ch = input[i]
+
+    if (!inString) {
+      if (ch === '"') {
+        inString = true
+        content = ""
+      }
+      result += ch
+      continue
+    }
+
+    if (escaped) {
+      content += ch
+      escaped = false
+      continue
+    }
+
+    if (ch === "\\") {
+      content += ch
+      escaped = true
+      continue
+    }
+
+    if (ch === '"') {
+      result += dedentMultiline(content) + ch
+      inString = false
+      continue
+    }
+
+    content += ch
+  }
+
+  // 字符串未闭合（非法 JSON）时原样输出剩余内容
+  if (inString) result += content
+
+  return result
+}
+
+// 宽松 JSON：当请求体形似 JSON 但因字符串内的真实换行而非法时，
+// 去掉多行字符串的公共缩进并转义换行后再校验
+function normalizeJsonBody(body: string): string {
+  const trimmed = body.trimStart()
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) return body
+
+  try {
+    JSON.parse(body)
+    return body
+  } catch {
+    const fixed = escapeNewlinesInJsonStrings(dedentJsonStringBlocks(body))
+    try {
+      JSON.parse(fixed)
+      return fixed
+    } catch {
+      return body
+    }
+  }
+}
+
 // 构造请求体：模板优先，空模板回退通用数据 JSON
 export function buildRequestBody(payload: WebhookPayload, template?: string | null): string {
   if (template && template.trim()) {
-    return renderTemplate(template, payload, "json")
+    return normalizeJsonBody(renderTemplate(template, payload, "json"))
   }
   return buildDefaultBody(payload.data)
 }

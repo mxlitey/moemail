@@ -183,9 +183,6 @@ export function WebhookConfig() {
       <div className="flex items-center justify-between">
         <div className="space-y-0.5">
           <Label>{t("enable")}</Label>
-          <div className="text-sm text-muted-foreground">
-            {t("description")}
-          </div>
         </div>
         <Switch
           checked={enabled}
@@ -235,45 +232,10 @@ export function WebhookConfig() {
                 </Tooltip>
               </TooltipProvider>
             </div>
-            <p className="text-xs text-muted-foreground">
-              {t("description2")}
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="webhook-template">{t("template")}</Label>
-            <Textarea
-              id="webhook-template"
-              ref={templateRef}
-              value={template}
-              onChange={(e) => setTemplate(e.target.value)}
-              placeholder={TEMPLATE_EXAMPLE}
-              className="min-h-[140px] font-mono text-xs"
-            />
-            <p className="text-xs text-muted-foreground">
-              {t("templateHint")}
-            </p>
-            <div className="space-y-1">
-              <p className="text-xs text-muted-foreground">{t("placeholdersTitle")}</p>
-              <div className="flex flex-wrap gap-1">
-                {WEBHOOK_PLACEHOLDERS.map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => insertPlaceholder(key)}
-                    title={t(`placeholders.${key}`)}
-                    className="rounded-md border border-input px-2 py-0.5 text-xs font-mono text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
-                  >
-                    {`{{${key}}}`}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           <div className="space-y-2">
             <Label>{t("headers")}</Label>
-            <p className="text-xs text-muted-foreground">{t("headersHint")}</p>
             {headers.map((header, index) => (
               <div key={index} className="flex gap-2">
                 <Input
@@ -312,6 +274,34 @@ export function WebhookConfig() {
               <Plus className="w-4 h-4" />
               {t("addHeader")}
             </Button>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="webhook-template">{t("template")}</Label>
+            <Textarea
+              id="webhook-template"
+              ref={templateRef}
+              value={template}
+              onChange={(e) => setTemplate(e.target.value)}
+              placeholder={TEMPLATE_EXAMPLE}
+              className="min-h-[140px] font-mono text-xs"
+            />
+            <div className="space-y-1">
+              <p className="text-xs text-muted-foreground">{t("placeholdersTitle")}</p>
+              <div className="flex flex-wrap gap-1">
+                {WEBHOOK_PLACEHOLDERS.map((key) => (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => insertPlaceholder(key)}
+                    title={t(`placeholders.${key}`)}
+                    className="rounded-md border border-input px-2 py-0.5 text-xs font-mono text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+                  >
+                    {`{{${key}}}`}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">

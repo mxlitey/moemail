@@ -400,7 +400,7 @@ Example template:
 }
 ```
 
-Placeholder values are JSON-escaped during rendering, so they can be safely placed inside JSON strings (quotes and line breaks in the email do not break the structure). When the template is left empty, the system sends the generic email data JSON:
+Placeholder values are JSON-escaped during rendering, so they can be safely placed inside JSON strings (quotes and line breaks in the email do not break the structure). For readability, JSON strings in the template may also contain real line breaks; before sending, the system strips the common indentation of continuation lines and escapes the line breaks to `\n`. When the template is left empty, the system sends the generic email data JSON:
 
 ```json
 {
