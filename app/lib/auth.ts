@@ -13,6 +13,7 @@ import { authSchema, AuthSchema } from "@/lib/validation"
 import { generateAvatarUrl } from "./avatar"
 import { getUserId } from "./apiKey"
 import { verifyTurnstileToken } from "./turnstile"
+import { ensureSystemInbox } from "./system-inbox"
 
 const ROLE_DESCRIPTIONS: Record<Role, string> = {
   [ROLES.EMPEROR]: "皇帝（网站所有者）",
@@ -170,19 +171,27 @@ export const {
     async signIn({ user }) {
       if (!user.id) return
 
+      const db = createDb()
+
       try {
-        const db = createDb()
         const existingRole = await db.query.userRoles.findFirst({
           where: eq(userRoles.userId, user.id),
         })
 
-        if (existingRole) return
-
-        const defaultRole = await getDefaultRole()
-        const role = await findOrCreateRole(db, defaultRole)
-        await assignRoleToUser(db, user.id, role.id)
+        if (!existingRole) {
+          const defaultRole = await getDefaultRole()
+          const role = await findOrCreateRole(db, defaultRole)
+          await assignRoleToUser(db, user.id, role.id)
+        }
       } catch (error) {
         console.error('Error assigning role:', error)
+      }
+
+      // 首次登录时开通系统收件箱（内部幂等，并在创建时写入欢迎消息）
+      try {
+        await ensureSystemInbox(db, user.id)
+      } catch (error) {
+        console.error('Error ensuring system inbox:', error)
       }
     },
   },

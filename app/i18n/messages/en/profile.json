@@ -132,6 +132,25 @@
     "saveSuccess": "Configuration saved successfully",
     "saveFailed": "Failed to save configuration"
   },
+  "broadcast": {
+    "title": "System Broadcast",
+    "description": "Send a notification to users' message center, with optional role filtering",
+    "role": "Recipients",
+    "roleAll": "All users",
+    "subject": "Subject",
+    "subjectPlaceholder": "Enter notification subject",
+    "content": "Content",
+    "contentPlaceholder": "Enter notification content",
+    "estimate": "Will send to {count} users, estimated {chunks} batches",
+    "send": "Send broadcast",
+    "sending": "Sending ({done}/{total})",
+    "sendSuccess": "Broadcast sent",
+    "sendSuccessDescription": "Delivered to {count} users",
+    "sendFailed": "Failed to send broadcast",
+    "confirmTitle": "Send broadcast?",
+    "confirmDescription": "Will send to {count} users in about {chunks} batches. This action cannot be undone.",
+    "confirm": "Confirm"
+  },
   "promote": {
     "title": "Role Management",
     "description": "Manage user roles (Emperor only)",

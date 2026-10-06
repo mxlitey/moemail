@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useTranslations } from "next-intl"
 import { CreateDialog } from "./create-dialog"
 import { ShareDialog } from "./share-dialog"
-import { Mail, RefreshCw, Trash2 } from "lucide-react"
+import { Bell, Mail, RefreshCw, Trash2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { useThrottle } from "@/hooks/use-throttle"
@@ -56,7 +56,18 @@ export function EmailList({ onEmailSelect, selectedEmailId }: EmailListProps) {
   const [loadingMore, setLoadingMore] = useState(false)
   const [total, setTotal] = useState(0)
   const [emailToDelete, setEmailToDelete] = useState<Email | null>(null)
+  const [systemInbox, setSystemInbox] = useState<Email | null>(null)
   const { toast } = useToast()
+
+  const fetchSystemInbox = async () => {
+    try {
+      const response = await fetch("/api/emails?type=system")
+      const data = await response.json() as EmailResponse
+      setSystemInbox(data.emails[0] ?? null)
+    } catch (error) {
+      console.error("Failed to fetch system inbox:", error)
+    }
+  }
 
   const fetchEmails = async (cursor?: string) => {
     try {
@@ -100,7 +111,7 @@ export function EmailList({ onEmailSelect, selectedEmailId }: EmailListProps) {
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    await fetchEmails()
+    await Promise.all([fetchEmails(), fetchSystemInbox()])
   }
 
   const handleScroll = useThrottle((e: React.UIEvent<HTMLDivElement>) => {
@@ -117,7 +128,10 @@ export function EmailList({ onEmailSelect, selectedEmailId }: EmailListProps) {
   }, 200)
 
   useEffect(() => {
-    if (session) fetchEmails()
+    if (session) {
+      fetchEmails()
+      fetchSystemInbox()
+    }
   }, [session])
 
   const handleDelete = async (email: Email) => {
@@ -188,53 +202,73 @@ export function EmailList({ onEmailSelect, selectedEmailId }: EmailListProps) {
         <div className="flex-1 overflow-auto p-2" onScroll={handleScroll}>
           {loading ? (
             <div className="text-center text-sm text-gray-500">{t("loading")}</div>
-          ) : emails.length > 0 ? (
+          ) : (
             <div className="space-y-1">
-              {emails.map(email => (
+              {/* 系统收件箱固定置顶，不可删除/分享 */}
+              {systemInbox && (
                 <div
-                  key={email.id}
-                  className={cn("flex items-center gap-2 p-2 rounded cursor-pointer text-sm group",
+                  className={cn("flex items-center gap-2 p-2 rounded cursor-pointer text-sm",
                     "hover:bg-primary/5",
-                    selectedEmailId === email.id && "bg-primary/10"
+                    selectedEmailId === systemInbox.id && "bg-primary/10"
                   )}
-                  onClick={() => onEmailSelect(email)}
+                  onClick={() => onEmailSelect(systemInbox)}
                 >
-                  <Mail className="h-4 w-4 text-primary/60" />
+                  <Bell className="h-4 w-4 text-primary/60" />
                   <div className="truncate flex-1">
-                    <div className="font-medium truncate">{email.address}</div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(email.expiresAt).getFullYear() === 9999 ? (
-                        t("permanent")
-                      ) : (
-                        `${t("expiresAt")}: ${new Date(email.expiresAt).toLocaleString()}`
-                      )}
-                    </div>
+                    <div className="font-medium truncate">{t("systemInbox")}</div>
                   </div>
-                  <div className="opacity-0 group-hover:opacity-100 flex gap-1" onClick={(e) => e.stopPropagation()}>
-                    <ShareDialog emailId={email.id} emailAddress={email.address} />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setEmailToDelete(email)
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-              {loadingMore && (
-                <div className="text-center text-sm text-gray-500 py-2">
-                  {t("loadingMore")}
                 </div>
               )}
-            </div>
-          ) : (
-            <div className="text-center text-sm text-gray-500">
-              {t("noEmails")}
+
+              {emails.length > 0 ? (
+                <>
+                  {emails.map(email => (
+                    <div
+                      key={email.id}
+                      className={cn("flex items-center gap-2 p-2 rounded cursor-pointer text-sm group",
+                        "hover:bg-primary/5",
+                        selectedEmailId === email.id && "bg-primary/10"
+                      )}
+                      onClick={() => onEmailSelect(email)}
+                    >
+                      <Mail className="h-4 w-4 text-primary/60" />
+                      <div className="truncate flex-1">
+                        <div className="font-medium truncate">{email.address}</div>
+                        <div className="text-xs text-gray-500">
+                          {new Date(email.expiresAt).getFullYear() === 9999 ? (
+                            t("permanent")
+                          ) : (
+                            `${t("expiresAt")}: ${new Date(email.expiresAt).toLocaleString()}`
+                          )}
+                        </div>
+                      </div>
+                      <div className="opacity-0 group-hover:opacity-100 flex gap-1" onClick={(e) => e.stopPropagation()}>
+                        <ShareDialog emailId={email.id} emailAddress={email.address} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setEmailToDelete(email)
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                  {loadingMore && (
+                    <div className="text-center text-sm text-gray-500 py-2">
+                      {t("loadingMore")}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="text-center text-sm text-gray-500">
+                  {t("noEmails")}
+                </div>
+              )}
             </div>
           )}
         </div>

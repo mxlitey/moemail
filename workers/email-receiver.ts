@@ -1,13 +1,31 @@
 import { Env } from '../types'
 import { drizzle } from 'drizzle-orm/d1'
-import { messages, emails, webhooks } from '../app/lib/schema'
+import * as schema from '../app/lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import PostalMime from 'postal-mime'
 import { WEBHOOK_CONFIG } from '../app/config'
 import { callWebhook } from '../app/lib/webhook'
+import { insertSystemMessage } from '../app/lib/system-inbox'
+
+const { messages, emails, webhooks } = schema
+
+/** Webhook 失败通知的去重窗口：24 小时内同一用户只提醒一次 */
+const WEBHOOK_FAILURE_DEDUP_WINDOW_MS = 24 * 60 * 60 * 1000
+
+/** 截断平台返回的长错误信息，避免消息正文过长 */
+const WEBHOOK_FAILURE_MAX_REASON_LENGTH = 300
+
+function buildWebhookFailureContent(url: string, error: unknown): string {
+  const raw = error instanceof Error ? error.message : String(error)
+  const reason =
+    raw.length > WEBHOOK_FAILURE_MAX_REASON_LENGTH
+      ? `${raw.slice(0, WEBHOOK_FAILURE_MAX_REASON_LENGTH)}…`
+      : raw
+  return `您的 Webhook 投递失败。\n\n地址：${url}\n原因：${reason}\n\n请检查 Webhook 地址是否可访问、平台密钥是否正确。`
+}
 
 const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
-  const db = drizzle(env.DB, { schema: { messages, emails, webhooks } })
+  const db = drizzle(env.DB, { schema })
 
   const parsedMessage = await PostalMime.parse(message.raw)
 
@@ -59,6 +77,15 @@ const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
         })
       } catch (error) {
         console.error('Failed to send webhook:', error)
+
+        // callWebhook 内部已重试，走到这里即终态失败：向用户投递系统通知（24h 内同用户去重）
+        if (targetEmail.userId) {
+          await insertSystemMessage(db, targetEmail.userId, {
+            subject: 'Webhook 投递失败',
+            content: buildWebhookFailureContent(webhook.url, error),
+            dedupSince: new Date(Date.now() - WEBHOOK_FAILURE_DEDUP_WINDOW_MS),
+          })
+        }
       }
     }
 

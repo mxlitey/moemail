@@ -132,6 +132,25 @@
     "saveSuccess": "設定儲存成功",
     "saveFailed": "儲存設定失敗"
   },
+  "broadcast": {
+    "title": "系統廣播",
+    "description": "向使用者的訊息中心發送通知，支援依角色篩選收件人",
+    "role": "收件人",
+    "roleAll": "全部使用者",
+    "subject": "標題",
+    "subjectPlaceholder": "輸入通知標題",
+    "content": "內容",
+    "contentPlaceholder": "輸入通知內容",
+    "estimate": "將向 {count} 位使用者發送，預計分 {chunks} 次完成",
+    "send": "發送廣播",
+    "sending": "發送中（{done}/{total}）",
+    "sendSuccess": "廣播已發送",
+    "sendSuccessDescription": "已向 {count} 位使用者投遞",
+    "sendFailed": "廣播發送失敗",
+    "confirmTitle": "確認發送廣播？",
+    "confirmDescription": "將向 {count} 位使用者發送，預計分 {chunks} 次完成。此操作無法撤銷。",
+    "confirm": "確認發送"
+  },
   "promote": {
     "title": "角色管理",
     "description": "管理使用者角色（僅皇帝可用）",

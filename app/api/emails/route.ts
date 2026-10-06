@@ -1,9 +1,10 @@
 import { createDb } from "@/lib/db"
-import { and, eq, gt, lt, or, sql } from "drizzle-orm"
+import { and, eq, gt, lt, notLike, or, sql } from "drizzle-orm"
 import { NextResponse } from "next/server"
 import { emails } from "@/lib/schema"
 import { encodeCursor, decodeCursor } from "@/lib/cursor"
 import { getUserId } from "@/lib/apiKey"
+import { ensureSystemInbox } from "@/lib/system-inbox"
 
 export const runtime = "edge"
 
@@ -12,15 +13,32 @@ const PAGE_SIZE = 20
 export async function GET(request: Request) {
   const userId = await getUserId()
 
+  if (!userId) {
+    return NextResponse.json({ error: "未授权" }, { status: 401 })
+  }
+
   const { searchParams } = new URL(request.url)
   const cursor = searchParams.get('cursor')
+  const type = searchParams.get('type')
   
   const db = createDb()
 
   try {
+    // 系统收件箱单独获取，固定在邮箱列表顶部展示
+    if (type === 'system') {
+      const { inbox } = await ensureSystemInbox(db, userId)
+      return NextResponse.json({
+        emails: [inbox],
+        nextCursor: null,
+        total: 1
+      })
+    }
+
+    // 普通邮箱列表排除系统收件箱（其地址不带 @），避免污染分页与数量统计
     const baseConditions = and(
-      eq(emails.userId, userId!),
-      gt(emails.expiresAt, new Date())
+      eq(emails.userId, userId),
+      gt(emails.expiresAt, new Date()),
+      notLike(emails.address, '%@%')
     )
 
     const totalResult = await db.select({ count: sql<number>`count(*)` })

@@ -12,6 +12,7 @@ import { EmailServiceConfig } from "./email-service-config"
 import { useRolePermission } from "@/hooks/use-role-permission"
 import { PERMISSIONS } from "@/lib/permissions"
 import { WebsiteConfigPanel } from "./website-config-panel"
+import { BroadcastPanel } from "./broadcast-panel"
 import { ApiKeyPanel } from "./api-key-panel"
 
 interface ProfileCardProps {
@@ -147,6 +148,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
 
       {canManageConfig && <WebsiteConfigPanel />}
       {canManageConfig && <EmailServiceConfig />}
+      {canManageConfig && <BroadcastPanel />}
       {canPromote && (
         <button
           type="button"

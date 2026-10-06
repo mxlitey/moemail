@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm"
 import { auth } from "@/lib/auth"
 import { ROLES } from "@/lib/permissions"
 import { hashPassword } from "@/lib/utils"
+import { insertSystemMessage } from "@/lib/system-inbox"
 
 export const runtime = "edge"
 
@@ -65,6 +66,11 @@ export async function PATCH(
     await db.update(users)
       .set({ password: hashedPassword })
       .where(eq(users.id, id))
+
+    await insertSystemMessage(db, id, {
+      subject: "您的密码已被重置",
+      content: "您的账户密码已被管理员重置。如非本人操作，请尽快联系管理员。",
+    })
 
     return Response.json({ success: true })
   } catch (error) {

@@ -19,6 +19,7 @@ interface Email {
 export function ThreeColumnLayout() {
   const t = useTranslations("emails.layout")
   const tSend = useTranslations("emails.send")
+  const tList = useTranslations("emails.list")
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null)
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null)
   const [selectedMessageType, setSelectedMessageType] = useState<'received' | 'sent'>('received')
@@ -28,6 +29,8 @@ export function ThreeColumnLayout() {
   // remainingEmails === undefined 代表无限（emperor 角色）
   const isUnlimited = remainingEmails === undefined
   const exhausted = !isUnlimited && remainingEmails === 0
+  // 系统收件箱使用不含 "@" 的哨兵地址；此处不引入 lib，避免把 drizzle 打进客户端包
+  const isSystemInboxSelected = !!selectedEmail && !selectedEmail.address.includes("@")
 
   const columnClass = "border-2 border-primary/20 bg-background rounded-lg overflow-hidden flex flex-col"
   const headerClass = "p-2 border-b-2 border-primary/20 flex items-center justify-between shrink-0"
@@ -97,12 +100,16 @@ export function ThreeColumnLayout() {
               {selectedEmail ? (
                 <div className="w-full flex justify-between items-center gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="truncate min-w-0">{selectedEmail.address}</span>
-                    <div className="shrink-0 cursor-pointer text-primary" onClick={copyEmailAddress}>
-                      <Copy className="size-4" />
-                    </div>
+                    <span className="truncate min-w-0">
+                      {isSystemInboxSelected ? tList("systemInbox") : selectedEmail.address}
+                    </span>
+                    {!isSystemInboxSelected && (
+                      <div className="shrink-0 cursor-pointer text-primary" onClick={copyEmailAddress}>
+                        <Copy className="size-4" />
+                      </div>
+                    )}
                   </div>
-                  {selectedEmail && canSendEmails && (
+                  {!isSystemInboxSelected && canSendEmails && (
                     <div className="flex items-center gap-2 shrink-0">
                       {remainingBadge}
                       <SendDialog
@@ -182,12 +189,16 @@ export function ThreeColumnLayout() {
                 </button>
                 <div className="flex-1 flex items-center gap-2 min-w-0">
                   <div className="flex items-center gap-2 min-w-0 flex-1">
-                    <span className="truncate min-w-0 text-right">{selectedEmail.address}</span>
-                    <div className="shrink-0 cursor-pointer text-primary" onClick={copyEmailAddress}>
-                      <Copy className="size-4" />
-                    </div>
+                    <span className="truncate min-w-0 text-right">
+                      {isSystemInboxSelected ? tList("systemInbox") : selectedEmail.address}
+                    </span>
+                    {!isSystemInboxSelected && (
+                      <div className="shrink-0 cursor-pointer text-primary" onClick={copyEmailAddress}>
+                        <Copy className="size-4" />
+                      </div>
+                    )}
                   </div>
-                  {canSendEmails && (
+                  {!isSystemInboxSelected && canSendEmails && (
                     <div className="flex items-center gap-2 shrink-0">
                       <SendDialog
                         emailId={selectedEmail.id}

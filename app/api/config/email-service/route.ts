@@ -3,6 +3,10 @@ import { getRequestContext } from "@cloudflare/next-on-pages"
 import { checkPermission } from "@/lib/auth"
 import { PERMISSIONS } from "@/lib/permissions"
 import { EMAIL_CONFIG } from "@/config"
+import { createDb } from "@/lib/db"
+import { roles, userRoles } from "@/lib/schema"
+import { eq } from "drizzle-orm"
+import { ensureSystemInboxes, insertSystemMessagesForUsers } from "@/lib/system-inbox"
 
 export const runtime = "edge"
 
@@ -73,8 +77,12 @@ export async function POST(request: Request) {
     }
 
     const env = getRequestContext().env
-    
-    const customLimits: { duke?: number; knight?: number } = {}
+
+    // 读取旧配额，用于变更对比
+    const previousRaw = await env.SITE_CONFIG.get("EMAIL_ROLE_LIMITS")
+    const previousLimits = (previousRaw ? JSON.parse(previousRaw) : {}) as RoleLimits
+
+    const customLimits: RoleLimits = {}
     if (config.roleLimits?.duke !== undefined) {
       customLimits.duke = config.roleLimits.duke
     }
@@ -88,6 +96,13 @@ export async function POST(request: Request) {
       env.SITE_CONFIG.put("EMAIL_ROLE_LIMITS", JSON.stringify(customLimits))
     ])
 
+    // 只通知配额真正变化的角色；通知失败不影响配置保存结果
+    try {
+      await notifyQuotaChanges(previousLimits, customLimits)
+    } catch (error) {
+      console.error("Failed to notify quota changes:", error)
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Failed to save email service config:", error)
@@ -95,5 +110,44 @@ export async function POST(request: Request) {
       { error: "保存 Resend 发件服务配置失败" },
       { status: 500 }
     )
+  }
+}
+
+type RoleLimits = { duke?: number; knight?: number }
+
+/**
+ * 对比配额变更，向受影响角色的用户投递系统通知。
+ * 仅在角色配额真正变化时发送——这是离散事件，不做去重。
+ */
+async function notifyQuotaChanges(previous: RoleLimits, next: RoleLimits) {
+  const defaults = EMAIL_CONFIG.DEFAULT_DAILY_SEND_LIMITS
+  const changes: { role: "duke" | "knight"; from: number; to: number }[] = []
+
+  for (const role of ["duke", "knight"] as const) {
+    const from = previous[role] ?? defaults[role]
+    const to = next[role] ?? defaults[role]
+    if (from !== to) {
+      changes.push({ role, from, to })
+    }
+  }
+
+  if (changes.length === 0) return
+
+  const db = createDb()
+
+  for (const change of changes) {
+    const rows = await db
+      .select({ userId: userRoles.userId })
+      .from(userRoles)
+      .innerJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(eq(roles.name, change.role))
+
+    const userIds = rows.map((row) => row.userId)
+    const inboxByUser = await ensureSystemInboxes(db, userIds)
+
+    await insertSystemMessagesForUsers(db, inboxByUser, userIds, {
+      subject: "您的发件配额已调整",
+      content: `您的每日发件配额已从 ${change.from} 封调整为 ${change.to} 封。`,
+    })
   }
 } 

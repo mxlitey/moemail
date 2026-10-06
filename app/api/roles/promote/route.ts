@@ -3,8 +3,16 @@ import { roles, userRoles } from "@/lib/schema";
 import { eq } from "drizzle-orm";
 import { ROLES } from "@/lib/permissions";
 import { assignRoleToUser } from "@/lib/auth";
+import { insertSystemMessage } from "@/lib/system-inbox";
 
 export const runtime = "edge";
+
+const ROLE_LABELS: Record<string, string> = {
+  emperor: "皇帝",
+  duke: "公爵",
+  knight: "骑士",
+  civilian: "平民",
+};
 
 export async function POST(request: Request) {
   try {
@@ -63,6 +71,15 @@ export async function POST(request: Request) {
     }
 
     await assignRoleToUser(db, userId, targetRole.id);
+
+    // 角色直接决定发件配额等权限，变更后通知用户
+    const previousRole = currentUserRole?.role.name;
+    if (previousRole && previousRole !== roleName) {
+      await insertSystemMessage(db, userId, {
+        subject: "您的角色已变更",
+        content: `您的角色已从「${ROLE_LABELS[previousRole] ?? previousRole}」变更为「${ROLE_LABELS[roleName] ?? roleName}」，发件配额等权限会随之变化。`,
+      });
+    }
 
     return Response.json({ 
       success: true,

@@ -21,6 +21,7 @@
     "loading": "読み込み中...",
     "loadingMore": "さらに読み込み中...",
     "noEmails": "まだメールボックスがありません。作成しましょう！",
+    "systemInbox": "メッセージセンター",
     "expiresAt": "有効期限",
     "permanent": "永久",
     "deleteConfirm": "削除の確認",

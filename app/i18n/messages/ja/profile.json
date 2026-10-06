@@ -132,6 +132,25 @@
     "saveSuccess": "設定を保存しました",
     "saveFailed": "設定の保存に失敗しました"
   },
+  "broadcast": {
+    "title": "システム一斉通知",
+    "description": "ユーザーのメッセージセンターに通知を送信します（ロールで絞り込み可能）",
+    "role": "宛先",
+    "roleAll": "全ユーザー",
+    "subject": "件名",
+    "subjectPlaceholder": "通知の件名を入力",
+    "content": "内容",
+    "contentPlaceholder": "通知の内容を入力",
+    "estimate": "{count} 人のユーザーに送信予定、約 {chunks} 回に分けて実行します",
+    "send": "一斉送信",
+    "sending": "送信中（{done}/{total}）",
+    "sendSuccess": "一斉送信を実行しました",
+    "sendSuccessDescription": "{count} 人のユーザーに配信しました",
+    "sendFailed": "一斉送信に失敗しました",
+    "confirmTitle": "一斉送信しますか？",
+    "confirmDescription": "{count} 人のユーザーに約 {chunks} 回に分けて送信します。この操作は取り消せません。",
+    "confirm": "送信する"
+  },
   "promote": {
     "title": "ロール管理",
     "description": "ユーザーロールを管理（皇帝のみ利用可能）",

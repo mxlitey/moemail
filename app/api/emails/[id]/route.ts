@@ -5,6 +5,7 @@ import { eq, and, lt, or, sql, ne, isNull } from "drizzle-orm"
 import { encodeCursor, decodeCursor } from "@/lib/cursor"
 import { getUserId } from "@/lib/apiKey"
 import { checkBasicSendPermission } from "@/lib/send-permissions"
+import { isSystemInbox } from "@/lib/system-inbox"
 
 export const runtime = "edge"
 
@@ -30,6 +31,14 @@ export async function DELETE(
         { status: 403 }
       )
     }
+
+    if (isSystemInbox(email.address)) {
+      return NextResponse.json(
+        { error: "系统收件箱不可删除" },
+        { status: 403 }
+      )
+    }
+
     await db.delete(messages)
       .where(eq(messages.emailId, id))
 
