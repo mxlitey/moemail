@@ -35,7 +35,6 @@ const TEMPLATE_EXAMPLE = '{"subject": "{{subject}}", "content": "{{content}}"}'
 
 export function WebhookConfig() {
   const t = useTranslations("profile.webhook")
-  const tCommon = useTranslations("common.actions")
   const tMessages = useTranslations("emails.messages")
   const [enabled, setEnabled] = useState(false)
   const [url, setUrl] = useState("")
@@ -70,7 +69,16 @@ export function WebhookConfig() {
   const previewBody = useMemo(() => {
     const raw = buildRequestBody(previewPayload, template)
     try {
-      return JSON.stringify(JSON.parse(raw), null, 2)
+      const pretty = JSON.stringify(JSON.parse(raw), null, 2)
+      // 预览时把字符串内的转义换行还原为真实换行并按层级缩进，便于阅读
+      // （仅影响展示，不影响实际发送的内容）
+      return pretty
+        .split("\n")
+        .map((line) => {
+          const indent = (line.match(/^\s*/) || [""])[0]
+          return line.replace(/\\n/g, "\n" + indent + "  ")
+        })
+        .join("\n")
     } catch {
       return raw
     }
@@ -203,13 +211,6 @@ export function WebhookConfig() {
                 type="url"
                 required
               />
-              <Button type="submit" disabled={loading} className="flex-shrink-0">
-                {loading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  tCommon("save")
-                )}
-              </Button>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -331,6 +332,10 @@ export function WebhookConfig() {
               </div>
             )}
           </div>
+
+          <Button type="submit" disabled={loading} className="w-full">
+            {loading ? t("saving") : t("save")}
+          </Button>
         </div>
       )}
     </form>

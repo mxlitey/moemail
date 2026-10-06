@@ -118,10 +118,11 @@ export async function buildPlaceholderContexts(
   const unique = Array.from(new Set(userIds))
   if (unique.length === 0) return result
 
-  const [maxEmailsRaw, serviceEnabledRaw, roleLimitsRaw] = await Promise.all([
+  const [maxEmailsRaw, serviceEnabledRaw, roleLimitsRaw, adminContactRaw] = await Promise.all([
     siteConfig.get("MAX_EMAILS"),
     siteConfig.get("EMAIL_SERVICE_ENABLED"),
     siteConfig.get("EMAIL_ROLE_LIMITS"),
+    siteConfig.get("ADMIN_CONTACT"),
   ])
 
   const maxEmails = Number(maxEmailsRaw) || EMAIL_CONFIG.MAX_ACTIVE_EMAILS
@@ -157,6 +158,7 @@ export async function buildPlaceholderContexts(
         // 皇帝不受邮箱数量限制
         maxEmails: row.roleName === ROLES.EMPEROR ? "unlimited" : maxEmails,
         sendLimit: resolveSendLimit(row.roleName, serviceEnabled, customLimits),
+        adminContact: adminContactRaw ?? "",
       })
     }
   }

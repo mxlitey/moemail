@@ -35,6 +35,7 @@ export const MESSAGE_PLACEHOLDERS = [
   "role",
   "maxEmails",
   "sendLimit",
+  "adminContact",
 ] as const
 
 export type PlaceholderContext = {
@@ -48,6 +49,8 @@ export type PlaceholderContext = {
   maxEmails?: number | "unlimited"
   /** 每日发件上限，"unlimited" 表示无限，"disabled" 表示发件服务未启用 */
   sendLimit?: number | "unlimited" | "disabled"
+  /** 站点管理员联系方式，来自站点配置 ADMIN_CONTACT */
+  adminContact?: string | null
 }
 
 /** 角色标识 → 中文显示名 */
@@ -95,6 +98,7 @@ export function renderMessageTemplate(
     role: ctx.role ? ROLE_LABELS_ZH[ctx.role] ?? ctx.role : "",
     maxEmails: formatMaxEmails(ctx.maxEmails),
     sendLimit: formatSendLimit(ctx.sendLimit),
+    adminContact: ctx.adminContact ?? "",
   }
 
   return template.replace(/\{(\w+)\}/g, (match, key: string) =>
