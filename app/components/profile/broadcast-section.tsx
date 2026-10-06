@@ -131,11 +131,11 @@ export function BroadcastSection() {
   return (
     <section className="space-y-4">
       <div className="flex items-center gap-2">
-        <Megaphone className="w-4 h-4 text-primary" />
-        <h3 className="text-base font-semibold">{t("title")}</h3>
+        <Megaphone className="w-5 h-5 text-primary" />
+        <h2 className="text-lg font-semibold">{t("title")}</h2>
       </div>
 
-      <p className="text-xs text-muted-foreground">{t("description")}</p>
+      <p className="text-sm text-muted-foreground">{t("description")}</p>
 
       <div className="space-y-2">
         <Label className="text-sm font-medium">{t("role")}</Label>

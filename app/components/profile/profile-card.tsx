@@ -5,14 +5,13 @@ import { useTranslations, useLocale } from "next-intl"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
-import { Github, Settings, Crown, Sword, User2, Gem, Mail, ChevronRight } from "lucide-react"
+import { Github, Settings, Crown, Sword, User2, Gem, Mail, Bell, ChevronRight } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { WebhookConfig } from "./webhook-config"
 import { EmailServiceConfig } from "./email-service-config"
 import { useRolePermission } from "@/hooks/use-role-permission"
 import { PERMISSIONS } from "@/lib/permissions"
 import { WebsiteConfigPanel } from "./website-config-panel"
-import { MessageCenterPanel } from "./message-center-panel"
 import { ApiKeyPanel } from "./api-key-panel"
 
 interface ProfileCardProps {
@@ -63,6 +62,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
   const tPromote = useTranslations("profile.roles")
   const tAuth = useTranslations("auth.signButton")
   const tWebhook = useTranslations("profile.webhook")
+  const tMessageCenter = useTranslations("profile.messageCenter")
   const tNav = useTranslations("common.nav")
   const locale = useLocale()
   const router = useRouter()
@@ -148,7 +148,22 @@ export function ProfileCard({ user }: ProfileCardProps) {
 
       {canManageConfig && <WebsiteConfigPanel />}
       {canManageConfig && <EmailServiceConfig />}
-      {canManageConfig && <MessageCenterPanel />}
+      {canManageConfig && (
+        <button
+          type="button"
+          onClick={() => router.push(`/${locale}/profile/message-center`)}
+          className="w-full bg-background rounded-lg border-2 border-primary/20 p-6 text-left hover:border-primary/40 transition-colors flex items-center gap-4 group"
+        >
+          <div className="flex items-center gap-2 flex-1">
+            <Bell className="w-5 h-5 text-primary" />
+            <div>
+              <h2 className="text-lg font-semibold">{tMessageCenter("title")}</h2>
+              <p className="text-sm text-muted-foreground mt-1">{tMessageCenter("description")}</p>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
+        </button>
+      )}
       {canPromote && (
         <button
           type="button"

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { getRequestContext } from "@cloudflare/next-on-pages"
 import { and, eq, gt, sql } from "drizzle-orm"
 import { checkPermission } from "@/lib/auth"
 import { PERMISSIONS, ROLES } from "@/lib/permissions"
@@ -8,11 +9,11 @@ import type { Db } from "@/lib/db"
 import { users, roles, userRoles } from "@/lib/schema"
 import {
   SYSTEM_ANNOUNCEMENT_FROM,
+  buildPlaceholderContexts,
   ensureSystemInboxes,
   insertSystemMessagesByInbox,
 } from "@/lib/system-inbox"
 import { renderMessageTemplate } from "@/config"
-import type { PlaceholderContext } from "@/config"
 
 export const runtime = "edge"
 
@@ -20,14 +21,6 @@ export const runtime = "edge"
 const CHUNK_SIZE = 100
 
 type BroadcastRole = "all" | Role
-
-/** 收件人及其占位符上下文 */
-type Recipient = {
-  id: string
-  username: string | null
-  name: string | null
-  email: string | null
-}
 
 const BROADCAST_ROLES: BroadcastRole[] = [
   "all",
@@ -56,16 +49,8 @@ async function countRecipients(db: Db, role: BroadcastRole): Promise<number> {
   return Number(row?.count ?? 0)
 }
 
-/** 收件人查询所需的列，含占位符上下文 */
-const RECIPIENT_COLUMNS = {
-  id: users.id,
-  username: users.username,
-  name: users.name,
-  email: users.email,
-}
-
 /**
- * 按 userId 升序取一批收件人，cursor 为上一批的最后一个 userId。
+ * 按 userId 升序取一批收件人 id，cursor 为上一批的最后一个 userId。
  * 内置角色表与用户表均为纯文本主键，字典序稳定，适合做游标分页。
  */
 async function fetchRecipientChunk(
@@ -73,26 +58,29 @@ async function fetchRecipientChunk(
   role: BroadcastRole,
   cursor: string | null,
   limit: number
-): Promise<Recipient[]> {
+): Promise<string[]> {
   const cursorCondition = cursor ? gt(users.id, cursor) : undefined
 
   if (role === "all") {
-    return await db
-      .select(RECIPIENT_COLUMNS)
+    const rows = await db
+      .select({ id: users.id })
       .from(users)
       .where(cursorCondition)
       .orderBy(users.id)
       .limit(limit)
+    return rows.map((row) => row.id)
   }
 
-  return await db
-    .select(RECIPIENT_COLUMNS)
+  const rows = await db
+    .select({ id: users.id })
     .from(userRoles)
     .innerJoin(roles, eq(userRoles.roleId, roles.id))
     .innerJoin(users, eq(userRoles.userId, users.id))
     .where(cursorCondition ? and(eq(roles.name, role), cursorCondition) : eq(roles.name, role))
     .orderBy(users.id)
     .limit(limit)
+
+  return rows.map((row) => row.id)
 }
 
 /** 预检：统计收件人数量与预计分批次数，供前端二次确认提示 */
@@ -150,27 +138,23 @@ export async function POST(request: Request) {
     }
 
     const db = createDb()
-    const recipients = await fetchRecipientChunk(db, body.role, body.cursor ?? null, CHUNK_SIZE)
+    const userIds = await fetchRecipientChunk(db, body.role, body.cursor ?? null, CHUNK_SIZE)
 
-    if (recipients.length === 0) {
+    if (userIds.length === 0) {
       return NextResponse.json({ done: true, nextCursor: null, sent: 0 })
     }
 
-    const userIds = recipients.map((recipient) => recipient.id)
+    const siteConfig = getRequestContext().env.SITE_CONFIG
     const inboxByUser = await ensureSystemInboxes(db, userIds)
+    const contextByUser = await buildPlaceholderContexts(db, userIds, siteConfig)
 
     // 按人渲染占位符后再逐条投递（html 保持原样，不参与替换）
-    const entries = recipients
-      .map((recipient) => {
-        const emailId = inboxByUser.get(recipient.id)
+    const entries = userIds
+      .map((userId) => {
+        const emailId = inboxByUser.get(userId)
         if (!emailId) return null
 
-        const ctx: PlaceholderContext = {
-          userId: recipient.id,
-          username: recipient.username,
-          name: recipient.name,
-          email: recipient.email,
-        }
+        const ctx = contextByUser.get(userId) ?? { userId }
 
         return {
           emailId,
@@ -187,8 +171,8 @@ export async function POST(request: Request) {
     const sent = await insertSystemMessagesByInbox(db, entries)
 
     return NextResponse.json({
-      done: recipients.length < CHUNK_SIZE,
-      nextCursor: recipients[recipients.length - 1].id,
+      done: userIds.length < CHUNK_SIZE,
+      nextCursor: userIds[userIds.length - 1],
       sent,
     })
   } catch (error) {

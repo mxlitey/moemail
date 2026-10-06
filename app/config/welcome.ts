@@ -23,14 +23,59 @@ export const WELCOME_CONTENT_KEY = "WELCOME_CONTENT"
 export const WELCOME_SUBJECT_MAX_LENGTH = 200
 export const WELCOME_CONTENT_MAX_LENGTH = 2000
 
-/** 文案支持的全部占位符，需与 renderMessageTemplate 中的取值保持一致 */
-export const MESSAGE_PLACEHOLDERS = ["username", "name", "email", "userId"] as const
+/**
+ * 支持的全部占位符，需与 renderMessageTemplate 中的取值保持一致。
+ * 注意 role / maxEmails / sendLimit 的呈现文案为固定中文，不随站点语言变化。
+ */
+export const MESSAGE_PLACEHOLDERS = [
+  "username",
+  "name",
+  "email",
+  "userId",
+  "role",
+  "maxEmails",
+  "sendLimit",
+] as const
 
 export type PlaceholderContext = {
   userId: string
   username?: string | null
   name?: string | null
   email?: string | null
+  /** 角色标识：emperor / duke / knight / civilian */
+  role?: string | null
+  /** 可创建邮箱上限，"unlimited" 表示不受限（皇帝） */
+  maxEmails?: number | "unlimited"
+  /** 每日发件上限，"unlimited" 表示无限，"disabled" 表示发件服务未启用 */
+  sendLimit?: number | "unlimited" | "disabled"
+}
+
+/** 角色标识 → 中文显示名 */
+const ROLE_LABELS_ZH: Record<string, string> = {
+  emperor: "皇帝",
+  duke: "公爵",
+  knight: "骑士",
+  civilian: "平民",
+}
+
+/** 上限值的人类可读形式 */
+function formatMaxEmails(value: PlaceholderContext["maxEmails"]): string {
+  if (value === undefined) return ""
+  if (value === "unlimited") return "无限"
+  return String(value)
+}
+
+/**
+ * 发件上限的人类可读形式。
+ * 遵循配置里的既有约定：0 表示无限，-1 表示禁止发送（此处显示为 0）。
+ */
+function formatSendLimit(value: PlaceholderContext["sendLimit"]): string {
+  if (value === undefined) return ""
+  if (value === "disabled") return "未启用"
+  if (value === "unlimited") return "无限"
+  if (value === 0) return "无限"
+  if (value === -1) return "0"
+  return String(value)
 }
 
 /**
@@ -47,6 +92,9 @@ export function renderMessageTemplate(
     name: ctx.name || ctx.username || "",
     username: ctx.username ?? "",
     email: ctx.email ?? "",
+    role: ctx.role ? ROLE_LABELS_ZH[ctx.role] ?? ctx.role : "",
+    maxEmails: formatMaxEmails(ctx.maxEmails),
+    sendLimit: formatSendLimit(ctx.sendLimit),
   }
 
   return template.replace(/\{(\w+)\}/g, (match, key: string) =>

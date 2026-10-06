@@ -1,13 +1,9 @@
 import type { Db } from "./db"
-import { emails, messages, users } from "./schema"
+import { emails, messages, users, roles, userRoles } from "./schema"
 import { and, eq, gt, inArray, notLike } from "drizzle-orm"
-import {
-  WELCOME_SUBJECT_KEY,
-  WELCOME_CONTENT_KEY,
-  renderMessageTemplate,
-  resolveWelcomeTemplate,
-} from "../config"
+import { EMAIL_CONFIG, WELCOME_SUBJECT_KEY, WELCOME_CONTENT_KEY, renderMessageTemplate, resolveWelcomeTemplate } from "../config"
 import type { PlaceholderContext } from "../config"
+import { ROLES } from "./permissions"
 
 /**
  * 系统收件箱地址不带 "@" 后缀。
@@ -82,6 +78,93 @@ function toMessageValues(emailId: string, input: SystemMessageInput) {
 }
 
 /**
+ * 按角色解析每日发件上限，语义与 lib/send-permissions.ts 的 getUserDailyLimit 保持一致。
+ * 服务未启用时所有人都不能发件，直接返回 disabled。
+ */
+function resolveSendLimit(
+  roleName: string | null,
+  serviceEnabled: boolean,
+  customLimits: { duke?: number; knight?: number }
+): PlaceholderContext["sendLimit"] {
+  if (!serviceEnabled) return "disabled"
+
+  const defaults = EMAIL_CONFIG.DEFAULT_DAILY_SEND_LIMITS
+
+  switch (roleName) {
+    case ROLES.EMPEROR:
+      return defaults.emperor
+    case ROLES.DUKE:
+      return customLimits.duke ?? defaults.duke
+    case ROLES.KNIGHT:
+      return customLimits.knight ?? defaults.knight
+    default:
+      // 含平民与无角色用户，与 getUserDailyLimit 的兜底一致
+      return -1
+  }
+}
+
+/**
+ * 批量构造占位符上下文（含角色、可创建邮箱上限、每日发件上限）。
+ *
+ * 站点级配额只读一次 KV，与用户数量无关；用户信息用一次 join 查询按 chunk 取回，
+ * 避免逐个用户查询触达 D1 的每请求查询数上限。
+ */
+export async function buildPlaceholderContexts(
+  db: Db,
+  userIds: string[],
+  siteConfig: KVNamespace
+): Promise<Map<string, PlaceholderContext>> {
+  const result = new Map<string, PlaceholderContext>()
+  const unique = Array.from(new Set(userIds))
+  if (unique.length === 0) return result
+
+  const [maxEmailsRaw, serviceEnabledRaw, roleLimitsRaw] = await Promise.all([
+    siteConfig.get("MAX_EMAILS"),
+    siteConfig.get("EMAIL_SERVICE_ENABLED"),
+    siteConfig.get("EMAIL_ROLE_LIMITS"),
+  ])
+
+  const maxEmails = Number(maxEmailsRaw) || EMAIL_CONFIG.MAX_ACTIVE_EMAILS
+  const serviceEnabled = serviceEnabledRaw === "true"
+  const customLimits = (roleLimitsRaw ? JSON.parse(roleLimitsRaw) : {}) as {
+    duke?: number
+    knight?: number
+  }
+
+  for (let i = 0; i < unique.length; i += IN_ARRAY_CHUNK_SIZE) {
+    const chunk = unique.slice(i, i + IN_ARRAY_CHUNK_SIZE)
+
+    const rows = await db
+      .select({
+        userId: users.id,
+        username: users.username,
+        name: users.name,
+        email: users.email,
+        roleName: roles.name,
+      })
+      .from(users)
+      .leftJoin(userRoles, eq(userRoles.userId, users.id))
+      .leftJoin(roles, eq(userRoles.roleId, roles.id))
+      .where(inArray(users.id, chunk))
+
+    for (const row of rows) {
+      result.set(row.userId, {
+        userId: row.userId,
+        username: row.username,
+        name: row.name,
+        email: row.email,
+        role: row.roleName,
+        // 皇帝不受邮箱数量限制
+        maxEmails: row.roleName === ROLES.EMPEROR ? "unlimited" : maxEmails,
+        sendLimit: resolveSendLimit(row.roleName, serviceEnabled, customLimits),
+      })
+    }
+  }
+
+  return result
+}
+
+/**
  * 确保用户拥有系统收件箱；首次创建时一并写入欢迎消息（仅创建时发生，幂等）。
  *
  * siteConfig 用于读取管理员自定义的欢迎文案，未传入时使用内置默认值
@@ -127,6 +210,7 @@ export async function ensureSystemInbox(
 
   // 直接写入欢迎消息：此处不能再走 insertSystemMessage，否则会重复触发 ensureSystemInbox
   try {
+    // 拿不到 SITE_CONFIG（Worker 环境）时用内置默认文案，此时无需构造占位符上下文
     const [rawSubject, rawContent] = siteConfig
       ? await Promise.all([
           siteConfig.get(WELCOME_SUBJECT_KEY),
@@ -136,14 +220,10 @@ export async function ensureSystemInbox(
 
     const template = resolveWelcomeTemplate(rawSubject, rawContent)
 
-    // 占位符上下文只在创建路径上查询，不影响已存在收件箱的热路径
-    const user = await db.query.users.findFirst({ where: eq(users.id, userId) })
-    const ctx: PlaceholderContext = {
-      userId,
-      username: user?.username,
-      name: user?.name,
-      email: user?.email,
-    }
+    // 占位符上下文只在创建路径上构造，不影响已存在收件箱的热路径
+    const ctx =
+      (siteConfig &&
+        (await buildPlaceholderContexts(db, [userId], siteConfig)).get(userId)) || { userId }
 
     await db.insert(messages).values(
       toMessageValues(inbox.id, {
