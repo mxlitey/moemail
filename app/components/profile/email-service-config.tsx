@@ -3,12 +3,19 @@
 import React, { useState, useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import { Zap, Eye, EyeOff, Plus, Trash2 } from "lucide-react"
+import { Zap, Eye, EyeOff, Trash2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 
 interface DomainApiKey {
   domain: string
@@ -36,6 +43,8 @@ export function EmailServiceConfig() {
       knight: -1,
     }
   })
+  const [emailDomains, setEmailDomains] = useState<string[]>([])
+  const [selectedDomain, setSelectedDomain] = useState("")
   const [loading, setLoading] = useState(false)
   const [visibleKeys, setVisibleKeys] = useState<Record<number, boolean>>({})
   const { toast } = useToast()
@@ -46,14 +55,42 @@ export function EmailServiceConfig() {
 
   const fetchConfig = async () => {
     try {
-      const res = await fetch("/api/config/email-service")
-      if (res.ok) {
-        const data = await res.json() as EmailServiceConfig
+      const [serviceRes, siteRes] = await Promise.all([
+        fetch("/api/config/email-service"),
+        fetch("/api/config")
+      ])
+      if (serviceRes.ok) {
+        const data = await serviceRes.json() as EmailServiceConfig
         setConfig(data)
+      }
+      if (siteRes.ok) {
+        const site = await siteRes.json() as { emailDomains: string }
+        setEmailDomains(
+          (site.emailDomains || "")
+            .split(",")
+            .map((domain) => domain.trim())
+            .filter(Boolean)
+        )
       }
     } catch (error) {
       console.error("Failed to fetch email service config:", error)
     }
+  }
+
+  // 已配置的域名不再出现在下拉选项中
+  const configuredDomains = new Set(
+    config.domainKeys.map((item) => item.domain.trim().toLowerCase())
+  )
+  const availableDomains = emailDomains.filter(
+    (domain) => !configuredDomains.has(domain.toLowerCase())
+  )
+
+  const handleAddDomain = (domain: string) => {
+    setConfig((prev: EmailServiceConfig) => ({
+      ...prev,
+      domainKeys: [...prev.domainKeys, { domain, apiKey: "" }]
+    }))
+    setSelectedDomain("")
   }
 
   const handleSave = async () => {
@@ -120,44 +157,36 @@ export function EmailServiceConfig() {
         {config.enabled && (
           <>
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <Label className="text-sm font-medium">
                   {t("domainKeys")}
                 </Label>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() =>
-                    setConfig((prev: EmailServiceConfig) => ({
-                      ...prev,
-                      domainKeys: [...prev.domainKeys, { domain: "", apiKey: "" }]
-                    }))
-                  }
+                <Select
+                  value={selectedDomain}
+                  onValueChange={handleAddDomain}
+                  disabled={availableDomains.length === 0}
                 >
-                  <Plus className="h-4 w-4 mr-1" />
-                  {t("addDomain")}
-                </Button>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder={t("addDomain")} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableDomains.map((domain) => (
+                      <SelectItem key={domain} value={domain}>
+                        {domain}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <p className="text-xs text-muted-foreground">
                 {t("domainKeysDescription")}
               </p>
               <div className="space-y-3">
                 {config.domainKeys.map((item, index) => (
-                  <div key={index} className="flex items-start gap-2">
-                    <Input
-                      value={item.domain}
-                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                        setConfig((prev: EmailServiceConfig) => ({
-                          ...prev,
-                          domainKeys: prev.domainKeys.map((entry, i) =>
-                            i === index ? { ...entry, domain: e.target.value } : entry
-                          )
-                        }))
-                      }
-                      placeholder={t("domainPlaceholder")}
-                      className="flex-1"
-                    />
+                  <div key={item.domain} className="flex items-start gap-2">
+                    <div className="flex h-9 flex-1 items-center rounded-md border border-input bg-muted/50 px-3 text-sm">
+                      {item.domain}
+                    </div>
                     <div className="relative flex-1">
                       <Input
                         type={visibleKeys[index] ? "text" : "password"}
