@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { useTranslations, useLocale } from "next-intl"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, Bell, Mail } from "lucide-react"
+import { ArrowLeft, Mail } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -18,7 +18,6 @@ import { BroadcastSection } from "./broadcast-section"
  *  - 系统广播：向用户主动推送通知
  */
 export function MessageCenterManager() {
-  const t = useTranslations("profile.messageCenter")
   const tWelcome = useTranslations("profile.welcome")
   const tNav = useTranslations("common.nav")
   const router = useRouter()
@@ -83,31 +82,19 @@ export function MessageCenterManager() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <Bell className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">{t("title")}</h2>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push(`/${locale}/profile`)}
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {tNav("backToProfile")}
-          </Button>
-        </div>
-        <p className="text-sm text-muted-foreground mt-2">{t("description")}</p>
-      </div>
+      <Button
+        onClick={() => router.push(`/${locale}/profile`)}
+        className="gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        {tNav("backToProfile")}
+      </Button>
 
       <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mb-4">
           <Mail className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-semibold">{tWelcome("title")}</h2>
         </div>
-        <p className="text-sm text-muted-foreground mt-2 mb-6">{tWelcome("description")}</p>
 
         <div className="space-y-4">
           <div className="space-y-2">

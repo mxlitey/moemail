@@ -156,10 +156,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
         >
           <div className="flex items-center gap-2 flex-1">
             <Bell className="w-5 h-5 text-primary" />
-            <div>
-              <h2 className="text-lg font-semibold">{tMessageCenter("title")}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{tMessageCenter("description")}</p>
-            </div>
+            <h2 className="text-lg font-semibold">{tMessageCenter("title")}</h2>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
         </button>
@@ -172,10 +169,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
         >
           <div className="flex items-center gap-2 flex-1">
             <Crown className="w-5 h-5 text-primary" />
-            <div>
-              <h2 className="text-lg font-semibold">{tPromote("title")}</h2>
-              <p className="text-sm text-muted-foreground mt-1">{tPromote("description")}</p>
-            </div>
+            <h2 className="text-lg font-semibold">{tPromote("title")}</h2>
           </div>
           <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
         </button>

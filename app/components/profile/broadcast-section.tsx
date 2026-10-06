@@ -135,8 +135,6 @@ export function BroadcastSection() {
         <h2 className="text-lg font-semibold">{t("title")}</h2>
       </div>
 
-      <p className="text-sm text-muted-foreground">{t("description")}</p>
-
       <div className="space-y-2">
         <Label className="text-sm font-medium">{t("role")}</Label>
         <Select value={role} onValueChange={(value) => setRole(value as BroadcastRole)}>

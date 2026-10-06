@@ -251,26 +251,20 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
-      <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-2">
-            <Crown className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">{t("title")}</h2>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.push(`/${locale}/profile`)}
-            className="gap-2"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            {tNav("backToProfile")}
-          </Button>
-        </div>
-        <p className="text-sm text-muted-foreground mt-2">{t("description")}</p>
-      </div>
+      <Button
+        onClick={() => router.push(`/${locale}/profile`)}
+        className="gap-2"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        {tNav("backToProfile")}
+      </Button>
 
       <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Crown className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-semibold">{t("title")}</h2>
+        </div>
+
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
