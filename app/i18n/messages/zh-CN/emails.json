@@ -57,7 +57,11 @@
     "subject": "主题",
     "date": "日期",
     "loading": "加载中...",
-    "loadingMore": "加载更多..."
+    "loadingMore": "加载更多...",
+    "deleteConfirm": "确认删除",
+    "deleteDescription": "确定要删除邮件「{subject}」吗？此操作不可恢复。",
+    "deleteSuccess": "邮件已删除",
+    "deleteFailed": "删除邮件失败"
   },
   "send": {
     "title": "发送邮件",

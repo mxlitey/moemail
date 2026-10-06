@@ -1,9 +1,6 @@
 {
-  "title": "Profile",
   "card": {
-    "title": "User Information",
     "name": "Name",
-    "role": "Role",
     "roles": {
       "EMPEROR": "Emperor",
       "DUKE": "Duke",
@@ -111,7 +108,6 @@
   },
   "website": {
     "title": "Website Configuration",
-    "description": "Configure website settings (Emperor only)",
     "defaultRole": "Default Role for New Users",
     "emailDomains": "Email Domains",
     "emailDomainsPlaceholder": "Separate multiple domains with commas",
@@ -133,12 +129,10 @@
     "saveFailed": "Failed to save configuration"
   },
   "messageCenter": {
-    "title": "Message Center",
-    "description": "Manage system messages: the welcome message new users receive, and broadcasts pushed to users"
+    "title": "Message Center"
   },
   "welcome": {
     "title": "Welcome Message",
-    "description": "The first message a new user receives when their message center is created on first sign-in. Leave blank to use the default text; only affects users onboarded afterwards.",
     "subject": "Message Subject",
     "content": "Message Content",
     "placeholderHint": "Available placeholders: {placeholders}",
@@ -149,7 +143,6 @@
   },
   "broadcast": {
     "title": "System Broadcast",
-    "description": "Send a notification to users' message center, with optional role filtering",
     "role": "Recipients",
     "roleAll": "All users",
     "subject": "Subject",
@@ -167,24 +160,8 @@
     "confirmDescription": "Will send to {count} users in about {chunks} batches. This action cannot be undone.",
     "confirm": "Confirm"
   },
-  "promote": {
-    "title": "Role Management",
-    "description": "Manage user roles (Emperor only)",
-    "search": "Search Users",
-    "searchPlaceholder": "Enter username or email",
-    "username": "Username",
-    "email": "Email",
-    "role": "Role",
-    "actions": "Actions",
-    "promote": "Set as",
-    "noUsers": "No users found",
-    "loading": "Loading...",
-    "updateSuccess": "User role updated successfully",
-    "updateFailed": "Failed to update user role"
-  },
   "roles": {
     "title": "Role Management",
-    "description": "Manage all registered users, modify permission levels, change passwords, or delete users (Emperor only)",
     "searchPlaceholder": "Search by username or email",
     "refresh": "Refresh",
     "loading": "Loading...",

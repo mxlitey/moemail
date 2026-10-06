@@ -1,9 +1,6 @@
 {
-  "title": "プロフィール",
   "card": {
-    "title": "ユーザー情報",
     "name": "ユーザー名",
-    "role": "ロール",
     "roles": {
       "EMPEROR": "皇帝",
       "DUKE": "公爵",
@@ -111,7 +108,6 @@
   },
   "website": {
     "title": "サイト設定",
-    "description": "サイトの設定を管理（皇帝のみ利用可能）",
     "defaultRole": "新規ユーザーのデフォルトロール",
     "emailDomains": "メールボックスドメイン",
     "emailDomainsPlaceholder": "複数のドメインはカンマで区切ります",
@@ -133,12 +129,10 @@
     "saveFailed": "設定の保存に失敗しました"
   },
   "messageCenter": {
-    "title": "メッセージセンター設定",
-    "description": "システムメッセージを管理します：新規ユーザーが受け取るウェルカムメッセージと、ユーザーへ配信する一斉通知"
+    "title": "メッセージセンター設定"
   },
   "welcome": {
     "title": "ウェルカムメッセージ",
-    "description": "新規ユーザーが初回ログインでメッセージセンターを開設したときに受け取る最初のメッセージです。空欄の場合は既定の文面を使用し、以降に開設したユーザーにのみ反映されます。",
     "subject": "件名",
     "content": "本文",
     "placeholderHint": "使用可能なプレースホルダー：{placeholders}",
@@ -149,7 +143,6 @@
   },
   "broadcast": {
     "title": "システム一斉通知",
-    "description": "ユーザーのメッセージセンターに通知を送信します（ロールで絞り込み可能）",
     "role": "宛先",
     "roleAll": "全ユーザー",
     "subject": "件名",
@@ -167,24 +160,8 @@
     "confirmDescription": "{count} 人のユーザーに約 {chunks} 回に分けて送信します。この操作は取り消せません。",
     "confirm": "送信する"
   },
-  "promote": {
-    "title": "ロール管理",
-    "description": "ユーザーロールを管理（皇帝のみ利用可能）",
-    "search": "ユーザーを検索",
-    "searchPlaceholder": "ユーザー名またはメールを入力",
-    "username": "ユーザー名",
-    "email": "メール",
-    "role": "ロール",
-    "actions": "操作",
-    "promote": "設定",
-    "noUsers": "ユーザーが見つかりません",
-    "loading": "読み込み中...",
-    "updateSuccess": "ユーザーロールを更新しました",
-    "updateFailed": "ユーザーロールの更新に失敗しました"
-  },
   "roles": {
     "title": "ロール管理",
-    "description": "すべての登録ユーザーを管理し、権限レベルの変更、パスワードの変更、ユーザーの削除が可能です（皇帝のみ利用可能）",
     "searchPlaceholder": "ユーザー名またはメールで検索",
     "refresh": "更新",
     "loading": "読み込み中...",

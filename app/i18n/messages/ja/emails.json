@@ -57,7 +57,11 @@
     "subject": "件名",
     "date": "日付",
     "loading": "読み込み中...",
-    "loadingMore": "さらに読み込み中..."
+    "loadingMore": "さらに読み込み中...",
+    "deleteConfirm": "削除の確認",
+    "deleteDescription": "メール「{subject}」を削除しますか？この操作は取り消せません。",
+    "deleteSuccess": "メールを削除しました",
+    "deleteFailed": "メールの削除に失敗しました"
   },
   "send": {
     "title": "メールを送信",

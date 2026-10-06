@@ -57,7 +57,11 @@
     "subject": "Subject",
     "date": "Date",
     "loading": "Loading...",
-    "loadingMore": "Loading more..."
+    "loadingMore": "Loading more...",
+    "deleteConfirm": "Confirm Delete",
+    "deleteDescription": "Are you sure you want to delete the message \"{subject}\"? This action cannot be undone.",
+    "deleteSuccess": "Message deleted",
+    "deleteFailed": "Failed to delete message"
   },
   "send": {
     "title": "Send Email",

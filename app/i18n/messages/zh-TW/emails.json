@@ -57,7 +57,11 @@
     "subject": "主旨",
     "date": "日期",
     "loading": "載入中...",
-    "loadingMore": "載入更多..."
+    "loadingMore": "載入更多...",
+    "deleteConfirm": "確認刪除",
+    "deleteDescription": "確定要刪除郵件「{subject}」嗎？此操作無法復原。",
+    "deleteSuccess": "郵件已刪除",
+    "deleteFailed": "刪除郵件失敗"
   },
   "send": {
     "title": "發送郵件",

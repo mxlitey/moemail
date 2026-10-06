@@ -1,9 +1,6 @@
 {
-  "title": "个人中心",
   "card": {
-    "title": "用户信息",
     "name": "用户名",
-    "role": "角色",
     "roles": {
       "EMPEROR": "皇帝",
       "DUKE": "公爵",
@@ -111,7 +108,6 @@
   },
   "website": {
     "title": "网站配置",
-    "description": "配置网站设置（仅皇帝可用）",
     "defaultRole": "新用户默认角色",
     "emailDomains": "邮箱域名",
     "emailDomainsPlaceholder": "多个域名用逗号分隔",
@@ -133,12 +129,10 @@
     "saveFailed": "保存配置失败"
   },
   "messageCenter": {
-    "title": "消息中心配置",
-    "description": "管理系统消息：新用户开通消息中心时收到的欢迎消息，以及主动推送给用户的系统广播"
+    "title": "消息中心配置"
   },
   "welcome": {
     "title": "欢迎消息",
-    "description": "新用户首次登录开通消息中心时收到的第一条消息。留空则使用默认文案，仅对之后新开通的用户生效。",
     "subject": "消息标题",
     "content": "消息内容",
     "placeholderHint": "可用占位符：{placeholders}",
@@ -149,7 +143,6 @@
   },
   "broadcast": {
     "title": "系统广播",
-    "description": "向用户的消息中心发送通知，支持按角色筛选收件人",
     "role": "收件人",
     "roleAll": "全部用户",
     "subject": "标题",
@@ -167,24 +160,8 @@
     "confirmDescription": "将向 {count} 位用户发送，预计分 {chunks} 次完成。该操作不可撤销。",
     "confirm": "确认发送"
   },
-  "promote": {
-    "title": "角色管理",
-    "description": "管理用户角色（仅皇帝可用）",
-    "search": "搜索用户",
-    "searchPlaceholder": "输入用户名或邮箱",
-    "username": "用户名",
-    "email": "邮箱",
-    "role": "角色",
-    "actions": "操作",
-    "promote": "设为",
-    "noUsers": "未找到用户",
-    "loading": "加载中...",
-    "updateSuccess": "用户角色更新成功",
-    "updateFailed": "更新用户角色失败"
-  },
   "roles": {
     "title": "角色管理",
-    "description": "管理所有注册用户，修改权限等级、修改密码或删除用户（仅皇帝可用）",
     "searchPlaceholder": "通过用户名或邮箱搜索",
     "refresh": "刷新",
     "loading": "加载中...",
