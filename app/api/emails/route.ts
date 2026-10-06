@@ -1,5 +1,5 @@
 import { createDb } from "@/lib/db"
-import { and, eq, gt, lt, notLike, or, sql } from "drizzle-orm"
+import { and, eq, gt, like, lt, or, sql } from "drizzle-orm"
 import { NextResponse } from "next/server"
 import { emails } from "@/lib/schema"
 import { encodeCursor, decodeCursor } from "@/lib/cursor"
@@ -34,11 +34,11 @@ export async function GET(request: Request) {
       })
     }
 
-    // 普通邮箱列表排除系统收件箱（其地址不带 @），避免污染分页与数量统计
+    // 普通邮箱列表只取含 @ 的真实邮箱，排除系统收件箱（哨兵地址不含 @），避免污染分页与数量统计
     const baseConditions = and(
       eq(emails.userId, userId),
       gt(emails.expiresAt, new Date()),
-      notLike(emails.address, '%@%')
+      like(emails.address, '%@%')
     )
 
     const totalResult = await db.select({ count: sql<number>`count(*)` })

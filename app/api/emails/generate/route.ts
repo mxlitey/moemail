@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { nanoid } from "nanoid"
 import { createDb } from "@/lib/db"
 import { emails } from "@/lib/schema"
-import { eq, and, gt, notLike, sql } from "drizzle-orm"
+import { eq, and, gt, like, sql } from "drizzle-orm"
 import { EXPIRY_OPTIONS } from "@/types/email"
 import { EMAIL_CONFIG } from "@/config"
 import { getRequestContext } from "@cloudflare/next-on-pages"
@@ -29,8 +29,8 @@ export async function POST(request: Request) {
           and(
             eq(emails.userId, userId!),
             gt(emails.expiresAt, new Date()),
-            // 系统收件箱不占用用户邮箱额度
-            notLike(emails.address, '%@%')
+            // 系统收件箱（哨兵地址不含 @）不占用用户邮箱额度，只统计真实邮箱
+            like(emails.address, '%@%')
           )
         )
       
