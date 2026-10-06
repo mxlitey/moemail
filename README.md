@@ -369,15 +369,38 @@ MoeMail 支持使用临时邮箱发送邮件，基于 [Resend](https://resend.co
 
 ## Webhook 集成
 
-当收到新邮件时，系统会向用户配置并且已启用的 Webhook URL 发送 POST 请求。
-
-### 请求头
-```http
-Content-Type: application/json
-X-Webhook-Event: new_message
-```
+当收到新邮件时，系统会向用户配置并且已启用的 Webhook URL 发送 POST 请求。请求体与请求头均由用户在个人中心自定义。
 
 ### 请求体
+
+请求体来自用户填写的模板，模板中使用占位符引用邮件数据：
+
+| 占位符 | 说明 |
+| --- | --- |
+| `{{event}}` | 触发事件名，当前为 `new_message` |
+| `{{subject}}` | 邮件主题 |
+| `{{fromAddress}}` | 发件人地址 |
+| `{{toAddress}}` | 收件人地址 |
+| `{{receivedAt}}` | 接收时间（ISO 字符串） |
+| `{{content}}` | 纯文本正文 |
+| `{{html}}` | HTML 正文 |
+| `{{emailId}}` | 邮箱 ID |
+| `{{messageId}}` | 消息 ID |
+| `{{markdown}}` | 正文的 Markdown 形式 |
+
+示例模板：
+
+```json
+{
+  "event": "{{event}}",
+  "subject": "{{subject}}",
+  "from": "{{fromAddress}}",
+  "content": "{{content}}"
+}
+```
+
+占位符在渲染时会做 JSON 字符串转义，因此可安全地放进 JSON 字符串中（正文里的引号、换行不会破坏结构）。模板留空时，系统发送邮件的通用数据 JSON：
+
 ```json
 {
   "emailId": "email-uuid",
@@ -391,12 +414,24 @@ X-Webhook-Event: new_message
 }
 ```
 
+### 请求头
+
+请求头同样由用户配置，默认包含一行 `Content-Type: application/json`，可修改或删除。头值也支持上述占位符，替换时按原样写入，不做 JSON 转义。
+
+```http
+Content-Type: application/json
+Authorization: Bearer your-token
+```
+
+`Host`、`Content-Length`、`Connection`、`User-Agent` 等由运行时控制或规范禁用的请求头无法设置。
+
 ### 配置说明
 1. 点击个人头像，进入个人中心
 2. 在个人中心启用 Webhook
 3. 设置接收通知的 URL
-4. 点击测试按钮验证配置
-5. 保存配置后即可接收新邮件通知
+4. 填写请求体模板（可选）与请求头
+5. 点击测试按钮验证配置
+6. 保存配置后即可接收新邮件通知
 
 ### 测试
 
@@ -415,7 +450,8 @@ pnpx cloudflared tunnel --url http://localhost:3001
 
 ### 注意事项
 - Webhook 接口应在 10 秒内响应
-- 非 2xx 响应码会触发重试
+- 非 2xx 响应码会触发重试，最多 3 次
+- 投递最终失败时，系统会向用户发送站内通知（同一用户 24 小时内去重）
 
 ## OpenAPI
 

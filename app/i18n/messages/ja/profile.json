@@ -92,23 +92,30 @@
     "saveFailed": "設定の保存に失敗しました",
     "testSuccess": "Webhook テストに成功しました",
     "testFailed": "Webhook テストに失敗しました",
-    "platforms": {
-      "feishu": "Feishu",
-      "dingtalk": "DingTalk",
-      "wechat": "WeChat Work",
-      "discord": "Discord",
-      "slack": "Slack",
-      "telegram": "Telegram",
-      "generic": "汎用"
-    },
-    "docs": {
-      "intro": "新しいメールを受信すると、設定した URL に POST リクエストを送信します。リクエストヘッダーには以下が含まれます:",
-      "exampleBody": "リクエストボディ例:",
-      "detectedPlatform": "認識されたプラットフォーム: {platform}",
-      "keywordHint": "ヒント: {platform} ボット作成時、セキュリティ設定で「カスタムキーワード」を選択し「📧」または「メール」を入力してください（通知内容に既に含まれています）。署名検証は不要です。",
+    "template": "リクエストボディテンプレート",
+    "templateHint": "空の場合はメールの汎用データ JSON を送信します。下のプレースホルダーをクリックするとカーソル位置に挿入できます",
+    "placeholdersTitle": "利用可能なプレースホルダー（クリックで挿入）",
+    "headers": "リクエストヘッダー",
+    "headersHint": "既定で Content-Type を含みます。変更・削除できます。値はプレースホルダーに対応します。Host や Content-Length などの制御ヘッダーは設定できません",
+    "headerKey": "ヘッダー名",
+    "headerValue": "ヘッダー値",
+    "addHeader": "ヘッダーを追加",
+    "removeHeader": "このヘッダーを削除",
+    "preview": "リクエストをプレビュー",
+    "previewHeaders": "ヘッダー",
+    "previewBody": "ボディ",
+    "noHeaders": "（ヘッダーなし）",
+    "placeholders": {
+      "event": "トリガーイベント名",
       "subject": "メール件名",
-      "content": "メールテキスト内容",
-      "html": "メール HTML 内容"
+      "fromAddress": "差出人アドレス",
+      "toAddress": "宛先アドレス",
+      "receivedAt": "受信日時",
+      "content": "プレーンテキスト本文",
+      "html": "HTML 本文",
+      "emailId": "メールボックス ID",
+      "messageId": "メッセージ ID",
+      "markdown": "本文 Markdown"
     }
   },
   "website": {

@@ -92,23 +92,30 @@
     "saveFailed": "Failed to save configuration",
     "testSuccess": "Webhook test successful",
     "testFailed": "Webhook test failed",
-    "platforms": {
-      "feishu": "Feishu",
-      "dingtalk": "DingTalk",
-      "wechat": "WeChat Work",
-      "discord": "Discord",
-      "slack": "Slack",
-      "telegram": "Telegram",
-      "generic": "Generic"
-    },
-    "docs": {
-      "intro": "When a new email is received, we will send a POST request to the configured URL with the following headers:",
-      "exampleBody": "Request body example:",
-      "detectedPlatform": "Detected platform: {platform}",
-      "keywordHint": "Tip: When creating a {platform} bot, set the security option to \"Custom Keywords\" and use \"📧\" or \"email\" (the notification content already includes it). No signature verification is needed.",
-      "subject": "Email Subject",
-      "content": "Email text content",
-      "html": "Email HTML content"
+    "template": "Request Body Template",
+    "templateHint": "Leave empty to send the generic email data JSON; click a placeholder below to insert it at the cursor",
+    "placeholdersTitle": "Available placeholders (click to insert)",
+    "headers": "Request Headers",
+    "headersHint": "Includes Content-Type by default; edit or remove it. Values support placeholders. Controlled headers such as Host and Content-Length cannot be set.",
+    "headerKey": "Header name",
+    "headerValue": "Header value",
+    "addHeader": "Add header",
+    "removeHeader": "Remove header",
+    "preview": "Preview request",
+    "previewHeaders": "Headers",
+    "previewBody": "Body",
+    "noHeaders": "(no headers)",
+    "placeholders": {
+      "event": "Trigger event name",
+      "subject": "Email subject",
+      "fromAddress": "Sender address",
+      "toAddress": "Recipient address",
+      "receivedAt": "Received time",
+      "content": "Plain text body",
+      "html": "HTML body",
+      "emailId": "Email ID",
+      "messageId": "Message ID",
+      "markdown": "Body as Markdown"
     }
   },
   "website": {

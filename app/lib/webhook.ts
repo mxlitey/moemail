@@ -11,41 +11,34 @@ export interface EmailMessage {
   toAddress: string
 }
 
+export type WebhookEvent = typeof WEBHOOK_CONFIG.EVENTS[keyof typeof WEBHOOK_CONFIG.EVENTS]
+
 export interface WebhookPayload {
-  event: typeof WEBHOOK_CONFIG.EVENTS[keyof typeof WEBHOOK_CONFIG.EVENTS]
+  event: WebhookEvent
   data: EmailMessage
 }
 
-// 支持的平台类型
-export type Platform =
-  | "feishu"
-  | "dingtalk"
-  | "wechat"
-  | "discord"
-  | "slack"
-  | "telegram"
-  | "generic"
-
-// 通过 URL 自动识别平台
-export function detectPlatform(url: string): Platform {
-  if (/open\.feishu\.cn\/open-apis\/bot\/v2\/hook\//.test(url)) return "feishu"
-  if (/oapi\.dingtalk\.com\/robot\/send/.test(url)) return "dingtalk"
-  if (/qyapi\.weixin\.qq\.com\/cgi-bin\/webhook\/send/.test(url)) return "wechat"
-  if (/discord\.com\/api\/webhooks\//.test(url)) return "discord"
-  if (/hooks\.slack\.com\/services\//.test(url)) return "slack"
-  if (/api\.telegram\.org\/bot.*\/sendMessage/.test(url)) return "telegram"
-  return "generic"
+// 用户自定义请求头的键值对
+export interface WebhookHeader {
+  key: string
+  value: string
 }
 
-// 从 URL 提取 Telegram chat_id（Telegram 把 chat_id 放在 query 参数里）
-function extractTelegramChatId(url: string): string | null {
-  try {
-    const u = new URL(url)
-    return u.searchParams.get("chat_id")
-  } catch {
-    return null
-  }
-}
+// 全部可用占位符；说明文案由前端 i18n 提供
+export const WEBHOOK_PLACEHOLDERS = [
+  "event",
+  "subject",
+  "fromAddress",
+  "toAddress",
+  "receivedAt",
+  "content",
+  "html",
+  "emailId",
+  "messageId",
+  "markdown",
+] as const
+
+export type WebhookPlaceholder = typeof WEBHOOK_PLACEHOLDERS[number]
 
 // HTML 实体解码
 function decodeHtmlEntities(s: string): string {
@@ -56,6 +49,11 @@ function decodeHtmlEntities(s: string): string {
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, " ")
+}
+
+// 剥离所有 HTML 标签，仅保留纯文本
+function stripTags(s: string): string {
+  return s.replace(/<[^>]+>/g, "")
 }
 
 // 最小化 HTML → Markdown 转换器，覆盖邮件常见标签，无 DOM 依赖，Worker/Edge 均可运行
@@ -128,135 +126,154 @@ export function htmlToMarkdown(html: string): string {
   return s
 }
 
-// 剥离所有 HTML 标签，仅保留纯文本
-function stripTags(s: string): string {
-  return s.replace(/<[^>]+>/g, "")
-}
+const PLACEHOLDER_PATTERN = /\{\{\s*([a-zA-Z][a-zA-Z0-9_]*)\s*\}\}/g
 
-// 剥离 Markdown 标记符号，用于不支持 md 的纯文本场景（如飞书 text 模式）
-function stripMarkdown(md: string): string {
-  return md
-    .replace(/^#{1,6}\s+/gm, "")        // 标题
-    .replace(/\*\*(.+?)\*\*/g, "$1")    // 加粗
-    .replace(/\*(.+?)\*/g, "$1")        // 斜体
-    .replace(/~~(.+?)~~/g, "$1")        // 删除线
-    .replace(/\[(.+?)\]\((.+?)\)/g, "$1") // 链接保留文本
-    .replace(/!\[(.*?)\]\((.+?)\)/g, "$1") // 图片保留 alt
-    .replace(/^>\s+/gm, "")             // 引用
-    .replace(/^[-*]\s+/gm, "")          // 无序列表
-    .replace(/^\d+\.\s+/gm, "")         // 有序列表
-    .replace(/^---$/gm, "")             // 分隔线
-    .trim()
-}
-
-// 根据平台构造请求体（纯函数，前端文档区与后端发送共用同一份逻辑）
-export function buildBody(platform: Platform, data: EmailMessage, url?: string): string {
-  // 优先用 html 转换的 markdown（保留格式），html 为空时回退纯文本 content
-  const bodyMarkdown = data.html ? htmlToMarkdown(data.html) : data.content
-
-  // 各平台统一展示 EmailMessage 的全部字段，与通用 JSON 格式信息对齐
-  const text = [
-    `📧 ${data.subject}`,
-    `发件人：${data.fromAddress}`,
-    `收件人：${data.toAddress}`,
-    `时间：${data.receivedAt}`,
-    `邮件ID：${data.emailId}`,
-    `消息ID：${data.messageId}`,
-    "",
-    stripMarkdown(bodyMarkdown),
-  ].join("\n")
-
-  const markdown = [
-    `### 📧 ${data.subject}`,
-    "",
-    `**发件人**：${data.fromAddress}`,
-    `**收件人**：${data.toAddress}`,
-    `**时间**：${data.receivedAt}`,
-    `**邮件ID**：${data.emailId}`,
-    `**消息ID**：${data.messageId}`,
-    "",
-    bodyMarkdown,
-  ].join("\n")
-
-  switch (platform) {
-    case "feishu":
-      return JSON.stringify({
-        msg_type: "text",
-        content: { text },
-      })
-    case "dingtalk":
-      return JSON.stringify({
-        msgtype: "markdown",
-        markdown: { title: data.subject, text: markdown },
-      })
-    case "wechat":
-      return JSON.stringify({
-        msgtype: "markdown",
-        markdown: { content: markdown },
-      })
-    case "discord":
-      return JSON.stringify({
-        content: [
-          `**📧 ${data.subject}**`,
-          `发件人：${data.fromAddress}`,
-          `收件人：${data.toAddress}`,
-          `时间：${data.receivedAt}`,
-          `邮件ID：${data.emailId}`,
-          `消息ID：${data.messageId}`,
-          "",
-          bodyMarkdown,
-        ].join("\n"),
-      })
-    case "slack":
-      return JSON.stringify({
-        text: `📧 ${data.subject}`,
-        blocks: [
-          {
-            type: "header",
-            text: { type: "plain_text", text: `📧 ${data.subject}` },
-          },
-          {
-            type: "section",
-            fields: [
-              { type: "mrkdwn", text: `*发件人*\n${data.fromAddress}` },
-              { type: "mrkdwn", text: `*收件人*\n${data.toAddress}` },
-              { type: "mrkdwn", text: `*时间*\n${data.receivedAt}` },
-              { type: "mrkdwn", text: `*邮件ID*\n${data.emailId}` },
-              { type: "mrkdwn", text: `*消息ID*\n${data.messageId}` },
-            ],
-          },
-          {
-            type: "section",
-            text: { type: "mrkdwn", text: bodyMarkdown },
-          },
-        ],
-      })
-    case "telegram": {
-      const chatId = url ? extractTelegramChatId(url) : null
-      return JSON.stringify({
-        chat_id: chatId,
-        text: markdown,
-        parse_mode: "Markdown",
-      })
-    }
-    default:
-      // 通用 JSON：保留原始邮件数据结构（全部字段）
-      return JSON.stringify(data)
+// 占位符取值：邮件字段 + 事件名 + markdown 派生值
+function buildPlaceholderValues(payload: WebhookPayload): Record<string, string> {
+  const { data, event } = payload
+  const markdown = data.html ? htmlToMarkdown(data.html) : (data.content || "")
+  return {
+    event,
+    subject: data.subject || "",
+    fromAddress: data.fromAddress || "",
+    toAddress: data.toAddress || "",
+    receivedAt: data.receivedAt || "",
+    content: data.content || "",
+    html: data.html || "",
+    emailId: data.emailId || "",
+    messageId: data.messageId || "",
+    markdown,
   }
 }
 
-// 飞书/钉钉/企业微信 虽然返回 HTTP 200，但 body 中 code/errcode 非 0 仍代表失败，需额外校验
-function isPlatformSuccess(platform: Platform, resBody: any): boolean {
-  if (platform === "feishu" || platform === "wechat") {
-    return resBody?.code === 0 || resBody?.errcode === 0
-  }
-  if (platform === "dingtalk") {
-    return resBody?.errcode === 0
-  }
-  return true
+// 转义为可安全放进 JSON 字符串的内容（去掉 JSON.stringify 自带的首尾引号）
+function jsonEscape(value: string): string {
+  return JSON.stringify(value).slice(1, -1)
 }
 
-// 示例邮件数据，前端文档区与测试接口共用，保证展示内容与实际发送一致
+/**
+ * 渲染模板。
+ * - mode = "json"：占位符值做 JSON 字符串转义，可安全嵌入 JSON 请求体
+ * - mode = "raw"：原样替换，用于请求头
+ * 未识别的占位符原样保留，便于用户发现拼写错误。
+ */
+export function renderTemplate(
+  template: string,
+  payload: WebhookPayload,
+  mode: "json" | "raw" = "json"
+): string {
+  const values = buildPlaceholderValues(payload)
+  const encode = mode === "json" ? jsonEscape : (v: string) => v
+  return template.replace(PLACEHOLDER_PATTERN, (match, key: string) =>
+    Object.prototype.hasOwnProperty.call(values, key) ? encode(values[key]) : match
+  )
+}
+
+// 未配置模板时的兜底：直接发送邮件的通用数据 JSON
+export function buildDefaultBody(data: EmailMessage): string {
+  return JSON.stringify(data)
+}
+
+// 构造请求体：模板优先，空模板回退通用数据 JSON
+export function buildRequestBody(payload: WebhookPayload, template?: string | null): string {
+  if (template && template.trim()) {
+    return renderTemplate(template, payload, "json")
+  }
+  return buildDefaultBody(payload.data)
+}
+
+// RFC 7230 token 形式的 Header 名
+const HEADER_NAME_PATTERN = /^[!#$%&'*+\-.^_`|~0-9A-Za-z]+$/
+
+// 运行时受控或规范禁用、用户无法真正设置的头
+const FORBIDDEN_HEADERS = new Set([
+  "host",
+  "content-length",
+  "connection",
+  "transfer-encoding",
+  "upgrade",
+  "expect",
+  "keep-alive",
+  "te",
+  "trailer",
+  "date",
+  "dnt",
+  "via",
+  "cookie",
+  "cookie2",
+  "referer",
+  "origin",
+  "accept",
+  "accept-language",
+  "accept-encoding",
+  "user-agent",
+])
+
+export function isValidHeaderName(key: string): boolean {
+  return HEADER_NAME_PATTERN.test(key.trim())
+}
+
+export function isForbiddenHeader(key: string): boolean {
+  const k = key.trim().toLowerCase()
+  if (!k) return true
+  if (FORBIDDEN_HEADERS.has(k)) return true
+  if (k.startsWith("proxy-") || k.startsWith("sec-")) return true
+  return false
+}
+
+// 默认头：用户可自定义覆盖或删除
+export function buildDefaultHeaders(): Record<string, string> {
+  return { "Content-Type": "application/json" }
+}
+
+/**
+ * 合并最终请求头：
+ * - headers 为 null/undefined（历史配置从未配置过请求头）→ 使用默认头
+ * - headers 为空数组 → 用户已显式删除全部请求头，不再注入默认头
+ * - 其余情况 → 只使用用户自定义头（过滤非法/禁用头）
+ * 传入 payload 时，头值中的占位符按原样替换（请求头不是 JSON，不做 JSON 转义）。
+ */
+export function buildHeaders(
+  headers?: WebhookHeader[] | null,
+  payload?: WebhookPayload
+): Record<string, string> {
+  if (headers == null) return buildDefaultHeaders()
+
+  const result: Record<string, string> = {}
+  for (const header of headers) {
+    if (!header) continue
+    const key = (header.key ?? "").trim()
+    if (!key || !isValidHeaderName(key) || isForbiddenHeader(key)) continue
+    const rawValue = payload
+      ? renderTemplate(header.value ?? "", payload, "raw")
+      : (header.value ?? "")
+    // 头值不允许出现 CR/LF，避免头注入
+    result[key] = rawValue.replace(/[\r\n]+/g, " ")
+  }
+  return result
+}
+
+// 解析数据库中存储的 headers JSON
+export function parseHeaders(raw?: string | null): WebhookHeader[] | null {
+  if (raw == null || raw === "") return null
+  try {
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return null
+    return parsed
+      .filter((h) => h && typeof h.key === "string" && typeof h.value === "string")
+      .map((h) => ({ key: h.key, value: h.value }))
+  } catch {
+    return null
+  }
+}
+
+// 序列化自定义请求头供入库；null 表示"未配置"，[] 表示"显式清空"
+export function serializeHeaders(headers?: WebhookHeader[] | null): string | null {
+  if (headers == null) return null
+  return JSON.stringify(headers)
+}
+
+// 示例邮件数据，前端预览与测试接口共用，保证展示内容与实际发送一致
 export const SAMPLE_MESSAGE: EmailMessage = {
   emailId: "123456789",
   messageId: "987654321",
@@ -268,9 +285,18 @@ export const SAMPLE_MESSAGE: EmailMessage = {
   toAddress: "recipient@example.com",
 }
 
-export async function callWebhook(url: string, payload: WebhookPayload) {
-  const platform = detectPlatform(url)
-  const body = buildBody(platform, payload.data, url)
+export interface CallWebhookOptions {
+  template?: string | null
+  headers?: WebhookHeader[] | null
+}
+
+export async function callWebhook(
+  url: string,
+  payload: WebhookPayload,
+  options: CallWebhookOptions = {}
+) {
+  const body = buildRequestBody(payload, options.template)
+  const headers = buildHeaders(options.headers, payload)
 
   let lastError: Error | null = null
 
@@ -281,25 +307,15 @@ export async function callWebhook(url: string, payload: WebhookPayload) {
 
       const response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Telegram 不需要 X-Webhook-Event 头
-          ...(platform === "telegram" ? {} : { "X-Webhook-Event": payload.event }),
-        },
+        headers,
         body,
         signal: controller.signal,
       })
 
       clearTimeout(timeoutId)
 
+      // 只认 HTTP 2xx 为成功
       if (response.ok) {
-        // 部分平台 HTTP 200 但业务码非 0，需解析 body 校验
-        if (platform === "feishu" || platform === "dingtalk" || platform === "wechat") {
-          const resBody = await response.json().catch(() => ({}))
-          if (!isPlatformSuccess(platform, resBody)) {
-            throw new Error(`${platform} error: ${JSON.stringify(resBody)}`)
-          }
-        }
         return true
       }
 

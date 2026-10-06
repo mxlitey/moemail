@@ -78,6 +78,8 @@ export const webhooks = sqliteTable('webhook', {
     .references(() => users.id, { onDelete: "cascade" }),
   url: text('url').notNull(),
   enabled: integer('enabled', { mode: 'boolean' }).notNull().default(true),
+  template: text('template'),
+  headers: text('headers'),
   createdAt: integer('created_at', { mode: 'timestamp_ms' })
     .notNull()
     .$defaultFn(() => new Date()),

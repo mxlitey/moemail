@@ -370,15 +370,38 @@ MoeMail supports sending emails using temporary addresses, based on [Resend](htt
 
 ## Webhook Integration
 
-When a new email is received, the system sends a POST request to the configured and enabled Webhook URL.
-
-### Request Header
-```http
-Content-Type: application/json
-X-Webhook-Event: new_message
-```
+When a new email is received, the system sends a POST request to the configured and enabled Webhook URL. Both the request body and the request headers are defined by the user in the profile page.
 
 ### Request Body
+
+The request body is generated from the template the user provides, using placeholders to reference the email data:
+
+| Placeholder | Description |
+| --- | --- |
+| `{{event}}` | Trigger event name, currently `new_message` |
+| `{{subject}}` | Email subject |
+| `{{fromAddress}}` | Sender address |
+| `{{toAddress}}` | Recipient address |
+| `{{receivedAt}}` | Received time (ISO string) |
+| `{{content}}` | Plain text body |
+| `{{html}}` | HTML body |
+| `{{emailId}}` | Email ID |
+| `{{messageId}}` | Message ID |
+| `{{markdown}}` | Body as Markdown |
+
+Example template:
+
+```json
+{
+  "event": "{{event}}",
+  "subject": "{{subject}}",
+  "from": "{{fromAddress}}",
+  "content": "{{content}}"
+}
+```
+
+Placeholder values are JSON-escaped during rendering, so they can be safely placed inside JSON strings (quotes and line breaks in the email do not break the structure). When the template is left empty, the system sends the generic email data JSON:
+
 ```json
 {
   "emailId": "email-uuid",
@@ -392,12 +415,24 @@ X-Webhook-Event: new_message
 }
 ```
 
+### Request Headers
+
+Request headers are configured by the user as well. A `Content-Type: application/json` header is included by default and can be edited or removed. Header values also support the placeholders above; they are substituted as-is without JSON escaping.
+
+```http
+Content-Type: application/json
+Authorization: Bearer your-token
+```
+
+Headers controlled by the runtime or forbidden by the spec, such as `Host`, `Content-Length`, `Connection`, and `User-Agent`, cannot be set.
+
 ### Configuration
 1. Click avatar to enter User Profile
 2. Enable Webhook
 3. Set notification URL
-4. Click Test button
-5. Save to receive notifications
+4. Fill in the request body template (optional) and request headers
+5. Click Test button
+6. Save to receive notifications
 
 ### Testing
 
@@ -416,7 +451,8 @@ pnpx cloudflared tunnel --url http://localhost:3001
 
 ### Notes
 - Webhook must respond within 10 seconds
-- Non-2xx response triggers retry
+- Non-2xx response triggers retry, up to 3 attempts
+- When delivery ultimately fails, the system sends an in-app notification to the user (deduplicated per user within 24 hours)
 
 ## OpenAPI
 

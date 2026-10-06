@@ -4,7 +4,7 @@ import * as schema from '../app/lib/schema'
 import { eq, sql } from 'drizzle-orm'
 import PostalMime from 'postal-mime'
 import { WEBHOOK_CONFIG } from '../app/config'
-import { callWebhook } from '../app/lib/webhook'
+import { callWebhook, parseHeaders } from '../app/lib/webhook'
 import { insertSystemMessage } from '../app/lib/system-inbox'
 
 const { messages, emails, webhooks } = schema
@@ -61,7 +61,7 @@ const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
 
     if (webhook?.enabled) {
       try {
-        // 复用统一的平台适配逻辑（自动识别飞书/钉钉/企微等，含重试与业务码校验）
+        // 请求体与请求头均由用户自定义模板/配置决定（占位符在渲染时替换）
         await callWebhook(webhook.url, {
           event: WEBHOOK_CONFIG.EVENTS.NEW_MESSAGE,
           data: {
@@ -74,6 +74,9 @@ const handleEmail = async (message: ForwardableEmailMessage, env: Env) => {
             receivedAt: savedMessage.receivedAt.toISOString(),
             toAddress: targetEmail.address
           }
+        }, {
+          template: webhook.template,
+          headers: parseHeaders(webhook.headers),
         })
       } catch (error) {
         console.error('Failed to send webhook:', error)
