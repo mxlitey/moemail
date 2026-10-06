@@ -25,7 +25,7 @@
     "expiresAt": "Expires",
     "permanent": "Permanent",
     "deleteConfirm": "Confirm Delete",
-    "deleteDescription": "Are you sure you want to delete {email}? This will also delete all messages in this mailbox and cannot be undone.",
+    "deleteDescription": "Are you sure you want to delete \"{email}\"? This will also delete all messages in this mailbox and cannot be undone.",
     "deleteSuccess": "Email deleted successfully",
     "deleteFailed": "Failed to delete email",
     "error": "Error",

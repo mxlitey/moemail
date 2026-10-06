@@ -25,7 +25,7 @@
     "expiresAt": "過期時間",
     "permanent": "永久有效",
     "deleteConfirm": "確認刪除",
-    "deleteDescription": "確定要刪除郵箱 {email} 嗎？此操作將同時刪除該郵箱中的所有郵件，且不可恢復。",
+    "deleteDescription": "確定要刪除郵箱「{email}」嗎？此操作將同時刪除該郵箱中的所有郵件，且不可恢復。",
     "deleteSuccess": "郵箱已刪除",
     "deleteFailed": "刪除郵箱失敗",
     "error": "錯誤",

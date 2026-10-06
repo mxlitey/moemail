@@ -10,13 +10,48 @@ import { ensureSystemInboxes, insertSystemMessagesForUsers } from "@/lib/system-
 
 export const runtime = "edge"
 
+interface DomainApiKey {
+  domain: string
+  apiKey: string
+}
+
 interface EmailServiceConfig {
   enabled: boolean
-  apiKey: string
+  domainKeys: DomainApiKey[]
   roleLimits: {
     duke?: number
     knight?: number
   }
+}
+
+const RESEND_API_KEYS_KEY = "RESEND_API_KEYS"
+
+/**
+ * 将 KV 中存储的「域名 -> API Key」映射解析为配置项数组
+ */
+function parseDomainKeys(raw: string | null): DomainApiKey[] {
+  if (!raw) return []
+  try {
+    const parsed = JSON.parse(raw) as Record<string, string>
+    return Object.entries(parsed).map(([domain, apiKey]) => ({ domain, apiKey }))
+  } catch (error) {
+    console.error("Failed to parse resend domain keys:", error)
+    return []
+  }
+}
+
+/**
+ * 清洗配置项：去除首尾空白、域名统一小写，并丢弃完全为空的行
+ */
+function normalizeDomainKeys(input: DomainApiKey[] | undefined): DomainApiKey[] {
+  if (!Array.isArray(input)) return []
+
+  return input
+    .map((item) => ({
+      domain: (item?.domain ?? "").trim().toLowerCase(),
+      apiKey: (item?.apiKey ?? "").trim()
+    }))
+    .filter((item) => item.domain || item.apiKey)
 }
 
 export async function GET() {
@@ -30,9 +65,9 @@ export async function GET() {
 
   try {
     const env = getRequestContext().env
-    const [enabled, apiKey, roleLimits] = await Promise.all([
+    const [enabled, domainKeysRaw, roleLimits] = await Promise.all([
       env.SITE_CONFIG.get("EMAIL_SERVICE_ENABLED"),
-      env.SITE_CONFIG.get("RESEND_API_KEY"),
+      env.SITE_CONFIG.get(RESEND_API_KEYS_KEY),
       env.SITE_CONFIG.get("EMAIL_ROLE_LIMITS")
     ])
 
@@ -45,7 +80,7 @@ export async function GET() {
 
     return NextResponse.json({
       enabled: enabled === "true",
-      apiKey: apiKey || "",
+      domainKeys: parseDomainKeys(domainKeysRaw),
       roleLimits: finalLimits
     })
   } catch (error) {
@@ -69,9 +104,28 @@ export async function POST(request: Request) {
   try {
     const config = await request.json() as EmailServiceConfig
 
-    if (config.enabled && !config.apiKey) {
+    const domainKeys = normalizeDomainKeys(config.domainKeys)
+    const domainKeyMap: Record<string, string> = {}
+
+    for (const item of domainKeys) {
+      if (!item.domain || !item.apiKey) {
+        return NextResponse.json(
+          { error: "域名与 API Key 均不能为空" },
+          { status: 400 }
+        )
+      }
+      if (domainKeyMap[item.domain]) {
+        return NextResponse.json(
+          { error: `域名 ${item.domain} 重复配置` },
+          { status: 400 }
+        )
+      }
+      domainKeyMap[item.domain] = item.apiKey
+    }
+
+    if (config.enabled && domainKeys.length === 0) {
       return NextResponse.json(
-        { error: "启用 Resend 时，API Key 为必填项" },
+        { error: "启用 Resend 时，至少需要配置一个域名和 API Key" },
         { status: 400 }
       )
     }
@@ -92,7 +146,7 @@ export async function POST(request: Request) {
 
     await Promise.all([
       env.SITE_CONFIG.put("EMAIL_SERVICE_ENABLED", config.enabled.toString()),
-      env.SITE_CONFIG.put("RESEND_API_KEY", config.apiKey),
+      env.SITE_CONFIG.put(RESEND_API_KEYS_KEY, JSON.stringify(domainKeyMap)),
       env.SITE_CONFIG.put("EMAIL_ROLE_LIMITS", JSON.stringify(customLimits))
     ])
 

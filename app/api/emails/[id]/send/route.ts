@@ -98,11 +98,22 @@ export async function POST(
     }
 
     const env = getRequestContext().env
-    const apiKey = await env.SITE_CONFIG.get("RESEND_API_KEY")
+    // 按发件邮箱的域名选择对应的 Resend API Key
+    const domain = email.address.split("@").pop()?.trim().toLowerCase() || ""
+
+    const domainKeysRaw = await env.SITE_CONFIG.get("RESEND_API_KEYS")
+    let domainKeys: Record<string, string> = {}
+    try {
+      domainKeys = domainKeysRaw ? JSON.parse(domainKeysRaw) as Record<string, string> : {}
+    } catch (error) {
+      console.error("Failed to parse resend domain keys:", error)
+    }
+
+    const apiKey = domainKeys[domain]
 
     if (!apiKey) {
       return NextResponse.json(
-        { error: "Resend 发件服务未配置，请联系管理员" },
+        { error: `域名 ${domain} 未配置 Resend 发件服务，请联系管理员` },
         { status: 500 }
       )
     }

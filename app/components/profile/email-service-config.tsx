@@ -3,16 +3,21 @@
 import React, { useState, useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import { Zap, Eye, EyeOff } from "lucide-react"
+import { Zap, Eye, EyeOff, Plus, Trash2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 
+interface DomainApiKey {
+  domain: string
+  apiKey: string
+}
+
 interface EmailServiceConfig {
   enabled: boolean
-  apiKey: string
+  domainKeys: DomainApiKey[]
   roleLimits: {
     duke: number
     knight: number
@@ -25,14 +30,14 @@ export function EmailServiceConfig() {
   const tSend = useTranslations("emails.send")
   const [config, setConfig] = useState<EmailServiceConfig>({
     enabled: false,
-    apiKey: "",
+    domainKeys: [],
     roleLimits: {
       duke: -1,
       knight: -1,
     }
   })
   const [loading, setLoading] = useState(false)
-  const [showToken, setShowToken] = useState(false)
+  const [visibleKeys, setVisibleKeys] = useState<Record<number, boolean>>({})
   const { toast } = useToast()
 
   useEffect(() => {
@@ -56,7 +61,7 @@ export function EmailServiceConfig() {
     try {
       const saveData = {
         enabled: config.enabled,
-        apiKey: config.apiKey,
+        domainKeys: config.domainKeys,
         roleLimits: config.roleLimits
       }
 
@@ -115,30 +120,96 @@ export function EmailServiceConfig() {
         {config.enabled && (
           <>
             <div className="space-y-2">
-              <Label htmlFor="apiKey" className="text-sm font-medium">
-                {t("apiKey")}
-              </Label>
-              <div className="relative">
-                <Input
-                  id="apiKey"
-                  type={showToken ? "text" : "password"}
-                  value={config.apiKey}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setConfig((prev: EmailServiceConfig) => ({ ...prev, apiKey: e.target.value }))}
-                  placeholder={t("apiKeyPlaceholder")}
-                />
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">
+                  {t("domainKeys")}
+                </Label>
                 <Button
                   type="button"
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                  onClick={() => setShowToken(!showToken)}
+                  onClick={() =>
+                    setConfig((prev: EmailServiceConfig) => ({
+                      ...prev,
+                      domainKeys: [...prev.domainKeys, { domain: "", apiKey: "" }]
+                    }))
+                  }
                 >
-                  {showToken ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  <Plus className="h-4 w-4 mr-1" />
+                  {t("addDomain")}
                 </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {t("domainKeysDescription")}
+              </p>
+              <div className="space-y-3">
+                {config.domainKeys.map((item, index) => (
+                  <div key={index} className="flex items-start gap-2">
+                    <Input
+                      value={item.domain}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setConfig((prev: EmailServiceConfig) => ({
+                          ...prev,
+                          domainKeys: prev.domainKeys.map((entry, i) =>
+                            i === index ? { ...entry, domain: e.target.value } : entry
+                          )
+                        }))
+                      }
+                      placeholder={t("domainPlaceholder")}
+                      className="flex-1"
+                    />
+                    <div className="relative flex-1">
+                      <Input
+                        type={visibleKeys[index] ? "text" : "password"}
+                        value={item.apiKey}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setConfig((prev: EmailServiceConfig) => ({
+                            ...prev,
+                            domainKeys: prev.domainKeys.map((entry, i) =>
+                              i === index ? { ...entry, apiKey: e.target.value } : entry
+                            )
+                          }))
+                        }
+                        placeholder={t("apiKeyPlaceholder")}
+                        className="pr-10"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() =>
+                          setVisibleKeys((prev) => ({ ...prev, [index]: !prev[index] }))
+                        }
+                      >
+                        {visibleKeys[index] ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      aria-label={t("removeDomain")}
+                      onClick={() =>
+                        setConfig((prev: EmailServiceConfig) => ({
+                          ...prev,
+                          domainKeys: prev.domainKeys.filter((_, i) => i !== index)
+                        }))
+                      }
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                ))}
+                {config.domainKeys.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    {t("noDomainKeys")}
+                  </p>
+                )}
               </div>
             </div>
 

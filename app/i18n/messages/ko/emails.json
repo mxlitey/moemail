@@ -25,7 +25,7 @@
     "expiresAt": "만료",
     "permanent": "영구",
     "deleteConfirm": "삭제 확인",
-    "deleteDescription": "{email}을(를) 삭제하시겠습니까? 이 메일함의 모든 메시지도 함께 삭제되며 되돌릴 수 없습니다.",
+    "deleteDescription": "\"{email}\"을(를) 삭제하시겠습니까? 이 메일함의 모든 메시지도 함께 삭제되며 되돌릴 수 없습니다.",
     "deleteSuccess": "이메일이 성공적으로 삭제되었습니다",
     "deleteFailed": "이메일 삭제에 실패했습니다",
     "error": "오류",

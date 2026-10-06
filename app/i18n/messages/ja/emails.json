@@ -25,7 +25,7 @@
     "expiresAt": "有効期限",
     "permanent": "永久",
     "deleteConfirm": "削除の確認",
-    "deleteDescription": "メールボックス {email} を削除しますか？この操作によってメールボックス内のすべてのメールが削除され、元に戻せません。",
+    "deleteDescription": "メールボックス「{email}」を削除しますか？この操作によってメールボックス内のすべてのメールが削除され、元に戻せません。",
     "deleteSuccess": "メールボックスを削除しました",
     "deleteFailed": "メールボックスの削除に失敗しました",
     "error": "エラー",
