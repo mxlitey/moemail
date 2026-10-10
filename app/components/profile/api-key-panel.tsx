@@ -158,14 +158,10 @@ export function ApiKeyPanel() {
   }
 
   return (
-    <div className="bg-background rounded-lg border-2 border-primary/20 p-6 space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
-          <Key className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold">{t("title")}</h2>
-        </div>
-        {
-          canManageApiKey && (
+    <div className="space-y-6">
+      {
+        canManageApiKey && (
+          <div className="flex justify-end">
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="gap-2" onClick={() => setCreateDialogOpen(true)}>
@@ -243,9 +239,9 @@ export function ApiKeyPanel() {
                 </DialogFooter>
               </DialogContent>
             </Dialog>
-          )
-        }
-      </div>
+          </div>
+        )
+      }
 
       {
         !canManageApiKey ? (

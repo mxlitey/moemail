@@ -1,9 +1,8 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { useTranslations, useLocale } from "next-intl"
-import { useRouter } from "next/navigation"
-import { ArrowLeft, Gem, Sword, User2, Crown, Loader2, Search, KeyRound, Trash2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
+import { useTranslations } from "next-intl"
+import { Gem, Sword, User2, Crown, Loader2, Search, KeyRound, Trash2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -60,9 +59,6 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
   const t = useTranslations("profile.roles")
   const tCard = useTranslations("profile.card")
   const tCommon = useTranslations("common.actions")
-  const tNav = useTranslations("common.nav")
-  const router = useRouter()
-  const locale = useLocale()
   const { toast } = useToast()
 
   const [users, setUsers] = useState<UserItem[]>([])
@@ -250,21 +246,8 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <Button
-        onClick={() => router.push(`/${locale}/profile`)}
-        className="gap-2"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        {tNav("backToProfile")}
-      </Button>
-
-      <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Crown className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-semibold">{t("title")}</h2>
-        </div>
-
+    <div>
+      <div>
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between mb-4">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

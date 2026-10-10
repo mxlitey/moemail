@@ -2,7 +2,6 @@
 
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import { Settings } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { useState, useEffect } from "react"
 import { Role, ROLES } from "@/lib/permissions"
@@ -102,12 +101,7 @@ export function WebsiteConfigPanel() {
   }
 
   return (
-    <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Settings className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
-      </div>
-
+    <div>
       <div className="space-y-4">
         <div className="flex items-center gap-4">
           <span className="text-sm">{t("defaultRole")}:</span>

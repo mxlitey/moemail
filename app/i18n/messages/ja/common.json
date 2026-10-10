@@ -13,8 +13,7 @@
     "login": "ログイン",
     "profile": "プロフィール",
     "logout": "ログアウト",
-    "backToMailbox": "メールボックスに戻る",
-    "backToProfile": "プロフィールに戻る"
+    "backToMailbox": "メールボックスに戻る"
   },
   "github": "ソースコードを入手"
 }

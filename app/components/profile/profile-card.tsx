@@ -1,11 +1,27 @@
 "use client"
 
+import { useState } from "react"
+import type { ReactNode } from "react"
 import { User } from "next-auth"
 import { useTranslations, useLocale } from "next-intl"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { signOut } from "next-auth/react"
-import { Github, Settings, Crown, Sword, User2, Gem, Mail, Bell, ChevronRight } from "lucide-react"
+import {
+  Github,
+  Settings,
+  Crown,
+  Sword,
+  User2,
+  Gem,
+  Mail,
+  Bell,
+  ChevronDown,
+  Globe,
+  Zap,
+  Key,
+} from "lucide-react"
+import type { LucideIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { WebhookConfig } from "./webhook-config"
 import { EmailServiceConfig } from "./email-service-config"
@@ -13,6 +29,9 @@ import { useRolePermission } from "@/hooks/use-role-permission"
 import { PERMISSIONS } from "@/lib/permissions"
 import { WebsiteConfigPanel } from "./website-config-panel"
 import { ApiKeyPanel } from "./api-key-panel"
+import { MessageCenterManager } from "./message-center-manager"
+import { RolesManager } from "./roles-manager"
+import { cn } from "@/lib/utils"
 
 interface ProfileCardProps {
   user: User
@@ -57,12 +76,56 @@ const providerConfigs = {
   },
 } as const
 
+type SectionKey =
+  | "webhook"
+  | "website"
+  | "emailService"
+  | "apiKey"
+  | "messageCenter"
+  | "roles"
+
+/** 顶层折叠项：同一时间只展开一项由父组件通过 openKey 控制 */
+function AccordionSection({
+  icon: Icon,
+  title,
+  isOpen,
+  onToggle,
+  children,
+}: {
+  icon: LucideIcon
+  title: string
+  isOpen: boolean
+  onToggle: () => void
+  children: ReactNode
+}) {
+  return (
+    <section className="bg-background rounded-lg border-2 border-primary/20">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-2 p-6 text-left"
+        aria-expanded={isOpen}
+      >
+        <span className="flex items-center gap-2">
+          <Icon className="w-5 h-5 text-primary" />
+          <span className="text-lg font-semibold">{title}</span>
+        </span>
+        <ChevronDown className={cn("w-5 h-5 transition-transform", isOpen && "rotate-180")} />
+      </button>
+      {isOpen && <div className="px-6 pb-6">{children}</div>}
+    </section>
+  )
+}
+
 export function ProfileCard({ user }: ProfileCardProps) {
   const t = useTranslations("profile.card")
   const tPromote = useTranslations("profile.roles")
   const tAuth = useTranslations("auth.signButton")
   const tWebhook = useTranslations("profile.webhook")
   const tMessageCenter = useTranslations("profile.messageCenter")
+  const tWebsite = useTranslations("profile.website")
+  const tEmailService = useTranslations("profile.emailService")
+  const tApiKey = useTranslations("profile.apiKey")
   const tNav = useTranslations("common.nav")
   const locale = useLocale()
   const router = useRouter()
@@ -70,6 +133,10 @@ export function ProfileCard({ user }: ProfileCardProps) {
   const canManageWebhook = checkPermission(PERMISSIONS.MANAGE_WEBHOOK)
   const canPromote = checkPermission(PERMISSIONS.PROMOTE_USER)
   const canManageConfig = checkPermission(PERMISSIONS.MANAGE_CONFIG)
+
+  // 顶层手风琴：同一时间只展开一项
+  const [openKey, setOpenKey] = useState<SectionKey | null>(null)
+  const toggle = (key: SectionKey) => setOpenKey((prev) => (prev === key ? null : key))
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -137,44 +204,70 @@ export function ProfileCard({ user }: ProfileCardProps) {
       </div>
 
       {canManageWebhook && (
-        <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <Settings className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">{tWebhook("title")}</h2>
-          </div>
+        <AccordionSection
+          icon={Settings}
+          title={tWebhook("title")}
+          isOpen={openKey === "webhook"}
+          onToggle={() => toggle("webhook")}
+        >
           <WebhookConfig />
-        </div>
+        </AccordionSection>
       )}
 
-      {canManageConfig && <WebsiteConfigPanel />}
-      {canManageConfig && <EmailServiceConfig />}
       {canManageConfig && (
-        <button
-          type="button"
-          onClick={() => router.push(`/${locale}/profile/message-center`)}
-          className="w-full bg-background rounded-lg border-2 border-primary/20 p-6 text-left hover:border-primary/40 transition-colors flex items-center gap-4 group"
+        <AccordionSection
+          icon={Globe}
+          title={tWebsite("title")}
+          isOpen={openKey === "website"}
+          onToggle={() => toggle("website")}
         >
-          <div className="flex items-center gap-2 flex-1">
-            <Bell className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">{tMessageCenter("title")}</h2>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-        </button>
+          <WebsiteConfigPanel />
+        </AccordionSection>
       )}
+
+      {canManageConfig && (
+        <AccordionSection
+          icon={Zap}
+          title={tEmailService("title")}
+          isOpen={openKey === "emailService"}
+          onToggle={() => toggle("emailService")}
+        >
+          <EmailServiceConfig />
+        </AccordionSection>
+      )}
+
+      {canManageWebhook && (
+        <AccordionSection
+          icon={Key}
+          title={tApiKey("title")}
+          isOpen={openKey === "apiKey"}
+          onToggle={() => toggle("apiKey")}
+        >
+          <ApiKeyPanel />
+        </AccordionSection>
+      )}
+
+      {canManageConfig && (
+        <AccordionSection
+          icon={Bell}
+          title={tMessageCenter("title")}
+          isOpen={openKey === "messageCenter"}
+          onToggle={() => toggle("messageCenter")}
+        >
+          <MessageCenterManager />
+        </AccordionSection>
+      )}
+
       {canPromote && (
-        <button
-          type="button"
-          onClick={() => router.push(`/${locale}/profile/roles`)}
-          className="w-full bg-background rounded-lg border-2 border-primary/20 p-6 text-left hover:border-primary/40 transition-colors flex items-center gap-4 group"
+        <AccordionSection
+          icon={Crown}
+          title={tPromote("title")}
+          isOpen={openKey === "roles"}
+          onToggle={() => toggle("roles")}
         >
-          <div className="flex items-center gap-2 flex-1">
-            <Crown className="w-5 h-5 text-primary" />
-            <h2 className="text-lg font-semibold">{tPromote("title")}</h2>
-          </div>
-          <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
-        </button>
+          <RolesManager currentUserId={user.id!} />
+        </AccordionSection>
       )}
-      {canManageWebhook && <ApiKeyPanel />}
 
       <div className="flex flex-col sm:flex-row gap-4 px-1">
         <Button
@@ -194,4 +287,4 @@ export function ProfileCard({ user }: ProfileCardProps) {
       </div>
     </div>
   )
-} 
+}

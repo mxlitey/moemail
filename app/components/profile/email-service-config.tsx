@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import { Zap, Eye, EyeOff, Trash2 } from "lucide-react"
+import { Eye, EyeOff, Trash2 } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
@@ -129,12 +129,7 @@ export function EmailServiceConfig() {
   }
 
   return (
-    <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <Zap className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
-      </div>
-
+    <div>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="space-y-0.5">

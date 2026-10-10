@@ -1,19 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useTranslations, useLocale } from "next-intl"
-import { useRouter } from "next/navigation"
+import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import {
-  ArrowLeft,
-  ChevronDown,
-  Gauge,
-  Globe,
-  KeyRound,
-  Mail,
-  Megaphone,
-  UserCog,
-} from "lucide-react"
+import { ChevronDown, Gauge, Globe, KeyRound, Mail, Megaphone, UserCog } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
@@ -46,18 +36,13 @@ const EMPTY_TEMPLATES = Object.fromEntries(
 ) as Record<NotificationTemplateType, TemplateValues>
 
 /**
- * 消息中心配置页：集中管理用户收到的系统消息相关配置。
- *  - 7 类系统通知：可自定义标题/正文模板
- *  - 系统广播：向用户主动推送通知
- *
- * 全部条目以折叠面板呈现，同一时间只展开一项，避免页面过长。
+ * 消息中心配置：内联在个人中心的手风琴中，因此这里不再有页面壳与返回按钮。
+ * 作为第二层，采用轻量列表样式（无卡片边框，小标题 + 分隔线），避免嵌套手风琴的视觉混淆。
+ * 同一时间只展开一项。
  */
 export function MessageCenterManager() {
   const t = useTranslations("profile.notificationTemplates")
   const tBroadcast = useTranslations("profile.broadcast")
-  const tNav = useTranslations("common.nav")
-  const router = useRouter()
-  const locale = useLocale()
   const { toast } = useToast()
 
   const [templates, setTemplates] =
@@ -127,112 +112,103 @@ export function MessageCenterManager() {
   const toggle = (key: string) => setOpenKey((prev) => (prev === key ? null : key))
 
   return (
-    <div className="max-w-5xl mx-auto space-y-6">
-      <Button onClick={() => router.push(`/${locale}/profile`)} className="gap-2">
-        <ArrowLeft className="w-4 h-4" />
-        {tNav("backToProfile")}
-      </Button>
+    <div>
+      {NOTIFICATION_TEMPLATE_TYPES.map((type) => {
+        const Icon = SECTION_ICONS[type]
+        const isOpen = openKey === type
+        const defaults = NOTIFICATION_TEMPLATES[type]
+        const saving = savingType === type
 
-      <div className="space-y-3">
-        {NOTIFICATION_TEMPLATE_TYPES.map((type) => {
-          const Icon = SECTION_ICONS[type]
-          const isOpen = openKey === type
-          const defaults = NOTIFICATION_TEMPLATES[type]
-          const saving = savingType === type
+        return (
+          <div key={type} className="border-b border-border last:border-b-0">
+            <button
+              type="button"
+              onClick={() => toggle(type)}
+              className="w-full flex items-center justify-between gap-2 py-3 text-left"
+              aria-expanded={isOpen}
+            >
+              <span className="flex items-center gap-2">
+                <Icon className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium">{t(`sections.${type}.title` as any)}</span>
+              </span>
+              <ChevronDown
+                className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")}
+              />
+            </button>
 
-          return (
-            <section key={type} className="bg-background rounded-lg border-2 border-primary/20">
-              <button
-                type="button"
-                onClick={() => toggle(type)}
-                className="w-full flex items-center justify-between gap-2 p-4 text-left"
-                aria-expanded={isOpen}
-              >
-                <span className="flex items-center gap-2">
-                  <Icon className="w-5 h-5 text-primary" />
-                  <span className="text-lg font-semibold">
-                    {t(`sections.${type}.title` as any)}
-                  </span>
-                </span>
-                <ChevronDown
-                  className={cn("w-5 h-5 transition-transform", isOpen && "rotate-180")}
-                />
-              </button>
-
-              {isOpen && (
-                <div className="px-4 pb-4 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor={`${type}-subject`} className="text-sm font-medium">
-                      {t("subject")}
-                    </Label>
-                    <Input
-                      id={`${type}-subject`}
-                      value={templates[type].subject}
-                      onChange={(e) => updateField(type, "subject", e.target.value)}
-                      placeholder={defaults.defaultSubject}
-                      disabled={loading || saving}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor={`${type}-content`} className="text-sm font-medium">
-                      {t("content")}
-                    </Label>
-                    <Textarea
-                      id={`${type}-content`}
-                      value={templates[type].content}
-                      onChange={(e) => updateField(type, "content", e.target.value)}
-                      placeholder={defaults.defaultContent}
-                      rows={4}
-                      disabled={loading || saving}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      {t("placeholderHint", {
-                        placeholders: getNotificationPlaceholders(type)
-                          .map((key) => `{${key}}`)
-                          .join(" "),
-                      })}
-                    </p>
-                  </div>
-
-                  <Button
-                    onClick={() => handleSave(type)}
+            {isOpen && (
+              <div className="pb-4 space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor={`${type}-subject`} className="text-sm font-medium">
+                    {t("subject")}
+                  </Label>
+                  <Input
+                    id={`${type}-subject`}
+                    value={templates[type].subject}
+                    onChange={(e) => updateField(type, "subject", e.target.value)}
+                    placeholder={defaults.defaultSubject}
                     disabled={loading || saving}
-                    className="w-full"
-                  >
-                    {saving ? t("saving") : t("save")}
-                  </Button>
+                  />
                 </div>
-              )}
-            </section>
-          )
-        })}
 
-        <section className="bg-background rounded-lg border-2 border-primary/20">
-          <button
-            type="button"
-            onClick={() => toggle(BROADCAST_KEY)}
-            className="w-full flex items-center justify-between gap-2 p-4 text-left"
-            aria-expanded={openKey === BROADCAST_KEY}
-          >
-            <span className="flex items-center gap-2">
-              <Megaphone className="w-5 h-5 text-primary" />
-              <span className="text-lg font-semibold">{tBroadcast("title")}</span>
-            </span>
-            <ChevronDown
-              className={cn(
-                "w-5 h-5 transition-transform",
-                openKey === BROADCAST_KEY && "rotate-180"
-              )}
-            />
-          </button>
+                <div className="space-y-2">
+                  <Label htmlFor={`${type}-content`} className="text-sm font-medium">
+                    {t("content")}
+                  </Label>
+                  <Textarea
+                    id={`${type}-content`}
+                    value={templates[type].content}
+                    onChange={(e) => updateField(type, "content", e.target.value)}
+                    placeholder={defaults.defaultContent}
+                    rows={4}
+                    disabled={loading || saving}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {t("placeholderHint", {
+                      placeholders: getNotificationPlaceholders(type)
+                        .map((key) => `{${key}}`)
+                        .join(" "),
+                    })}
+                  </p>
+                </div>
 
-          {openKey === BROADCAST_KEY && (
-            <div className="px-4 pb-4">
-              <BroadcastSection />
-            </div>
-          )}
-        </section>
+                <Button
+                  onClick={() => handleSave(type)}
+                  disabled={loading || saving}
+                  className="w-full"
+                >
+                  {saving ? t("saving") : t("save")}
+                </Button>
+              </div>
+            )}
+          </div>
+        )
+      })}
+
+      <div className="border-b border-border last:border-b-0">
+        <button
+          type="button"
+          onClick={() => toggle(BROADCAST_KEY)}
+          className="w-full flex items-center justify-between gap-2 py-3 text-left"
+          aria-expanded={openKey === BROADCAST_KEY}
+        >
+          <span className="flex items-center gap-2">
+            <Megaphone className="w-4 h-4 text-primary" />
+            <span className="text-sm font-medium">{tBroadcast("title")}</span>
+          </span>
+          <ChevronDown
+            className={cn(
+              "w-4 h-4 transition-transform",
+              openKey === BROADCAST_KEY && "rotate-180"
+            )}
+          />
+        </button>
+
+        {openKey === BROADCAST_KEY && (
+          <div className="pb-4">
+            <BroadcastSection />
+          </div>
+        )}
       </div>
     </div>
   )
