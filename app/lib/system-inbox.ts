@@ -1,7 +1,7 @@
 import type { Db } from "./db"
 import { emails, messages, users, roles, userRoles } from "./schema"
 import { and, eq, gt, inArray, notLike } from "drizzle-orm"
-import { EMAIL_CONFIG, NOTIFICATION_TEMPLATE_TYPES, NOTIFICATION_TEMPLATES, renderMessageTemplate, resolveNotificationTemplate } from "../config"
+import { EMAIL_CONFIG, NOTIFICATION_TEMPLATE_TYPES, NOTIFICATION_TEMPLATES, renderMessageTemplate, resolveNotificationTemplate, isHtmlBody, htmlToPlainText } from "../config"
 import type { NotificationTemplateType, PlaceholderContext } from "../config"
 import { ROLES } from "./permissions"
 
@@ -66,13 +66,17 @@ export function systemInboxAddress(userId: string): string {
 }
 
 function toMessageValues(emailId: string, input: SystemMessageInput) {
+  const body = input.content ?? ""
+  // 正文只填一个输入框：填了 HTML 就按 HTML 渲染，纯文本视图用去标签后的文本兜底
+  const bodyIsHtml = !input.html && isHtmlBody(body)
+
   return {
     emailId,
     fromAddress: input.fromAddress ?? SYSTEM_NOTICE_FROM,
     toAddress: null,
     subject: input.subject,
-    content: input.content ?? "",
-    html: input.html ?? "",
+    content: bodyIsHtml ? htmlToPlainText(body) : body,
+    html: input.html ?? (bodyIsHtml ? body : ""),
     type: SYSTEM_MESSAGE_TYPE,
   }
 }
