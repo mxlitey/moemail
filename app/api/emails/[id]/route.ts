@@ -34,7 +34,7 @@ export async function DELETE(
 
     if (isSystemInbox(email.address)) {
       return NextResponse.json(
-        { error: "系统收件箱不可删除" },
+        { error: "通知中心不可删除" },
         { status: 403 }
       )
     }
