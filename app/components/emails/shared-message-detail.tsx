@@ -76,7 +76,7 @@ export function SharedMessageDetail({
                   /* 暗色模式固定用浅色纸张渲染正文：多数邮件按浅底设计，深色文字压在深色底上不可读；亮色模式与外壳一致用白色 */
                   color-scheme: light;
                   color: #000;
-                  background: ${resolvedTheme === "dark" ? "#d9d9e0" : "#fff"};
+                  background: ${resolvedTheme === "dark" ? "#c4c4cc" : "#fff"};
                 }
                 body {
                   padding: 20px;
