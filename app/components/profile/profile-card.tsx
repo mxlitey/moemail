@@ -12,11 +12,13 @@ import {
   Sword,
   User2,
   Gem,
+  Mail,
   Bell,
   ChevronDown,
   Globe,
   Zap,
   Key,
+  KeyRound,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { WebhookConfig } from "./webhook-config"
@@ -136,6 +138,13 @@ export function ProfileCard({ user }: ProfileCardProps) {
   const [openKey, setOpenKey] = useState<SectionKey | null>(null)
   const toggle = (key: SectionKey) => setOpenKey((prev) => (prev === key ? null : key))
 
+  // 用户信息卡内的次级展开（恢复邮箱 / 修改密码），同样同一时间只展开一项
+  const [openAccountKey, setOpenAccountKey] = useState<"recoveryEmail" | "changePassword" | null>(
+    null
+  )
+  const toggleAccount = (key: "recoveryEmail" | "changePassword") =>
+    setOpenAccountKey((prev) => (prev === key ? null : key))
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* 用户信息卡整块可点击：展开后才显示恢复邮箱与修改密码 */}
@@ -213,18 +222,62 @@ export function ProfileCard({ user }: ProfileCardProps) {
         </button>
 
         {openKey === "account" && (
-          <div className="px-6 pb-6 space-y-6">
-            <div className="border-t pt-6 space-y-3">
-              <h3 className="text-sm font-semibold">{tRecoveryEmail("title")}</h3>
-              <RecoveryEmail />
-            </div>
+          <div className="px-6 pb-6">
+            <div className="border-t">
+              <div className="border-b border-border last:border-b-0">
+                <button
+                  type="button"
+                  onClick={() => toggleAccount("recoveryEmail")}
+                  className="w-full flex items-center justify-between gap-2 py-3 text-left"
+                  aria-expanded={openAccountKey === "recoveryEmail"}
+                >
+                  <span className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-medium">{tRecoveryEmail("title")}</span>
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "w-4 h-4 transition-transform",
+                      openAccountKey === "recoveryEmail" && "rotate-180"
+                    )}
+                  />
+                </button>
 
-            {user.hasPassword && (
-              <div className="border-t pt-6 space-y-3">
-                <h3 className="text-sm font-semibold">{tChangePassword("title")}</h3>
-                <ChangePassword />
+                {openAccountKey === "recoveryEmail" && (
+                  <div className="pb-4">
+                    <RecoveryEmail />
+                  </div>
+                )}
               </div>
-            )}
+
+              {user.hasPassword && (
+                <div className="border-b border-border last:border-b-0">
+                  <button
+                    type="button"
+                    onClick={() => toggleAccount("changePassword")}
+                    className="w-full flex items-center justify-between gap-2 py-3 text-left"
+                    aria-expanded={openAccountKey === "changePassword"}
+                  >
+                    <span className="flex items-center gap-2">
+                      <KeyRound className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">{tChangePassword("title")}</span>
+                    </span>
+                    <ChevronDown
+                      className={cn(
+                        "w-4 h-4 transition-transform",
+                        openAccountKey === "changePassword" && "rotate-180"
+                      )}
+                    />
+                  </button>
+
+                  {openAccountKey === "changePassword" && (
+                    <div className="pb-4">
+                      <ChangePassword />
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         )}
       </section>

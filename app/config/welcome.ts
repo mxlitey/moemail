@@ -4,9 +4,10 @@
  * 这里只放常量与纯函数，不引入任何运行时依赖，
  * 以便同时被服务端（system-inbox、各类通知发送点、广播 API）与客户端配置面板引用。
  *
- * 目前有两类消费方：
+ * 目前有三类消费方：
  *  1. 各类系统通知的标题/正文模板——见 NOTIFICATION_TEMPLATES
  *  2. 管理员广播——标题与正文同样支持占位符
+ *  3. 通知邮件（真正投递到用户邮箱的系统邮件）——见 NOTIFICATION_EMAIL_TEMPLATES
  */
 
 /**
@@ -186,4 +187,124 @@ export function resolveNotificationTemplate(
     subject: subject?.trim() || definition.defaultSubject,
     content: content?.trim() || definition.defaultContent,
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * 通知邮件：真正通过 Resend 投递到用户邮箱的系统邮件
+ * 与 NOTIFICATION_TEMPLATES（写入系统收件箱的站内消息）相互独立。
+ * ------------------------------------------------------------------ */
+
+/** 可配置的通知邮件类型 */
+export type NotificationEmailType = "resetPasswordEmail"
+
+/**
+ * 通知邮件模板支持的占位符，需与调用方传入的取值保持一致。
+ * 注意：HTML 正文里的内联样式不会出现花括号，因此可以与占位符语法共存。
+ */
+export const NOTIFICATION_EMAIL_PLACEHOLDERS = ["username", "name", "email", "link"] as const
+
+/** 通知邮件标题与正文各自允许的长度上限 */
+export const NOTIFICATION_EMAIL_SUBJECT_MAX_LENGTH = 200
+export const NOTIFICATION_EMAIL_CONTENT_MAX_LENGTH = 8000
+
+/** 通知邮件发件地址在 KV 中的存储键，取值形如 noreply@example.com */
+export const NOTIFICATION_EMAIL_FROM_KEY = "NOTIFICATION_EMAIL_FROM"
+
+type NotificationEmailTemplateDefinition = {
+  /** 标题在 KV 中的存储键 */
+  subjectKey: string
+  /** 正文（HTML）在 KV 中的存储键 */
+  contentKey: string
+}
+
+export const NOTIFICATION_EMAIL_TEMPLATES: Record<
+  NotificationEmailType,
+  NotificationEmailTemplateDefinition
+> = {
+  resetPasswordEmail: {
+    subjectKey: "NOTIFY_RESET_EMAIL_SUBJECT",
+    contentKey: "NOTIFY_RESET_EMAIL_CONTENT",
+  },
+}
+
+type ResetEmailCopy = {
+  subject: string
+  title: string
+  body: string
+  button: string
+  ignore: string
+}
+
+/**
+ * 重置密码邮件的内置默认文案，按站点语言提供，未知语言回退到英文。
+ * 管理员在「通知邮件」中填写自定义模板后，全部语言统一使用自定义内容。
+ */
+const RESET_EMAIL_COPY: Record<string, ResetEmailCopy> = {
+  en: {
+    subject: "Reset your MoeMail password",
+    title: "Password reset",
+    body: "We received a request to reset the password for your account. Click the button below to set a new password. The link expires in 30 minutes.",
+    button: "Reset password",
+    ignore: "If you did not request this, you can safely ignore this email.",
+  },
+  "zh-CN": {
+    subject: "重置您的 MoeMail 密码",
+    title: "重置密码",
+    body: "我们收到了重置您账号密码的请求。请点击下方按钮设置新密码，链接 30 分钟内有效。",
+    button: "重置密码",
+    ignore: "如果这不是您本人的操作，请忽略本邮件。",
+  },
+  "zh-TW": {
+    subject: "重設您的 MoeMail 密碼",
+    title: "重設密碼",
+    body: "我們收到了重設您帳號密碼的請求。請點擊下方按鈕設定新密碼，連結 30 分鐘內有效。",
+    button: "重設密碼",
+    ignore: "如果這不是您本人的操作，請忽略本郵件。",
+  },
+  ja: {
+    subject: "MoeMail のパスワードをリセット",
+    title: "パスワードのリセット",
+    body: "アカウントのパスワードリセットのリクエストを受け付けました。下のボタンから新しいパスワードを設定してください。リンクの有効期限は 30 分です。",
+    button: "パスワードをリセット",
+    ignore: "心当たりがない場合は、このメールを無視してください。",
+  },
+  ko: {
+    subject: "MoeMail 비밀번호 재설정",
+    title: "비밀번호 재설정",
+    body: "계정 비밀번호 재설정 요청을 받았습니다. 아래 버튼을 눌러 새 비밀번호를 설정하세요. 링크는 30분 동안 유효합니다.",
+    button: "비밀번호 재설정",
+    ignore: "본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.",
+  },
+}
+
+/** 用默认文案拼出完整 HTML 邮件；{link} 留给调用方渲染 */
+function buildResetEmailHtml(copy: ResetEmailCopy): string {
+  return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1f2937;">
+  <h2 style="font-size:20px;margin:0 0 16px;">${copy.title}</h2>
+  <p style="font-size:14px;line-height:1.6;margin:0 0 24px;">${copy.body}</p>
+  <p style="margin:0 0 24px;">
+    <a href="{link}" style="display:inline-block;background:#7c3aed;color:#ffffff;text-decoration:none;padding:10px 20px;border-radius:6px;font-size:14px;">${copy.button}</a>
+  </p>
+  <p style="font-size:12px;line-height:1.6;word-break:break-all;color:#6b7280;margin:0 0 16px;">{link}</p>
+  <p style="font-size:12px;line-height:1.6;color:#9ca3af;margin:0;">${copy.ignore}</p>
+</div>`
+}
+
+/** 取某语言的重置密码邮件默认模板 */
+export function getResetEmailDefault(locale: string): { subject: string; content: string } {
+  const copy = RESET_EMAIL_COPY[locale] ?? RESET_EMAIL_COPY.en
+  return { subject: copy.subject, content: buildResetEmailHtml(copy) }
+}
+
+/**
+ * 替换通知邮件模板中的占位符。仅替换白名单内的键，
+ * 未定义的占位符原样保留，便于管理员从邮件里直接发现拼写错误。
+ */
+export function renderNotificationEmailTemplate(
+  template: string,
+  values: Record<string, string>
+): string {
+  return template.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in values ? values[key] ?? "" : match
+  )
 }

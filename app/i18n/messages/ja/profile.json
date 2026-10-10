@@ -136,7 +136,7 @@
     "saveFailed": "設定の保存に失敗しました"
   },
   "messageCenter": {
-    "title": "メッセージセンター設定"
+    "title": "通知メール"
   },
   "recoveryEmail": {
     "title": "復元用メールアドレス",
@@ -176,6 +176,17 @@
     "saving": "保存中...",
     "saveSuccess": "設定を保存しました",
     "saveFailed": "設定の保存に失敗しました",
+    "emailSender": {
+      "title": "送信元アドレス",
+      "label": "通知メールの送信元",
+      "placeholder": "noreply@example.com",
+      "hint": "利用可能なドメイン：{domains}",
+      "domainsEmpty": "送信ドメインが未設定です。先に「Resend 送信サービス設定」でドメインと API キーを追加してください。"
+    },
+    "resetEmail": {
+      "title": "パスワード再設定メール",
+      "contentHint": "本文は HTML に対応しています。利用可能なプレースホルダー：{placeholders}。空欄の場合はユーザーの言語に応じた内蔵テンプレートを使用します。"
+    },
     "sections": {
       "welcome": { "title": "ウェルカムメッセージ" },
       "roleChange": { "title": "ロール変更通知" },

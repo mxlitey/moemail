@@ -4,7 +4,7 @@ import { or, eq } from "drizzle-orm"
 import { z } from "zod"
 import { createDb } from "@/lib/db"
 import { users } from "@/lib/schema"
-import { sendSystemEmail } from "@/lib/system-email"
+import { loadNotificationEmail, sendSystemEmail } from "@/lib/system-email"
 
 export const runtime = "edge"
 
@@ -21,65 +21,6 @@ const requestSchema = z.object({
   locale: z.string().optional(),
 })
 
-type ResetEmailCopy = {
-  subject: string
-  title: string
-  body: string
-  button: string
-  ignore: string
-}
-
-/** 重置邮件的本地化文案；未知语言回退到英文 */
-const RESET_EMAIL_COPY: Record<string, ResetEmailCopy> = {
-  en: {
-    subject: "Reset your MoeMail password",
-    title: "Password reset",
-    body: "We received a request to reset the password for your account. Click the button below to set a new password. The link expires in 30 minutes.",
-    button: "Reset password",
-    ignore: "If you did not request this, you can safely ignore this email.",
-  },
-  "zh-CN": {
-    subject: "重置您的 MoeMail 密码",
-    title: "重置密码",
-    body: "我们收到了重置您账号密码的请求。请点击下方按钮设置新密码，链接 30 分钟内有效。",
-    button: "重置密码",
-    ignore: "如果这不是您本人的操作，请忽略本邮件。",
-  },
-  "zh-TW": {
-    subject: "重設您的 MoeMail 密碼",
-    title: "重設密碼",
-    body: "我們收到了重設您帳號密碼的請求。請點擊下方按鈕設定新密碼，連結 30 分鐘內有效。",
-    button: "重設密碼",
-    ignore: "如果這不是您本人的操作，請忽略本郵件。",
-  },
-  ja: {
-    subject: "MoeMail のパスワードをリセット",
-    title: "パスワードのリセット",
-    body: "アカウントのパスワードリセットのリクエストを受け付けました。下のボタンから新しいパスワードを設定してください。リンクの有効期限は 30 分です。",
-    button: "パスワードをリセット",
-    ignore: "心当たりがない場合は、このメールを無視してください。",
-  },
-  ko: {
-    subject: "MoeMail 비밀번호 재설정",
-    title: "비밀번호 재설정",
-    body: "계정 비밀번호 재설정 요청을 받았습니다. 아래 버튼을 눌러 새 비밀번호를 설정하세요. 링크는 30분 동안 유효합니다.",
-    button: "비밀번호 재설정",
-    ignore: "본인이 요청하지 않았다면 이 메일을 무시하셔도 됩니다.",
-  },
-}
-
-function buildResetEmailHtml(copy: ResetEmailCopy, link: string): string {
-  return `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#1f2937;">
-  <h2 style="font-size:20px;margin:0 0 16px;">${copy.title}</h2>
-  <p style="font-size:14px;line-height:1.6;margin:0 0 24px;">${copy.body}</p>
-  <p style="margin:0 0 24px;">
-    <a href="${link}" style="display:inline-block;background:#7c3aed;color:#ffffff;text-decoration:none;padding:10px 20px;border-radius:6px;font-size:14px;">${copy.button}</a>
-  </p>
-  <p style="font-size:12px;line-height:1.6;word-break:break-all;color:#6b7280;margin:0 0 16px;">${link}</p>
-  <p style="font-size:12px;line-height:1.6;color:#9ca3af;margin:0;">${copy.ignore}</p>
-</div>`
-}
-
 export async function POST(request: Request) {
   // 账号不存在、未设置密码、发送失败等情况统一走 unknown：
   // 前端只提示"如果账号存在且已绑定恢复邮箱"，不暴露账号是否存在
@@ -92,8 +33,8 @@ export async function POST(request: Request) {
     }
 
     const { identifier } = parsed.data
-    const locale =
-      parsed.data.locale && RESET_EMAIL_COPY[parsed.data.locale] ? parsed.data.locale : "en"
+    // 仅用于挑选默认邮件文案的语言，未知语言由 getResetEmailDefault 回退到英文
+    const locale = parsed.data.locale ?? "en"
 
     const env = getRequestContext().env
     const db = createDb()
@@ -103,7 +44,7 @@ export async function POST(request: Request) {
         eq(users.username, identifier),
         eq(users.recoveryEmail, identifier.toLowerCase())
       ),
-      columns: { id: true, recoveryEmail: true, password: true },
+      columns: { id: true, username: true, name: true, recoveryEmail: true, password: true },
     })
 
     // 账号不存在或未设置密码（如纯 OAuth 账号）时，不透露任何信息
@@ -125,12 +66,20 @@ export async function POST(request: Request) {
     // 不携带语言前缀，由中间件按访客偏好重定向到对应语言的重置页
     const link = `${new URL(request.url).origin}/reset-password?token=${token}`
 
-    const sent = await sendSystemEmail(
+    // 邮件文案来自「通知邮件」配置，未配置时使用内置默认模板
+    const { subject, content } = await loadNotificationEmail(
       env.SITE_CONFIG,
-      user.recoveryEmail,
-      RESET_EMAIL_COPY[locale].subject,
-      buildResetEmailHtml(RESET_EMAIL_COPY[locale], link)
+      "resetPasswordEmail",
+      locale,
+      {
+        username: user.username ?? "",
+        name: user.name ?? "",
+        email: user.recoveryEmail,
+        link,
+      }
     )
+
+    const sent = await sendSystemEmail(env.SITE_CONFIG, user.recoveryEmail, subject, content)
 
     if (sent) {
       await env.SITE_CONFIG.put(
@@ -143,7 +92,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, status: "sent" })
     }
 
-    // 发件服务未启用或发送失败：不误导用户去查收不存在的邮件
+    // 发件服务或发件地址未配置、或发送失败：不误导用户去查收不存在的邮件
     return unknownResponse
   } catch (error) {
     console.error("Failed to handle forgot password:", error)

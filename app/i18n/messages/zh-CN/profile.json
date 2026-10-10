@@ -136,7 +136,7 @@
     "saveFailed": "保存配置失败"
   },
   "messageCenter": {
-    "title": "消息中心配置"
+    "title": "通知邮件"
   },
   "recoveryEmail": {
     "title": "恢复邮箱",
@@ -176,6 +176,17 @@
     "saving": "保存中...",
     "saveSuccess": "配置保存成功",
     "saveFailed": "保存配置失败",
+    "emailSender": {
+      "title": "发件地址",
+      "label": "通知邮件发件人",
+      "placeholder": "noreply@example.com",
+      "hint": "可用域名：{domains}",
+      "domainsEmpty": "尚未配置发件域名，请先在「Resend 发件服务配置」中添加域名与 API Key。"
+    },
+    "resetEmail": {
+      "title": "重置密码邮件",
+      "contentHint": "正文支持 HTML，可用占位符：{placeholders}；留空则按用户界面语言使用内置默认模板。"
+    },
     "sections": {
       "welcome": { "title": "欢迎消息" },
       "roleChange": { "title": "角色变更通知" },

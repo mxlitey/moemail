@@ -136,7 +136,7 @@
     "saveFailed": "儲存設定失敗"
   },
   "messageCenter": {
-    "title": "訊息中心設定"
+    "title": "通知郵件"
   },
   "recoveryEmail": {
     "title": "恢復郵箱",
@@ -176,6 +176,17 @@
     "saving": "儲存中...",
     "saveSuccess": "設定儲存成功",
     "saveFailed": "儲存設定失敗",
+    "emailSender": {
+      "title": "寄件地址",
+      "label": "通知郵件寄件人",
+      "placeholder": "noreply@example.com",
+      "hint": "可用網域：{domains}",
+      "domainsEmpty": "尚未設定寄件網域，請先在「Resend 寄件服務設定」中新增網域與 API Key。"
+    },
+    "resetEmail": {
+      "title": "重設密碼郵件",
+      "contentHint": "內文支援 HTML，可用佔位符：{placeholders}；留空則依使用者介面語言使用內建預設範本。"
+    },
     "sections": {
       "welcome": { "title": "歡迎訊息" },
       "roleChange": { "title": "角色變更通知" },

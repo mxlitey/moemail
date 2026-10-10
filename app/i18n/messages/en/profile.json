@@ -136,7 +136,7 @@
     "saveFailed": "Failed to save configuration"
   },
   "messageCenter": {
-    "title": "Message Center"
+    "title": "Notification Emails"
   },
   "recoveryEmail": {
     "title": "Recovery email",
@@ -176,6 +176,17 @@
     "saving": "Saving...",
     "saveSuccess": "Configuration saved successfully",
     "saveFailed": "Failed to save configuration",
+    "emailSender": {
+      "title": "Sender Address",
+      "label": "Notification email sender",
+      "placeholder": "noreply@example.com",
+      "hint": "Available domains: {domains}",
+      "domainsEmpty": "No sending domain configured yet. Add a domain and API key in \"Resend Email Service\" first."
+    },
+    "resetEmail": {
+      "title": "Password Reset Email",
+      "contentHint": "The body supports HTML. Placeholders: {placeholders}. Leave blank to use the built-in default for the user's language."
+    },
     "sections": {
       "welcome": { "title": "Welcome Message" },
       "roleChange": { "title": "Role Change" },
