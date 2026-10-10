@@ -138,6 +138,22 @@
   "messageCenter": {
     "title": "メッセージセンター設定"
   },
+  "changePassword": {
+    "title": "パスワード変更",
+    "current": "現在のパスワード",
+    "currentRequired": "現在のパスワードを入力してください",
+    "currentPlaceholder": "現在のパスワードを入力",
+    "new": "新しいパスワード",
+    "newPlaceholder": "新しいパスワードを入力（8 文字以上）",
+    "confirm": "新しいパスワード（確認）",
+    "confirmPlaceholder": "新しいパスワードを再入力",
+    "submit": "変更する",
+    "submitting": "送信中...",
+    "success": "パスワードを変更しました",
+    "failed": "パスワードの変更に失敗しました",
+    "mismatch": "新しいパスワードが一致しません",
+    "tooShort": "新しいパスワードは 8 文字以上にしてください"
+  },
   "notificationTemplates": {
     "subject": "件名",
     "content": "本文",

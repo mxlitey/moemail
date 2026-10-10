@@ -23,6 +23,8 @@ declare module "next-auth" {
     roles?: { name: string }[]
     username?: string | null
     providers?: string[]
+    /** 是否设置了密码（用户名/密码注册用户为 true），用于展示修改密码入口 */
+    hasPassword?: boolean
   }
 
   interface Session {

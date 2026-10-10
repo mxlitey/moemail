@@ -239,6 +239,14 @@ export const {
         })
 
         session.user.providers = userAccounts.map(account => account.provider)
+
+        // 是否设置了密码，用于决定个人中心是否显示「修改密码」入口
+        const passwordRecord = await db.query.users.findFirst({
+          where: eq(users.id, session.user.id),
+          columns: { password: true },
+        })
+
+        session.user.hasPassword = !!passwordRecord?.password
       }
 
       return session

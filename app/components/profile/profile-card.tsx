@@ -20,6 +20,7 @@ import {
   Globe,
   Zap,
   Key,
+  KeyRound,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { useRouter } from "next/navigation"
@@ -31,6 +32,7 @@ import { WebsiteConfigPanel } from "./website-config-panel"
 import { ApiKeyPanel } from "./api-key-panel"
 import { MessageCenterManager } from "./message-center-manager"
 import { RolesManager } from "./roles-manager"
+import { ChangePassword } from "./change-password"
 import { cn } from "@/lib/utils"
 
 interface ProfileCardProps {
@@ -77,6 +79,7 @@ const providerConfigs = {
 } as const
 
 type SectionKey =
+  | "changePassword"
   | "webhook"
   | "website"
   | "emailService"
@@ -126,6 +129,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
   const tWebsite = useTranslations("profile.website")
   const tEmailService = useTranslations("profile.emailService")
   const tApiKey = useTranslations("profile.apiKey")
+  const tChangePassword = useTranslations("profile.changePassword")
   const tNav = useTranslations("common.nav")
   const locale = useLocale()
   const router = useRouter()
@@ -202,6 +206,17 @@ export function ProfileCard({ user }: ProfileCardProps) {
           </div>
         </div>
       </div>
+
+      {user.hasPassword && (
+        <AccordionSection
+          icon={KeyRound}
+          title={tChangePassword("title")}
+          isOpen={openKey === "changePassword"}
+          onToggle={() => toggle("changePassword")}
+        >
+          <ChangePassword />
+        </AccordionSection>
+      )}
 
       {canManageWebhook && (
         <AccordionSection

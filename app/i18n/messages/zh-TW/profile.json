@@ -138,6 +138,22 @@
   "messageCenter": {
     "title": "訊息中心設定"
   },
+  "changePassword": {
+    "title": "修改密碼",
+    "current": "目前密碼",
+    "currentRequired": "請輸入目前密碼",
+    "currentPlaceholder": "輸入目前密碼",
+    "new": "新密碼",
+    "newPlaceholder": "輸入新密碼（至少 8 位）",
+    "confirm": "確認新密碼",
+    "confirmPlaceholder": "再次輸入新密碼",
+    "submit": "確認修改",
+    "submitting": "提交中...",
+    "success": "密碼修改成功",
+    "failed": "修改密碼失敗",
+    "mismatch": "兩次輸入的新密碼不一致",
+    "tooShort": "新密碼長度必須大於等於 8 位"
+  },
   "notificationTemplates": {
     "subject": "訊息標題",
     "content": "訊息內容",

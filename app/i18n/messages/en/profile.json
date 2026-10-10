@@ -138,6 +138,22 @@
   "messageCenter": {
     "title": "Message Center"
   },
+  "changePassword": {
+    "title": "Change Password",
+    "current": "Current Password",
+    "currentRequired": "Please enter your current password",
+    "currentPlaceholder": "Enter current password",
+    "new": "New Password",
+    "newPlaceholder": "Enter new password (min 8 characters)",
+    "confirm": "Confirm New Password",
+    "confirmPlaceholder": "Re-enter new password",
+    "submit": "Update Password",
+    "submitting": "Submitting...",
+    "success": "Password updated successfully",
+    "failed": "Failed to update password",
+    "mismatch": "The two new passwords do not match",
+    "tooShort": "New password must be at least 8 characters"
+  },
   "notificationTemplates": {
     "subject": "Message Subject",
     "content": "Message Content",

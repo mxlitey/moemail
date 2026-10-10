@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import { Megaphone } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -130,11 +129,6 @@ export function BroadcastSection() {
 
   return (
     <section className="space-y-4">
-      <div className="flex items-center gap-2">
-        <Megaphone className="w-5 h-5 text-primary" />
-        <h2 className="text-lg font-semibold">{t("title")}</h2>
-      </div>
-
       <div className="space-y-2">
         <Label className="text-sm font-medium">{t("role")}</Label>
         <Select value={role} onValueChange={(value) => setRole(value as BroadcastRole)}>

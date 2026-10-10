@@ -138,6 +138,22 @@
   "messageCenter": {
     "title": "메시지 센터 설정"
   },
+  "changePassword": {
+    "title": "비밀번호 변경",
+    "current": "현재 비밀번호",
+    "currentRequired": "현재 비밀번호를 입력하세요",
+    "currentPlaceholder": "현재 비밀번호 입력",
+    "new": "새 비밀번호",
+    "newPlaceholder": "새 비밀번호 입력 (8자 이상)",
+    "confirm": "새 비밀번호 확인",
+    "confirmPlaceholder": "새 비밀번호 다시 입력",
+    "submit": "변경하기",
+    "submitting": "제출 중...",
+    "success": "비밀번호가 변경되었습니다",
+    "failed": "비밀번호 변경에 실패했습니다",
+    "mismatch": "새 비밀번호가 일치하지 않습니다",
+    "tooShort": "새 비밀번호는 8자 이상이어야 합니다"
+  },
   "notificationTemplates": {
     "subject": "메시지 제목",
     "content": "메시지 내용",
