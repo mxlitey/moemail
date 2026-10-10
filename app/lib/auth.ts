@@ -9,7 +9,7 @@ import { getRequestContext } from "@cloudflare/next-on-pages"
 import { Permission, hasPermission, ROLES, Role } from "./permissions"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { hashPassword, comparePassword } from "@/lib/utils"
-import { authSchema, AuthSchema } from "@/lib/validation"
+import { authSchema, AuthSchema, normalizeRecoveryEmail } from "@/lib/validation"
 import { generateAvatarUrl } from "./avatar"
 import { getUserId } from "./apiKey"
 import { verifyTurnstileToken } from "./turnstile"
@@ -257,7 +257,7 @@ export const {
   },
 }))
 
-export async function register(username: string, password: string) {
+export async function register(username: string, password: string, recoveryEmail?: string | null) {
   const db = createDb()
 
   const existing = await db.query.users.findFirst({
@@ -268,12 +268,25 @@ export async function register(username: string, password: string) {
     throw new Error("用户名已存在")
   }
 
+  const normalizedEmail = normalizeRecoveryEmail(recoveryEmail)
+
+  if (normalizedEmail) {
+    const emailTaken = await db.query.users.findFirst({
+      where: eq(users.recoveryEmail, normalizedEmail),
+    })
+
+    if (emailTaken) {
+      throw new Error("该邮箱已被其他账号绑定")
+    }
+  }
+
   const hashedPassword = await hashPassword(password)
 
   const [user] = await db.insert(users)
     .values({
       username,
       password: hashedPassword,
+      recoveryEmail: normalizedEmail,
     })
     .returning()
 

@@ -2,7 +2,8 @@
 
 import { useCallback, useState } from "react"
 import { signIn } from "next-auth/react"
-import { useTranslations } from "next-intl"
+import { useTranslations, useLocale } from "next-intl"
+import Link from "next/link"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -19,7 +20,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
-import { Github, Loader2, KeyRound, User2 } from "lucide-react"
+import { Github, Loader2, KeyRound, User2, Mail } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Turnstile } from "@/components/auth/turnstile"
 
@@ -38,12 +39,14 @@ interface FormErrors {
   username?: string
   password?: string
   confirmPassword?: string
+  email?: string
 }
 
 export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = false }: LoginFormProps) {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [email, setEmail] = useState("")
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState<FormErrors>({})
   const [turnstileToken, setTurnstileToken] = useState("")
@@ -51,6 +54,7 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
   const [activeTab, setActiveTab] = useState<"login" | "register">("login")
   const { toast } = useToast()
   const t = useTranslations("auth.loginForm")
+  const locale = useLocale()
 
   const turnstileSiteKey = turnstile?.siteKey ?? ""
   const turnstileEnabled = Boolean(turnstile?.enabled && turnstileSiteKey)
@@ -76,6 +80,7 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
     setUsername("")
     setPassword("")
     setConfirmPassword("")
+    setEmail("")
     setErrors({})
   }
 
@@ -102,6 +107,8 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
     if (password && password.length < 8) newErrors.password = t("errors.passwordTooShort")
     if (!confirmPassword) newErrors.confirmPassword = t("errors.confirmPasswordRequired")
     if (password !== confirmPassword) newErrors.confirmPassword = t("errors.passwordMismatch")
+    // 恢复邮箱为选填，仅在填写时校验格式
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) newErrors.email = t("errors.emailInvalid")
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -151,7 +158,7 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
       const response = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, turnstileToken }),
+        body: JSON.stringify({ username, password, recoveryEmail: email, turnstileToken }),
       })
 
       const data = await response.json() as { error?: string }
@@ -284,6 +291,15 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
                   {t("actions.login")}
                 </Button>
 
+                <div className="text-center">
+                  <Link
+                    href={`/${locale}/forgot-password`}
+                    className="text-xs text-muted-foreground hover:text-primary hover:underline"
+                  >
+                    {t("actions.forgotPassword")}
+                  </Link>
+                </div>
+
                 {(githubEnabled || googleEnabled) && (
                   <>
                     <div className="relative">
@@ -410,6 +426,32 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
                   </div>
                   {errors.confirmPassword && (
                     <p className="text-xs text-destructive">{errors.confirmPassword}</p>
+                  )}
+                </div>
+                <div className="space-y-1.5">
+                  <div className="relative">
+                    <div className="absolute left-2.5 top-2 text-muted-foreground">
+                      <Mail className="h-5 w-5" />
+                    </div>
+                    <Input
+                      className={cn(
+                        "h-9 pl-9 pr-3",
+                        errors.email && "border-destructive focus-visible:ring-destructive"
+                      )}
+                      type="email"
+                      placeholder={t("fields.recoveryEmail")}
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value)
+                        setErrors({})
+                      }}
+                      disabled={loading}
+                    />
+                  </div>
+                  {errors.email ? (
+                    <p className="text-xs text-destructive">{errors.email}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">{t("fields.recoveryEmailHint")}</p>
                   )}
                 </div>
               </div>

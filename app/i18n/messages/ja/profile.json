@@ -138,6 +138,20 @@
   "messageCenter": {
     "title": "メッセージセンター設定"
   },
+  "recoveryEmail": {
+    "title": "復元用メールアドレス",
+    "description": "復元用メールアドレスを登録すると、パスワードを忘れた際にメールで再設定できます。",
+    "label": "復元用メールアドレス",
+    "placeholder": "パスワード復元用のメールアドレスを入力",
+    "hint": "空欄のまま保存すると登録を解除します。",
+    "submit": "保存",
+    "submitting": "保存中...",
+    "success": "保存しました",
+    "successBound": "復元用メールアドレスを登録しました",
+    "successUnbound": "復元用メールアドレスの登録を解除しました",
+    "failed": "保存に失敗しました",
+    "invalid": "有効なメールアドレスを入力してください"
+  },
   "changePassword": {
     "title": "パスワード変更",
     "current": "現在のパスワード",

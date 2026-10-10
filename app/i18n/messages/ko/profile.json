@@ -138,6 +138,20 @@
   "messageCenter": {
     "title": "메시지 센터 설정"
   },
+  "recoveryEmail": {
+    "title": "복구 이메일",
+    "description": "복구 이메일을 등록하면 비밀번호를 잊었을 때 이메일로 재설정할 수 있습니다.",
+    "label": "복구 이메일",
+    "placeholder": "비밀번호 복구용 이메일 입력",
+    "hint": "비워 두고 저장하면 등록이 해제됩니다.",
+    "submit": "저장",
+    "submitting": "저장 중...",
+    "success": "저장되었습니다",
+    "successBound": "복구 이메일이 등록되었습니다",
+    "successUnbound": "복구 이메일 등록이 해제되었습니다",
+    "failed": "저장에 실패했습니다",
+    "invalid": "유효한 이메일 주소를 입력해주세요"
+  },
   "changePassword": {
     "title": "비밀번호 변경",
     "current": "현재 비밀번호",

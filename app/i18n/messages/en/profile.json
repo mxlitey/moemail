@@ -138,6 +138,20 @@
   "messageCenter": {
     "title": "Message Center"
   },
+  "recoveryEmail": {
+    "title": "Recovery email",
+    "description": "Bind a recovery email so you can reset your password by email if you forget it.",
+    "label": "Recovery email",
+    "placeholder": "Enter an email for password recovery",
+    "hint": "Leave blank and save to unbind.",
+    "submit": "Save",
+    "submitting": "Saving...",
+    "success": "Saved",
+    "successBound": "Recovery email bound",
+    "successUnbound": "Recovery email unbound",
+    "failed": "Failed to save",
+    "invalid": "Please enter a valid email address"
+  },
   "changePassword": {
     "title": "Change Password",
     "current": "Current Password",

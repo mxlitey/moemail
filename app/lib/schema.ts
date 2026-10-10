@@ -13,6 +13,8 @@ export const users = sqliteTable("user", {
   image: text("image"),
   username: text("username").unique(),
   password: text("password"),
+  // 用于自助重置密码的恢复邮箱，与登录身份字段 email 相互独立（仅作找回用途）
+  recoveryEmail: text("recovery_email").unique(),
 })
 export const accounts = sqliteTable(
   "account",

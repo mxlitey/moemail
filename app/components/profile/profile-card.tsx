@@ -33,6 +33,7 @@ import { ApiKeyPanel } from "./api-key-panel"
 import { MessageCenterManager } from "./message-center-manager"
 import { RolesManager } from "./roles-manager"
 import { ChangePassword } from "./change-password"
+import { RecoveryEmail } from "./recovery-email"
 import { cn } from "@/lib/utils"
 
 interface ProfileCardProps {
@@ -79,6 +80,7 @@ const providerConfigs = {
 } as const
 
 type SectionKey =
+  | "recoveryEmail"
   | "changePassword"
   | "webhook"
   | "website"
@@ -130,6 +132,7 @@ export function ProfileCard({ user }: ProfileCardProps) {
   const tEmailService = useTranslations("profile.emailService")
   const tApiKey = useTranslations("profile.apiKey")
   const tChangePassword = useTranslations("profile.changePassword")
+  const tRecoveryEmail = useTranslations("profile.recoveryEmail")
   const tNav = useTranslations("common.nav")
   const locale = useLocale()
   const router = useRouter()
@@ -206,6 +209,15 @@ export function ProfileCard({ user }: ProfileCardProps) {
           </div>
         </div>
       </div>
+
+      <AccordionSection
+        icon={Mail}
+        title={tRecoveryEmail("title")}
+        isOpen={openKey === "recoveryEmail"}
+        onToggle={() => toggle("recoveryEmail")}
+      >
+        <RecoveryEmail />
+      </AccordionSection>
 
       {user.hasPassword && (
         <AccordionSection

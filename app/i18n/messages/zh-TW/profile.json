@@ -138,6 +138,20 @@
   "messageCenter": {
     "title": "訊息中心設定"
   },
+  "recoveryEmail": {
+    "title": "恢復郵箱",
+    "description": "綁定恢復郵箱後，忘記密碼時可透過郵件自助重設。",
+    "label": "恢復郵箱",
+    "placeholder": "輸入用於找回密碼的郵箱",
+    "hint": "留空並儲存即可解除綁定。",
+    "submit": "儲存",
+    "submitting": "儲存中...",
+    "success": "儲存成功",
+    "successBound": "恢復郵箱已綁定",
+    "successUnbound": "已解除恢復郵箱綁定",
+    "failed": "儲存失敗",
+    "invalid": "請輸入有效的郵箱地址"
+  },
   "changePassword": {
     "title": "修改密碼",
     "current": "目前密碼",

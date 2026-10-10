@@ -138,6 +138,20 @@
   "messageCenter": {
     "title": "消息中心配置"
   },
+  "recoveryEmail": {
+    "title": "恢复邮箱",
+    "description": "绑定恢复邮箱后，忘记密码时可通过邮件自助重置。",
+    "label": "恢复邮箱",
+    "placeholder": "输入用于找回密码的邮箱",
+    "hint": "留空并保存即可解除绑定。",
+    "submit": "保存",
+    "submitting": "保存中...",
+    "success": "保存成功",
+    "successBound": "恢复邮箱已绑定",
+    "successUnbound": "已解除恢复邮箱绑定",
+    "failed": "保存失败",
+    "invalid": "请输入有效的邮箱地址"
+  },
   "changePassword": {
     "title": "修改密码",
     "current": "当前密码",

@@ -18,7 +18,7 @@ export async function POST(request: Request) {
       )
     }
 
-    const { username, password, turnstileToken } = json
+    const { username, password, recoveryEmail, turnstileToken } = json
 
     const verification = await verifyTurnstileToken(turnstileToken)
     if (!verification.success) {
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: message }, { status: 400 })
     }
 
-    const user = await register(username, password)
+    const user = await register(username, password, recoveryEmail)
 
     return NextResponse.json({ user })
   } catch (error) {
