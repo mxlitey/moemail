@@ -1,10 +1,12 @@
 import { createDb } from "@/lib/db"
 import { users } from "@/lib/schema"
 import { eq } from "drizzle-orm"
+import { getRequestContext } from "@cloudflare/next-on-pages"
 import { auth } from "@/lib/auth"
 import { ROLES } from "@/lib/permissions"
 import { hashPassword } from "@/lib/utils"
-import { insertSystemMessage } from "@/lib/system-inbox"
+import { buildPlaceholderContexts, insertSystemMessage, loadNotificationTemplate } from "@/lib/system-inbox"
+import { renderMessageTemplate } from "@/config"
 
 export const runtime = "edge"
 
@@ -67,9 +69,13 @@ export async function PATCH(
       .set({ password: hashedPassword })
       .where(eq(users.id, id))
 
+    const siteConfig = getRequestContext().env.SITE_CONFIG
+    const template = await loadNotificationTemplate(siteConfig, "passwordReset")
+    const ctx = (await buildPlaceholderContexts(db, [id], siteConfig)).get(id) ?? { userId: id }
+
     await insertSystemMessage(db, id, {
-      subject: "您的密码已被重置",
-      content: "您的账户密码已被管理员重置。如非本人操作，请尽快联系管理员。",
+      subject: renderMessageTemplate(template.subject, ctx),
+      content: renderMessageTemplate(template.content, ctx),
     })
 
     return Response.json({ success: true })

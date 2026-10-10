@@ -138,15 +138,21 @@
   "messageCenter": {
     "title": "メッセージセンター設定"
   },
-  "welcome": {
-    "title": "ウェルカムメッセージ",
+  "notificationTemplates": {
     "subject": "件名",
     "content": "本文",
     "placeholderHint": "使用可能なプレースホルダー：{placeholders}",
     "save": "設定を保存",
     "saving": "保存中...",
     "saveSuccess": "設定を保存しました",
-    "saveFailed": "設定の保存に失敗しました"
+    "saveFailed": "設定の保存に失敗しました",
+    "sections": {
+      "welcome": { "title": "ウェルカムメッセージ" },
+      "roleChange": { "title": "ロール変更通知" },
+      "passwordReset": { "title": "パスワードリセット通知" },
+      "quotaChange": { "title": "送信クォータ変更通知" },
+      "domainChanged": { "title": "ドメイン変更通知" }
+    }
   },
   "broadcast": {
     "title": "システム一斉通知",

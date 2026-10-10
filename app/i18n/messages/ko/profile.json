@@ -138,15 +138,21 @@
   "messageCenter": {
     "title": "메시지 센터 설정"
   },
-  "welcome": {
-    "title": "환영 메시지",
+  "notificationTemplates": {
     "subject": "메시지 제목",
     "content": "메시지 내용",
     "placeholderHint": "사용 가능한 플레이스홀더: {placeholders}",
     "save": "설정 저장",
     "saving": "저장 중...",
     "saveSuccess": "설정이 성공적으로 저장되었습니다",
-    "saveFailed": "설정 저장에 실패했습니다"
+    "saveFailed": "설정 저장에 실패했습니다",
+    "sections": {
+      "welcome": { "title": "환영 메시지" },
+      "roleChange": { "title": "역할 변경 알림" },
+      "passwordReset": { "title": "비밀번호 재설정 알림" },
+      "quotaChange": { "title": "발신 할당량 변경 알림" },
+      "domainChanged": { "title": "도메인 변경 알림" }
+    }
   },
   "broadcast": {
     "title": "시스템 공지",

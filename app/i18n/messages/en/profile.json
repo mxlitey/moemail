@@ -138,15 +138,21 @@
   "messageCenter": {
     "title": "Message Center"
   },
-  "welcome": {
-    "title": "Welcome Message",
+  "notificationTemplates": {
     "subject": "Message Subject",
     "content": "Message Content",
     "placeholderHint": "Available placeholders: {placeholders}",
     "save": "Save Configuration",
     "saving": "Saving...",
     "saveSuccess": "Configuration saved successfully",
-    "saveFailed": "Failed to save configuration"
+    "saveFailed": "Failed to save configuration",
+    "sections": {
+      "welcome": { "title": "Welcome Message" },
+      "roleChange": { "title": "Role Change" },
+      "passwordReset": { "title": "Password Reset" },
+      "quotaChange": { "title": "Send Quota Change" },
+      "domainChanged": { "title": "Domain Change" }
+    }
   },
   "broadcast": {
     "title": "System Broadcast",

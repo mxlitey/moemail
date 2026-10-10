@@ -1,12 +1,11 @@
 import { PERMISSIONS, Role, ROLES } from "@/lib/permissions"
 import { getRequestContext } from "@cloudflare/next-on-pages"
-import { EMAIL_CONFIG } from "@/config"
+import { EMAIL_CONFIG, renderMessageTemplate } from "@/config"
 import { checkPermission } from "@/lib/auth"
 import { createDb } from "@/lib/db"
 import { emails } from "@/lib/schema"
 import { like, or, sql } from "drizzle-orm"
-import { ensureSystemInboxes, insertSystemMessagesByInbox } from "@/lib/system-inbox"
-import type { SystemMessageInput } from "@/lib/system-inbox"
+import { buildPlaceholderContexts, ensureSystemInboxes, insertSystemMessagesByInbox, loadNotificationTemplate } from "@/lib/system-inbox"
 
 export const runtime = "edge"
 
@@ -102,7 +101,7 @@ export async function POST(request: Request) {
   ])
 
   // 域名下线的通知失败不影响配置保存结果
-  await notifyRemovedDomains(previousDomains, emailDomains)
+  await notifyRemovedDomains(previousDomains, emailDomains, env.SITE_CONFIG)
 
   return Response.json({ success: true })
 }
@@ -120,7 +119,11 @@ function parseDomains(raw: string | null | undefined): Set<string> {
  * 当可用域名被移除时，通知仍持有这些域名下邮箱的用户。
  * 邮箱地址形如 `{name}@{domain}`，系统收件箱不含 "@"，天然不会被命中。
  */
-async function notifyRemovedDomains(previousRaw: string | null, nextRaw: string) {
+async function notifyRemovedDomains(
+  previousRaw: string | null,
+  nextRaw: string,
+  siteConfig: KVNamespace
+) {
   try {
     const previous = parseDomains(previousRaw)
     const next = parseDomains(nextRaw)
@@ -152,20 +155,27 @@ async function notifyRemovedDomains(previousRaw: string | null, nextRaw: string)
 
     const userIds = Array.from(addressByUser.keys())
     const inboxByUser = await ensureSystemInboxes(db, userIds)
+    const contextByUser = await buildPlaceholderContexts(db, userIds, siteConfig)
+    const template = await loadNotificationTemplate(siteConfig, "domainChanged")
 
-    const entries: { emailId: string; input: SystemMessageInput }[] = []
-    for (const userId of userIds) {
-      const emailId = inboxByUser.get(userId)
-      if (!emailId) continue
-      const addresses = addressByUser.get(userId) ?? []
-      entries.push({
-        emailId,
-        input: {
-          subject: "收件箱域名已变更",
-          content: `以下邮箱所在域名已从可用域名中移除，可能无法继续接收邮件：\n${addresses.join("\n")}`,
-        },
+    // 标题/正文可能含通用占位符，需按用户逐条渲染
+    const entries = userIds
+      .map((userId) => {
+        const emailId = inboxByUser.get(userId)
+        if (!emailId) return null
+
+        const addresses = addressByUser.get(userId) ?? []
+        const ctx = contextByUser.get(userId) ?? { userId }
+        const extras = { addresses: addresses.join("\n") }
+        return {
+          emailId,
+          input: {
+            subject: renderMessageTemplate(template.subject, ctx, extras),
+            content: renderMessageTemplate(template.content, ctx, extras),
+          },
+        }
       })
-    }
+      .filter((entry): entry is NonNullable<typeof entry> => !!entry)
 
     await insertSystemMessagesByInbox(db, entries)
   } catch (error) {

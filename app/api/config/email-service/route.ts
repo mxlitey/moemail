@@ -2,11 +2,11 @@ import { NextResponse } from "next/server"
 import { getRequestContext } from "@cloudflare/next-on-pages"
 import { checkPermission } from "@/lib/auth"
 import { PERMISSIONS } from "@/lib/permissions"
-import { EMAIL_CONFIG } from "@/config"
+import { EMAIL_CONFIG, renderMessageTemplate } from "@/config"
 import { createDb } from "@/lib/db"
 import { roles, userRoles } from "@/lib/schema"
 import { eq } from "drizzle-orm"
-import { ensureSystemInboxes, insertSystemMessagesForUsers } from "@/lib/system-inbox"
+import { buildPlaceholderContexts, ensureSystemInboxes, insertSystemMessagesByInbox, loadNotificationTemplate } from "@/lib/system-inbox"
 
 export const runtime = "edge"
 
@@ -152,7 +152,7 @@ export async function POST(request: Request) {
 
     // 只通知配额真正变化的角色；通知失败不影响配置保存结果
     try {
-      await notifyQuotaChanges(previousLimits, customLimits)
+      await notifyQuotaChanges(previousLimits, customLimits, env.SITE_CONFIG)
     } catch (error) {
       console.error("Failed to notify quota changes:", error)
     }
@@ -173,7 +173,11 @@ type RoleLimits = { duke?: number; knight?: number }
  * 对比配额变更，向受影响角色的用户投递系统通知。
  * 仅在角色配额真正变化时发送——这是离散事件，不做去重。
  */
-async function notifyQuotaChanges(previous: RoleLimits, next: RoleLimits) {
+async function notifyQuotaChanges(
+  previous: RoleLimits,
+  next: RoleLimits,
+  siteConfig: KVNamespace
+) {
   const defaults = EMAIL_CONFIG.DEFAULT_DAILY_SEND_LIMITS
   const changes: { role: "duke" | "knight"; from: number; to: number }[] = []
 
@@ -188,6 +192,7 @@ async function notifyQuotaChanges(previous: RoleLimits, next: RoleLimits) {
   if (changes.length === 0) return
 
   const db = createDb()
+  const template = await loadNotificationTemplate(siteConfig, "quotaChange")
 
   for (const change of changes) {
     const rows = await db
@@ -198,10 +203,26 @@ async function notifyQuotaChanges(previous: RoleLimits, next: RoleLimits) {
 
     const userIds = rows.map((row) => row.userId)
     const inboxByUser = await ensureSystemInboxes(db, userIds)
+    const contextByUser = await buildPlaceholderContexts(db, userIds, siteConfig)
 
-    await insertSystemMessagesForUsers(db, inboxByUser, userIds, {
-      subject: "您的发件配额已调整",
-      content: `您的每日发件配额已从 ${change.from} 封调整为 ${change.to} 封。`,
-    })
+    // 标题/正文可能含通用占位符，需按用户逐条渲染
+    const extras = { fromLimit: String(change.from), toLimit: String(change.to) }
+    const entries = userIds
+      .map((userId) => {
+        const emailId = inboxByUser.get(userId)
+        if (!emailId) return null
+
+        const ctx = contextByUser.get(userId) ?? { userId }
+        return {
+          emailId,
+          input: {
+            subject: renderMessageTemplate(template.subject, ctx, extras),
+            content: renderMessageTemplate(template.content, ctx, extras),
+          },
+        }
+      })
+      .filter((entry): entry is NonNullable<typeof entry> => !!entry)
+
+    await insertSystemMessagesByInbox(db, entries)
   }
 } 

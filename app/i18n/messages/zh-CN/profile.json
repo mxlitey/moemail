@@ -138,15 +138,21 @@
   "messageCenter": {
     "title": "消息中心配置"
   },
-  "welcome": {
-    "title": "欢迎消息",
+  "notificationTemplates": {
     "subject": "消息标题",
     "content": "消息内容",
     "placeholderHint": "可用占位符：{placeholders}",
     "save": "保存配置",
     "saving": "保存中...",
     "saveSuccess": "配置保存成功",
-    "saveFailed": "保存配置失败"
+    "saveFailed": "保存配置失败",
+    "sections": {
+      "welcome": { "title": "欢迎消息" },
+      "roleChange": { "title": "角色变更通知" },
+      "passwordReset": { "title": "密码重置通知" },
+      "quotaChange": { "title": "发件配额调整通知" },
+      "domainChanged": { "title": "域名变更通知" }
+    }
   },
   "broadcast": {
     "title": "系统广播",

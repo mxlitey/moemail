@@ -1,8 +1,8 @@
 import type { Db } from "./db"
 import { emails, messages, users, roles, userRoles } from "./schema"
 import { and, eq, gt, inArray, notLike } from "drizzle-orm"
-import { EMAIL_CONFIG, WELCOME_SUBJECT_KEY, WELCOME_CONTENT_KEY, renderMessageTemplate, resolveWelcomeTemplate } from "../config"
-import type { PlaceholderContext } from "../config"
+import { EMAIL_CONFIG, NOTIFICATION_TEMPLATE_TYPES, NOTIFICATION_TEMPLATES, renderMessageTemplate, resolveNotificationTemplate } from "../config"
+import type { NotificationTemplateType, PlaceholderContext } from "../config"
 import { ROLES } from "./permissions"
 
 /**
@@ -167,6 +167,42 @@ export async function buildPlaceholderContexts(
 }
 
 /**
+ * 读取某类通知的标题/正文模板，管理员未配置时回退到内置默认值。
+ * siteConfig 在 Worker 环境可能未绑定，此时一律使用默认文案。
+ */
+export async function loadNotificationTemplate(
+  siteConfig: KVNamespace | undefined,
+  type: NotificationTemplateType
+): Promise<{ subject: string; content: string }> {
+  const definition = NOTIFICATION_TEMPLATES[type]
+  if (!siteConfig) {
+    return { subject: definition.defaultSubject, content: definition.defaultContent }
+  }
+
+  const [subject, content] = await Promise.all([
+    siteConfig.get(definition.subjectKey),
+    siteConfig.get(definition.contentKey),
+  ])
+
+  return resolveNotificationTemplate(type, subject, content)
+}
+
+/** 批量读取全部通知模板，供配置页与后台复用 */
+export async function loadNotificationTemplates(
+  siteConfig: KVNamespace | undefined
+): Promise<Record<NotificationTemplateType, { subject: string; content: string }>> {
+  const pairs = await Promise.all(
+    NOTIFICATION_TEMPLATE_TYPES.map(
+      async (type) => [type, await loadNotificationTemplate(siteConfig, type)] as const
+    )
+  )
+  return Object.fromEntries(pairs) as Record<
+    NotificationTemplateType,
+    { subject: string; content: string }
+  >
+}
+
+/**
  * 确保用户拥有系统收件箱；首次创建时一并写入欢迎消息（仅创建时发生，幂等）。
  *
  * siteConfig 用于读取管理员自定义的欢迎文案，未传入时使用内置默认值
@@ -212,15 +248,8 @@ export async function ensureSystemInbox(
 
   // 直接写入欢迎消息：此处不能再走 insertSystemMessage，否则会重复触发 ensureSystemInbox
   try {
-    // 拿不到 SITE_CONFIG（Worker 环境）时用内置默认文案，此时无需构造占位符上下文
-    const [rawSubject, rawContent] = siteConfig
-      ? await Promise.all([
-          siteConfig.get(WELCOME_SUBJECT_KEY),
-          siteConfig.get(WELCOME_CONTENT_KEY),
-        ])
-      : [null, null]
-
-    const template = resolveWelcomeTemplate(rawSubject, rawContent)
+    // 拿不到 SITE_CONFIG（Worker 环境）时回退内置默认文案
+    const template = await loadNotificationTemplate(siteConfig, "welcome")
 
     // 占位符上下文只在创建路径上构造，不影响已存在收件箱的热路径
     const ctx =
@@ -349,23 +378,4 @@ export async function insertSystemMessagesByInbox(
   }
 
   return inserted
-}
-
-/**
- * 向一批用户批量投递"内容相同"的系统消息。
- * 调用方需先通过 ensureSystemInboxes 取得 inbox 映射。
- * 不支持去重——用于广播、配额调整这类本身就不应去重的场景。
- */
-export async function insertSystemMessagesForUsers(
-  db: Db,
-  inboxByUser: Map<string, string>,
-  userIds: string[],
-  input: SystemMessageInput
-): Promise<number> {
-  const entries = userIds
-    .map((userId) => inboxByUser.get(userId))
-    .filter((emailId): emailId is string => !!emailId)
-    .map((emailId) => ({ emailId, input }))
-
-  return insertSystemMessagesByInbox(db, entries)
 }

@@ -138,15 +138,21 @@
   "messageCenter": {
     "title": "訊息中心設定"
   },
-  "welcome": {
-    "title": "歡迎訊息",
+  "notificationTemplates": {
     "subject": "訊息標題",
     "content": "訊息內容",
     "placeholderHint": "可用佔位符：{placeholders}",
     "save": "儲存設定",
     "saving": "儲存中...",
     "saveSuccess": "設定儲存成功",
-    "saveFailed": "儲存設定失敗"
+    "saveFailed": "儲存設定失敗",
+    "sections": {
+      "welcome": { "title": "歡迎訊息" },
+      "roleChange": { "title": "角色變更通知" },
+      "passwordReset": { "title": "密碼重設通知" },
+      "quotaChange": { "title": "寄件配額調整通知" },
+      "domainChanged": { "title": "網域變更通知" }
+    }
   },
   "broadcast": {
     "title": "系統廣播",

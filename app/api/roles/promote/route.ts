@@ -1,9 +1,11 @@
 import { createDb } from "@/lib/db";
 import { roles, userRoles } from "@/lib/schema";
 import { eq } from "drizzle-orm";
+import { getRequestContext } from "@cloudflare/next-on-pages";
 import { ROLES } from "@/lib/permissions";
 import { assignRoleToUser } from "@/lib/auth";
-import { insertSystemMessage } from "@/lib/system-inbox";
+import { buildPlaceholderContexts, insertSystemMessage, loadNotificationTemplate } from "@/lib/system-inbox";
+import { renderMessageTemplate } from "@/config";
 
 export const runtime = "edge";
 
@@ -72,12 +74,21 @@ export async function POST(request: Request) {
 
     await assignRoleToUser(db, userId, targetRole.id);
 
-    // 角色直接决定发件配额等权限，变更后通知用户
+    // 角色直接决定发件配额等权限，变更后按配置模板通知用户
     const previousRole = currentUserRole?.role.name;
     if (previousRole && previousRole !== roleName) {
+      const siteConfig = getRequestContext().env.SITE_CONFIG;
+      const template = await loadNotificationTemplate(siteConfig, "roleChange");
+      const ctx =
+        (await buildPlaceholderContexts(db, [userId], siteConfig)).get(userId) ?? { userId };
+      const extras = {
+        oldRole: ROLE_LABELS[previousRole] ?? previousRole,
+        newRole: ROLE_LABELS[roleName] ?? roleName,
+      };
+
       await insertSystemMessage(db, userId, {
-        subject: "您的角色已变更",
-        content: `您的角色已从「${ROLE_LABELS[previousRole] ?? previousRole}」变更为「${ROLE_LABELS[roleName] ?? roleName}」，发件配额等权限会随之变化。`,
+        subject: renderMessageTemplate(template.subject, ctx, extras),
+        content: renderMessageTemplate(template.content, ctx, extras),
       });
     }
 
