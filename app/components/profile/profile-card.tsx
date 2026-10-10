@@ -12,13 +12,11 @@ import {
   Sword,
   User2,
   Gem,
-  Mail,
   Bell,
   ChevronDown,
   Globe,
   Zap,
   Key,
-  KeyRound,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
 import { WebhookConfig } from "./webhook-config"
@@ -119,6 +117,37 @@ function AccordionSection({
   )
 }
 
+/**
+ * 用户信息卡内的紧凑折叠项。
+ * 与顶层手风琴共用 openKey，因此全页仍然保持「同一时间只展开一项」。
+ */
+function InlineAccordionSection({
+  title,
+  isOpen,
+  onToggle,
+  children,
+}: {
+  title: string
+  isOpen: boolean
+  onToggle: () => void
+  children: ReactNode
+}) {
+  return (
+    <div className="border-t">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-2 py-4 text-left"
+        aria-expanded={isOpen}
+      >
+        <span className="text-sm font-semibold">{title}</span>
+        <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
+      </button>
+      {isOpen && <div className="pb-4">{children}</div>}
+    </div>
+  )
+}
+
 export function ProfileCard({ user }: ProfileCardProps) {
   const t = useTranslations("profile.card")
   const tPromote = useTranslations("profile.roles")
@@ -202,27 +231,28 @@ export function ProfileCard({ user }: ProfileCardProps) {
             )}
           </div>
         </div>
+
+        {/* 账号安全：恢复邮箱与自助重置密码以紧凑折叠项内嵌在用户信息卡内 */}
+        <div className="mt-6">
+          <InlineAccordionSection
+            title={tRecoveryEmail("title")}
+            isOpen={openKey === "recoveryEmail"}
+            onToggle={() => toggle("recoveryEmail")}
+          >
+            <RecoveryEmail />
+          </InlineAccordionSection>
+
+          {user.hasPassword && (
+            <InlineAccordionSection
+              title={tChangePassword("title")}
+              isOpen={openKey === "changePassword"}
+              onToggle={() => toggle("changePassword")}
+            >
+              <ChangePassword />
+            </InlineAccordionSection>
+          )}
+        </div>
       </div>
-
-      <AccordionSection
-        icon={Mail}
-        title={tRecoveryEmail("title")}
-        isOpen={openKey === "recoveryEmail"}
-        onToggle={() => toggle("recoveryEmail")}
-      >
-        <RecoveryEmail />
-      </AccordionSection>
-
-      {user.hasPassword && (
-        <AccordionSection
-          icon={KeyRound}
-          title={tChangePassword("title")}
-          isOpen={openKey === "changePassword"}
-          onToggle={() => toggle("changePassword")}
-        >
-          <ChangePassword />
-        </AccordionSection>
-      )}
 
       {canManageWebhook && (
         <AccordionSection
