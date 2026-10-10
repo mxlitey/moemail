@@ -176,6 +176,10 @@
     "saving": "저장 중...",
     "saveSuccess": "설정이 성공적으로 저장되었습니다",
     "saveFailed": "설정 저장에 실패했습니다",
+    "groups": {
+      "email": "메일",
+      "inApp": "사이트 내 알림"
+    },
     "emailSender": {
       "title": "발신 주소",
       "label": "알림 메일 발신자",
@@ -190,7 +194,7 @@
     "sections": {
       "welcome": { "title": "환영 메시지" },
       "roleChange": { "title": "역할 변경 알림" },
-      "passwordReset": { "title": "비밀번호 재설정 알림" },
+      "passwordReset": { "title": "비밀번호 변경 완료 알림" },
       "quotaChange": { "title": "발신 할당량 변경 알림" },
       "domainChanged": { "title": "도메인 변경 알림" }
     }

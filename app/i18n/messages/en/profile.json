@@ -176,6 +176,10 @@
     "saving": "Saving...",
     "saveSuccess": "Configuration saved successfully",
     "saveFailed": "Failed to save configuration",
+    "groups": {
+      "email": "Emails",
+      "inApp": "In-app notifications"
+    },
     "emailSender": {
       "title": "Sender Address",
       "label": "Notification email sender",
@@ -190,7 +194,7 @@
     "sections": {
       "welcome": { "title": "Welcome Message" },
       "roleChange": { "title": "Role Change" },
-      "passwordReset": { "title": "Password Reset" },
+      "passwordReset": { "title": "Password Was Reset" },
       "quotaChange": { "title": "Send Quota Change" },
       "domainChanged": { "title": "Domain Change" }
     }

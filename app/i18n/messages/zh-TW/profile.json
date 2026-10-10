@@ -176,6 +176,10 @@
     "saving": "儲存中...",
     "saveSuccess": "設定儲存成功",
     "saveFailed": "儲存設定失敗",
+    "groups": {
+      "email": "郵件",
+      "inApp": "站內通知"
+    },
     "emailSender": {
       "title": "寄件地址",
       "label": "通知郵件寄件人",
@@ -190,7 +194,7 @@
     "sections": {
       "welcome": { "title": "歡迎訊息" },
       "roleChange": { "title": "角色變更通知" },
-      "passwordReset": { "title": "密碼重設通知" },
+      "passwordReset": { "title": "密碼已重設通知" },
       "quotaChange": { "title": "寄件配額調整通知" },
       "domainChanged": { "title": "網域變更通知" }
     }
