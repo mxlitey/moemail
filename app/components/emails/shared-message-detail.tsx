@@ -73,8 +73,10 @@ export function SharedMessageDetail({
                   padding: 0;
                   min-height: 100%;
                   font-family: system-ui, -apple-system, sans-serif;
-                  color: ${theme === "dark" ? "#fff" : "#000"};
-                  background: ${theme === "dark" ? "#1a1a1a" : "#fff"};
+                  /* 正文固定渲染在浅色纸张上：多数邮件按浅底设计，若跟随暗色主题会出现深色文字压在深色底上不可读 */
+                  color-scheme: light;
+                  color: #000;
+                  background: #fafafa;
                 }
                 body {
                   padding: 20px;
