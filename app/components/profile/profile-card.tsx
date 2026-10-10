@@ -75,8 +75,7 @@ const providerConfigs = {
 } as const
 
 type SectionKey =
-  | "recoveryEmail"
-  | "changePassword"
+  | "account"
   | "webhook"
   | "website"
   | "emailService"
@@ -117,37 +116,6 @@ function AccordionSection({
   )
 }
 
-/**
- * 用户信息卡内的紧凑折叠项。
- * 与顶层手风琴共用 openKey，因此全页仍然保持「同一时间只展开一项」。
- */
-function InlineAccordionSection({
-  title,
-  isOpen,
-  onToggle,
-  children,
-}: {
-  title: string
-  isOpen: boolean
-  onToggle: () => void
-  children: ReactNode
-}) {
-  return (
-    <div className="border-t">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between gap-2 py-4 text-left"
-        aria-expanded={isOpen}
-      >
-        <span className="text-sm font-semibold">{title}</span>
-        <ChevronDown className={cn("w-4 h-4 transition-transform", isOpen && "rotate-180")} />
-      </button>
-      {isOpen && <div className="pb-4">{children}</div>}
-    </div>
-  )
-}
-
 export function ProfileCard({ user }: ProfileCardProps) {
   const t = useTranslations("profile.card")
   const tPromote = useTranslations("profile.roles")
@@ -170,9 +138,15 @@ export function ProfileCard({ user }: ProfileCardProps) {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="bg-background rounded-lg border-2 border-primary/20 p-6">
-        <div className="flex items-center gap-6">
-          <div className="relative">
+      {/* 用户信息卡整块可点击：展开后才显示恢复邮箱与修改密码 */}
+      <section className="bg-background rounded-lg border-2 border-primary/20">
+        <button
+          type="button"
+          onClick={() => toggle("account")}
+          className="w-full flex items-center gap-6 p-6 text-left"
+          aria-expanded={openKey === "account"}
+        >
+          <span className="relative flex-shrink-0">
             {user.image && (
               <Image
                 src={user.image}
@@ -182,77 +156,78 @@ export function ProfileCard({ user }: ProfileCardProps) {
                 className="rounded-full ring-2 ring-primary/20"
               />
             )}
-          </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-bold truncate">{user.name}</h2>
+          </span>
+          <span className="flex-1 min-w-0">
+            <span className="flex items-center gap-2">
+              <span className="text-xl font-bold truncate">{user.name}</span>
               {!!user?.providers?.length && (
-                <div className="flex gap-2">
+                <span className="flex gap-2">
                   {user.providers.map((provider) => {
                     const config = providerConfigs[provider as keyof typeof providerConfigs]
                     if (!config) return null
                     const Icon = config.icon
                     return (
-                      <div
+                      <span
                         key={provider}
                         className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-full flex-shrink-0 ${config.className}`}
                       >
                         <Icon className="w-3 h-3" />
                         {config.label}
-                      </div>
+                      </span>
                     )
                   })}
-                </div>
+                </span>
               )}
-            </div>
-            <p className="text-sm text-muted-foreground truncate mt-1">
+            </span>
+            <span className="block text-sm text-muted-foreground truncate mt-1">
               {
                 user.email ? user.email : `${t("name")}: ${user.username}`
               }
-            </p>
+            </span>
             {user.roles && (
-              <div className="flex gap-2 mt-2">
+              <span className="flex gap-2 mt-2">
                 {user.roles.map(({ name }) => {
                   const roleConfig = roleConfigs[name as keyof typeof roleConfigs]
                   const Icon = roleConfig.icon
                   const roleName = t(`roles.${roleConfig.key}` as any)
                   return (
-                    <div
+                    <span
                       key={name}
                       className="flex items-center gap-1 text-xs bg-primary/10 text-primary px-2 py-0.5 rounded"
                       title={roleName}
                     >
                       <Icon className="w-3 h-3" />
                       {roleName}
-                    </div>
+                    </span>
                   )
                 })}
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={cn(
+              "w-5 h-5 flex-shrink-0 text-muted-foreground transition-transform",
+              openKey === "account" && "rotate-180"
+            )}
+          />
+        </button>
+
+        {openKey === "account" && (
+          <div className="px-6 pb-6 space-y-6">
+            <div className="border-t pt-6 space-y-3">
+              <h3 className="text-sm font-semibold">{tRecoveryEmail("title")}</h3>
+              <RecoveryEmail />
+            </div>
+
+            {user.hasPassword && (
+              <div className="border-t pt-6 space-y-3">
+                <h3 className="text-sm font-semibold">{tChangePassword("title")}</h3>
+                <ChangePassword />
               </div>
             )}
           </div>
-        </div>
-
-        {/* 账号安全：恢复邮箱与自助重置密码以紧凑折叠项内嵌在用户信息卡内 */}
-        <div className="mt-6">
-          <InlineAccordionSection
-            title={tRecoveryEmail("title")}
-            isOpen={openKey === "recoveryEmail"}
-            onToggle={() => toggle("recoveryEmail")}
-          >
-            <RecoveryEmail />
-          </InlineAccordionSection>
-
-          {user.hasPassword && (
-            <InlineAccordionSection
-              title={tChangePassword("title")}
-              isOpen={openKey === "changePassword"}
-              onToggle={() => toggle("changePassword")}
-            >
-              <ChangePassword />
-            </InlineAccordionSection>
-          )}
-        </div>
-      </div>
+        )}
+      </section>
 
       {canManageWebhook && (
         <AccordionSection
