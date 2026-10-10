@@ -15,7 +15,7 @@ export default async function ForgotPasswordPage({
   const session = await auth()
 
   if (session?.user) {
-    redirect(`/${locale}`)
+    redirect(`/${locale}/moe`)
   }
 
   return (

@@ -19,7 +19,7 @@ export default async function MoePage({
   const session = await auth()
   
   if (!session?.user) {
-    redirect(`/${locale}`)
+    redirect(`/${locale}/login`)
   }
 
   const hasPermission = await checkPermission(PERMISSIONS.MANAGE_EMAIL)

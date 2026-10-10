@@ -16,7 +16,7 @@ export default async function ProfilePage({
   const session = await auth()
   
   if (!session?.user) {
-    redirect(`/${locale}`)
+    redirect(`/${locale}/login`)
   }
 
   return (

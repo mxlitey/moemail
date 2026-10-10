@@ -15,6 +15,9 @@ import {
 } from "@/components/ui/card"
 import { Loader2, Mail } from "lucide-react"
 
+/** 服务端返回的结果类型：已发送 / 账号未绑定恢复邮箱 / 无法归因（不透露账号是否存在） */
+type ForgotResult = "sent" | "no-recovery-email" | "unknown"
+
 /** 忘记密码：提交用户名或恢复邮箱，服务端仅向已绑定邮箱发送重置链接 */
 export function ForgotPasswordForm() {
   const t = useTranslations("auth.forgotPassword")
@@ -22,7 +25,7 @@ export function ForgotPasswordForm() {
 
   const [identifier, setIdentifier] = useState("")
   const [loading, setLoading] = useState(false)
-  const [submitted, setSubmitted] = useState(false)
+  const [result, setResult] = useState<ForgotResult | null>(null)
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault()
@@ -30,19 +33,27 @@ export function ForgotPasswordForm() {
 
     setLoading(true)
     try {
-      await fetch("/api/auth/forgot-password", {
+      const res = await fetch("/api/auth/forgot-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier: identifier.trim(), locale }),
       })
-      // 服务端始终返回同一结果，这里也统一提示，避免泄露账号是否存在
-      setSubmitted(true)
+      const data = (await res.json().catch(() => ({}))) as { status?: ForgotResult }
+      setResult(data.status ?? "unknown")
     } catch {
-      setSubmitted(true)
+      // 请求失败时按无法归因处理，避免误导用户
+      setResult("unknown")
     } finally {
       setLoading(false)
     }
   }
+
+  const resultMessage =
+    result === "sent"
+      ? t("sentToRecovery")
+      : result === "no-recovery-email"
+        ? t("noRecoveryEmail")
+        : t("sentDescription")
 
   return (
     <Card className="w-[95%] max-w-lg border-2 border-primary/20">
@@ -53,9 +64,9 @@ export function ForgotPasswordForm() {
         <CardDescription className="text-center">{t("subtitle")}</CardDescription>
       </CardHeader>
       <CardContent className="px-6 space-y-4">
-        {submitted ? (
+        {result ? (
           <div className="space-y-4">
-            <p className="text-sm text-muted-foreground text-center">{t("sentDescription")}</p>
+            <p className="text-sm text-muted-foreground text-center">{resultMessage}</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">

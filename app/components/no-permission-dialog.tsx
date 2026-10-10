@@ -24,7 +24,7 @@ export function NoPermissionDialog() {
               )
             }
             <Button 
-              onClick={() => router.push(`/${locale}`)}
+              onClick={() => router.push(`/${locale}/profile`)}
               className="mt-4 w-full md:w-auto"
             >
               {t("backToHome")}

@@ -3,10 +3,8 @@
 import { useState } from "react"
 import type { ReactNode } from "react"
 import { User } from "next-auth"
-import { useTranslations, useLocale } from "next-intl"
+import { useTranslations } from "next-intl"
 import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { signOut } from "next-auth/react"
 import {
   Github,
   Settings,
@@ -23,7 +21,6 @@ import {
   KeyRound,
 } from "lucide-react"
 import type { LucideIcon } from "lucide-react"
-import { useRouter } from "next/navigation"
 import { WebhookConfig } from "./webhook-config"
 import { EmailServiceConfig } from "./email-service-config"
 import { useRolePermission } from "@/hooks/use-role-permission"
@@ -133,9 +130,6 @@ export function ProfileCard({ user }: ProfileCardProps) {
   const tApiKey = useTranslations("profile.apiKey")
   const tChangePassword = useTranslations("profile.changePassword")
   const tRecoveryEmail = useTranslations("profile.recoveryEmail")
-  const tNav = useTranslations("common.nav")
-  const locale = useLocale()
-  const router = useRouter()
   const { checkPermission } = useRolePermission()
   const canManageWebhook = checkPermission(PERMISSIONS.MANAGE_WEBHOOK)
   const canPromote = checkPermission(PERMISSIONS.PROMOTE_USER)
@@ -295,23 +289,6 @@ export function ProfileCard({ user }: ProfileCardProps) {
           <RolesManager currentUserId={user.id!} />
         </AccordionSection>
       )}
-
-      <div className="flex flex-col sm:flex-row gap-4 px-1">
-        <Button
-          onClick={() => router.push(`/${locale}/moe`)}
-          className="gap-2 flex-1"
-        >
-          <Mail className="w-4 h-4" />
-          {tNav("backToMailbox")}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={() => signOut({ callbackUrl: `/${locale}` })}
-          className="flex-1"
-        >
-          {tAuth("logout")}
-        </Button>
-      </div>
     </div>
   )
 }

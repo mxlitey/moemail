@@ -81,13 +81,14 @@ function buildResetEmailHtml(copy: ResetEmailCopy, link: string): string {
 }
 
 export async function POST(request: Request) {
-  // 无论账号是否存在或是否发送成功，都返回同一结果，避免账号枚举
-  const genericResponse = NextResponse.json({ success: true })
+  // 账号不存在、未设置密码、发送失败等情况统一走 unknown：
+  // 前端只提示"如果账号存在且已绑定恢复邮箱"，不暴露账号是否存在
+  const unknownResponse = NextResponse.json({ success: true, status: "unknown" })
 
   try {
     const parsed = requestSchema.safeParse(await request.json().catch(() => ({})))
     if (!parsed.success) {
-      return genericResponse
+      return unknownResponse
     }
 
     const { identifier } = parsed.data
@@ -105,13 +106,19 @@ export async function POST(request: Request) {
       columns: { id: true, recoveryEmail: true, password: true },
     })
 
-    // 仅当账号存在、已设置密码且绑定了恢复邮箱时才实际发送
-    if (!user || !user.password || !user.recoveryEmail) {
-      return genericResponse
+    // 账号不存在或未设置密码（如纯 OAuth 账号）时，不透露任何信息
+    if (!user || !user.password) {
+      return unknownResponse
     }
 
+    // 账号存在但未绑定恢复邮箱：明确引导用户联系管理员
+    if (!user.recoveryEmail) {
+      return NextResponse.json({ success: true, status: "no-recovery-email" })
+    }
+
+    // 冷却期内不重复发信，但仍告知用户链接已发送
     if (await env.SITE_CONFIG.get(cooldownKey(user.id))) {
-      return genericResponse
+      return NextResponse.json({ success: true, status: "sent" })
     }
 
     const token = crypto.randomUUID()
@@ -132,11 +139,14 @@ export async function POST(request: Request) {
         { expirationTtl: TOKEN_TTL_SECONDS }
       )
       await env.SITE_CONFIG.put(cooldownKey(user.id), "1", { expirationTtl: COOLDOWN_SECONDS })
+
+      return NextResponse.json({ success: true, status: "sent" })
     }
 
-    return genericResponse
+    // 发件服务未启用或发送失败：不误导用户去查收不存在的邮件
+    return unknownResponse
   } catch (error) {
     console.error("Failed to handle forgot password:", error)
-    return genericResponse
+    return unknownResponse
   }
 }

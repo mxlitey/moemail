@@ -137,7 +137,8 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
         return
       }
 
-      window.location.href = "/"
+      // 登录后不经过欢迎页，直接进入邮箱
+      window.location.href = `/${locale}/moe`
     } catch (error) {
       toast({
         title: t("toast.loginFailed"),
@@ -193,7 +194,8 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
         return
       }
 
-      window.location.href = "/"
+      // 登录后不经过欢迎页，直接进入邮箱
+      window.location.href = `/${locale}/moe`
     } catch (error) {
       toast({
         title: t("toast.registerFailed"),
@@ -206,11 +208,11 @@ export function LoginForm({ turnstile, githubEnabled = false, googleEnabled = fa
   }
 
   const handleGithubLogin = () => {
-    signIn("github", { callbackUrl: "/" })
+    signIn("github", { callbackUrl: `/${locale}/moe` })
   }
 
   const handleGoogleLogin = () => {
-    signIn("google", { callbackUrl: "/" })
+    signIn("google", { callbackUrl: `/${locale}/moe` })
   }
 
   return (

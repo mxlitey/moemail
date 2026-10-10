@@ -17,7 +17,7 @@ export default async function ResetPasswordPage({
   const session = await auth()
 
   if (session?.user) {
-    redirect(`/${locale}`)
+    redirect(`/${locale}/moe`)
   }
 
   const { token } = await searchParams
