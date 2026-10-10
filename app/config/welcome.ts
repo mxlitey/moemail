@@ -68,29 +68,84 @@ export const NOTIFICATION_TEMPLATES: Record<
   },
   roleChange: {
     defaultSubject: "Hi {username}，您的账号角色已更新✨",
-    defaultContent:
-      "您的角色已从「{oldRole}」变更为「{newRole}」，发件配额等权限会随之变化。",
+    defaultContent: `<div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.8;color:#333;padding:20px 16px;background:#f8f6ff;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;padding:24px;">
+    <p style="margin:0 0 12px;font-size:16px;">Hi {username}！</p>
+    <p style="margin:0 0 16px;">您的角色已从「{oldRole}」变更为「{newRole}」，发件配额等权限会随之变化。</p>
+
+    <div style="background:#f7f3ff;border-radius:8px;padding:16px;margin:0 0 16px;">
+      <p style="margin:0 0 8px;font-weight:600;color:#7457c1;">✨ 当前账号权益明细</p>
+      <ul style="margin:0;padding-left:20px;">
+        <li style="margin:0 0 6px;">临时邮箱生成额度：可生成 {maxEmails} 个临时邮箱</li>
+        <li style="margin:0;">每日邮件发送额度：单日可发送 {sendLimit} 封邮件</li>
+      </ul>
+    </div>
+
+    <p style="margin:0 0 12px;">权限变更后，您可使用当前角色对应的平台功能。如对本次权限调整有疑问，欢迎随时联系我们。<br>客服邮箱：{adminContact}</p>
+    <p style="margin:0;">祝使用愉快！<br>MoeMail团队</p>
+  </div>
+</div>`,
     subjectKey: "NOTIFY_ROLE_CHANGE_SUBJECT",
     contentKey: "NOTIFY_ROLE_CHANGE_CONTENT",
     extraPlaceholders: ["oldRole", "newRole"],
   },
   passwordReset: {
     defaultSubject: "Hi {username}，账号密码已重置🔐",
-    defaultContent: "您的账户密码已被管理员重置。如非本人操作，请尽快联系管理员。",
+    defaultContent: `<div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.8;color:#333;padding:20px 16px;background:#f8f6ff;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;padding:24px;">
+    <p style="margin:0 0 12px;font-size:16px;">Hi {username}！</p>
+    <p style="margin:0 0 16px;">您的账户密码已被管理员重置。如非本人操作，请尽快联系管理员。</p>
+    <p style="margin:0 0 12px;">登录后建议您尽快修改为自定义密码，保障账号安全。<br>客服邮箱：{adminContact}</p>
+    <p style="margin:0;">祝使用愉快！<br>MoeMail团队</p>
+  </div>
+</div>`,
     subjectKey: "NOTIFY_PASSWORD_RESET_SUBJECT",
     contentKey: "NOTIFY_PASSWORD_RESET_CONTENT",
     extraPlaceholders: [],
   },
   quotaChange: {
     defaultSubject: "Hi {username}，发件配额已调整📧",
-    defaultContent: "您的每日发件配额已从 {fromLimit} 封调整为 {toLimit} 封。",
+    defaultContent: `<div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.8;color:#333;padding:20px 16px;background:#f8f6ff;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;padding:24px;">
+    <p style="margin:0 0 12px;font-size:16px;">Hi {username}！</p>
+    <p style="margin:0 0 16px;">您的每日发件配额已从 {fromLimit} 封调整为 {toLimit} 封。</p>
+
+    <div style="background:#f7f3ff;border-radius:8px;padding:16px;margin:0 0 16px;">
+      <p style="margin:0 0 8px;font-weight:600;color:#7457c1;">✨ 当前账号权益明细</p>
+      <ul style="margin:0;padding-left:20px;">
+        <li style="margin:0 0 6px;">临时邮箱生成额度：可生成 {maxEmails} 个临时邮箱</li>
+        <li style="margin:0;">每日邮件发送额度：单日可发送 {sendLimit} 封邮件</li>
+      </ul>
+    </div>
+
+    <p style="margin:0 0 12px;">配额调整即时生效，请留意邮件发送使用情况。如有疑问，欢迎联系我们。<br>客服邮箱：{adminContact}</p>
+    <p style="margin:0;">祝使用愉快！<br>MoeMail团队</p>
+  </div>
+</div>`,
     subjectKey: "NOTIFY_QUOTA_CHANGE_SUBJECT",
     contentKey: "NOTIFY_QUOTA_CHANGE_CONTENT",
     extraPlaceholders: ["fromLimit", "toLimit"],
   },
   domainChanged: {
     defaultSubject: "Hi {username}，收件域名发生变更⚠️",
-    defaultContent: "以下邮箱所在域名已从可用域名中移除，可能无法继续接收邮件：\n{addresses}",
+    defaultContent: `<div style="font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;font-size:14px;line-height:1.8;color:#333;padding:20px 16px;background:#f8f6ff;">
+  <div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:12px;padding:24px;">
+    <p style="margin:0 0 12px;font-size:16px;">Hi {username}！</p>
+    <p style="margin:0 0 8px;">以下邮箱所在域名已从可用域名中移除，可能无法继续接收邮件：</p>
+    <div style="border:1px solid #e9e2f8;border-radius:8px;padding:12px 16px;margin:0 0 16px;white-space:pre-line;word-break:break-all;">{addresses}</div>
+
+    <div style="background:#f7f3ff;border-radius:8px;padding:16px;margin:0 0 16px;">
+      <p style="margin:0 0 8px;font-weight:600;color:#7457c1;">✨ 当前账号权益明细</p>
+      <ul style="margin:0;padding-left:20px;">
+        <li style="margin:0 0 6px;">临时邮箱生成额度：可生成 {maxEmails} 个临时邮箱</li>
+        <li style="margin:0;">每日邮件发送额度：单日可发送 {sendLimit} 封邮件</li>
+      </ul>
+    </div>
+
+    <p style="margin:0 0 12px;">请更换其他可用域名生成邮箱。若访问或收信出现异常，欢迎随时联系我们。<br>客服邮箱：{adminContact}</p>
+    <p style="margin:0;">祝使用愉快！<br>MoeMail团队</p>
+  </div>
+</div>`,
     subjectKey: "NOTIFY_DOMAIN_CHANGED_SUBJECT",
     contentKey: "NOTIFY_DOMAIN_CHANGED_CONTENT",
     extraPlaceholders: ["addresses"],

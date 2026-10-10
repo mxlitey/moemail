@@ -95,6 +95,7 @@ export function MessageCenterManager() {
   const [emailTemplate, setEmailTemplate] = useState<TemplateValues>({ subject: "", content: "" })
   const [loading, setLoading] = useState(true)
   const [savingType, setSavingType] = useState<NotificationTemplateType | null>(null)
+  const [testingType, setTestingType] = useState<NotificationTemplateType | null>(null)
   const [savingSender, setSavingSender] = useState(false)
   const [savingEmail, setSavingEmail] = useState(false)
   // 同一时间只允许一项展开
@@ -170,6 +171,33 @@ export function MessageCenterManager() {
       showSaveError(error)
     } finally {
       setSavingType(null)
+    }
+  }
+
+  /** 试发一条站内通知到皇帝的系统收件箱，用的是面板里当前的草稿内容 */
+  const handleTest = async (type: NotificationTemplateType) => {
+    setTestingType(type)
+    try {
+      const res = await fetch("/api/config/message-center/test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, ...templates[type] }),
+      })
+
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string }
+        throw new Error(data.error || t("testFailed"))
+      }
+
+      toast({ title: t("testSuccess"), description: t("testSuccess") })
+    } catch (error) {
+      toast({
+        title: t("testFailed"),
+        description: error instanceof Error ? error.message : t("testFailed"),
+        variant: "destructive",
+      })
+    } finally {
+      setTestingType(null)
     }
   }
 
@@ -304,6 +332,7 @@ export function MessageCenterManager() {
             const isOpen = openKey === type
             const defaults = NOTIFICATION_TEMPLATES[type]
             const saving = savingType === type
+            const testing = testingType === type
 
             return (
               <SectionRow
@@ -348,13 +377,23 @@ export function MessageCenterManager() {
                     </p>
                   </div>
 
-                  <Button
-                    onClick={() => handleSave(type)}
-                    disabled={loading || saving}
-                    className="w-full"
-                  >
-                    {saving ? t("saving") : t("save")}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={() => handleTest(type)}
+                      disabled={loading || testing}
+                      className="flex-1"
+                    >
+                      {testing ? t("testing") : t("test")}
+                    </Button>
+                    <Button
+                      onClick={() => handleSave(type)}
+                      disabled={loading || saving}
+                      className="flex-1"
+                    >
+                      {saving ? t("saving") : t("save")}
+                    </Button>
+                  </div>
                 </div>
               </SectionRow>
             )

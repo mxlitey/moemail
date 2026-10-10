@@ -176,6 +176,10 @@
     "saving": "Saving...",
     "saveSuccess": "Configuration saved successfully",
     "saveFailed": "Failed to save configuration",
+    "test": "Test",
+    "testing": "Testing...",
+    "testSuccess": "Test message sent to the emperor's notification center",
+    "testFailed": "Failed to send test message",
     "groups": {
       "email": "Emails",
       "inApp": "In-app notifications"

@@ -176,6 +176,10 @@
     "saving": "保存中...",
     "saveSuccess": "設定を保存しました",
     "saveFailed": "設定の保存に失敗しました",
+    "test": "テスト",
+    "testing": "テスト中...",
+    "testSuccess": "テストメッセージを皇帝の通知センターに送信しました",
+    "testFailed": "テストメッセージの送信に失敗しました",
     "groups": {
       "email": "メール",
       "inApp": "サイト内通知"

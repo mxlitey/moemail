@@ -176,6 +176,10 @@
     "saving": "保存中...",
     "saveSuccess": "配置保存成功",
     "saveFailed": "保存配置失败",
+    "test": "测试",
+    "testing": "测试中...",
+    "testSuccess": "测试消息已发送到皇帝的通知中心",
+    "testFailed": "测试消息发送失败",
     "groups": {
       "email": "邮件",
       "inApp": "站内通知"

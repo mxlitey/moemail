@@ -176,6 +176,10 @@
     "saving": "저장 중...",
     "saveSuccess": "설정이 성공적으로 저장되었습니다",
     "saveFailed": "설정 저장에 실패했습니다",
+    "test": "테스트",
+    "testing": "테스트 중...",
+    "testSuccess": "테스트 메시지를 황제의 알림 센터로 보냈습니다",
+    "testFailed": "테스트 메시지 전송에 실패했습니다",
     "groups": {
       "email": "메일",
       "inApp": "사이트 내 알림"
