@@ -20,17 +20,21 @@ export function RecoveryEmail() {
   useEffect(() => {
     let active = true
 
-    fetch("/api/user/recovery-email")
-      .then((res) => (res.ok ? res.json() : { recoveryEmail: null }))
-      .then((data: { recoveryEmail?: string | null }) => {
+    const loadRecoveryEmail = async () => {
+      try {
+        const res = await fetch("/api/user/recovery-email")
+        const data = (await res.json().catch(() => ({}))) as {
+          recoveryEmail?: string | null
+        }
         if (active) setEmail(data.recoveryEmail ?? "")
-      })
-      .catch(() => {
+      } catch {
         /* 读取失败时保持空值，用户可重新填写 */
-      })
-      .finally(() => {
+      } finally {
         if (active) setLoading(false)
-      })
+      }
+    }
+
+    loadRecoveryEmail()
 
     return () => {
       active = false

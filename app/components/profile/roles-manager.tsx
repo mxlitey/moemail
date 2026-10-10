@@ -1,8 +1,8 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { Fragment, useEffect, useState, useCallback } from "react"
 import { useTranslations } from "next-intl"
-import { Gem, Sword, User2, Crown, Loader2, Search, KeyRound, Trash2, RefreshCw, ChevronLeft, ChevronRight } from "lucide-react"
+import { Gem, Sword, User2, Crown, Loader2, Search, KeyRound, Trash2, RefreshCw, ChevronLeft, ChevronRight, ChevronDown, Mail } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -33,6 +33,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { ROLES, Role } from "@/lib/permissions"
+import { cn } from "@/lib/utils"
 
 type RoleWithoutEmperor = Exclude<Role, typeof ROLES.EMPEROR>
 
@@ -42,6 +43,20 @@ interface UserItem {
   username?: string | null
   email?: string | null
   role?: string
+}
+
+interface UserEmail {
+  id: string
+  address: string
+  createdAt: string | number | Date
+  expiresAt: string | number | Date
+}
+
+/** 展开区中每个用户的邮箱加载状态 */
+type EmailsState = {
+  status: "loading" | "loaded" | "error"
+  emails: UserEmail[]
+  total: number
 }
 
 interface RolesManagerProps {
@@ -54,6 +69,15 @@ const roleIcons = {
   [ROLES.KNIGHT]: Sword,
   [ROLES.CIVILIAN]: User2,
 } as const
+
+/** 永久有效的邮箱其 expiresAt 为 9999-01-01 哨兵值（见 api/emails/generate） */
+function isPermanentEmail(value: string | number | Date): boolean {
+  return new Date(value).getFullYear() >= 9999
+}
+
+function formatDateTime(value: string | number | Date): string {
+  return new Date(value).toLocaleString()
+}
 
 export function RolesManager({ currentUserId }: RolesManagerProps) {
   const t = useTranslations("profile.roles")
@@ -77,6 +101,9 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
   const [passwordTarget, setPasswordTarget] = useState<UserItem | null>(null)
   const [newPassword, setNewPassword] = useState("")
   const [savingPassword, setSavingPassword] = useState(false)
+  // 展开查看某用户邮箱：expandedIds 控制展开态，emailsMap 缓存懒加载结果
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [emailsMap, setEmailsMap] = useState<Record<string, EmailsState>>({})
 
   const roleNames = {
     [ROLES.EMPEROR]: tCard("roles.EMPEROR"),
@@ -245,6 +272,109 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
     }
   }
 
+  // 懒加载某用户生成的邮箱列表
+  const loadUserEmails = useCallback(async (userId: string) => {
+    setEmailsMap(prev => ({ ...prev, [userId]: { status: "loading", emails: [], total: 0 } }))
+    try {
+      const res = await fetch(`/api/roles/users/${userId}/emails`)
+      const data = await res.json() as {
+        emails?: UserEmail[]
+        total?: number
+        error?: string
+      }
+      if (!res.ok) {
+        throw new Error(data.error || t("emailsFailed"))
+      }
+      setEmailsMap(prev => ({
+        ...prev,
+        [userId]: { status: "loaded", emails: data.emails ?? [], total: data.total ?? 0 },
+      }))
+    } catch (error) {
+      toast({
+        title: t("emailsFailed"),
+        description: error instanceof Error ? error.message : t("emailsFailed"),
+        variant: "destructive",
+      })
+      setEmailsMap(prev => ({ ...prev, [userId]: { status: "error", emails: [], total: 0 } }))
+    }
+  }, [t, toast])
+
+  const toggleEmails = (userId: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(userId)) {
+        next.delete(userId)
+      } else {
+        next.add(userId)
+      }
+      return next
+    })
+
+    // 首次展开（或上次加载失败）时请求，成功后不再重复请求
+    const state = emailsMap[userId]
+    if (!state || state.status === "error") {
+      loadUserEmails(userId)
+    }
+  }
+
+  // 展开区内容：加载中 / 失败 / 空 / 邮箱列表
+  const renderEmailsPanel = (userId: string) => {
+    const state = emailsMap[userId]
+
+    if (!state || state.status === "loading") {
+      return (
+        <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
+          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          {t("emailsLoading")}
+        </div>
+      )
+    }
+
+    if (state.status === "error") {
+      return (
+        <div className="flex items-center gap-2 text-xs py-2">
+          <span className="text-destructive">{t("emailsFailed")}</span>
+          <Button
+            variant="link"
+            size="sm"
+            className="h-auto p-0 text-xs"
+            onClick={() => loadUserEmails(userId)}
+          >
+            {t("retry")}
+          </Button>
+        </div>
+      )
+    }
+
+    if (state.emails.length === 0) {
+      return <p className="text-xs text-muted-foreground py-2">{t("emailsEmpty")}</p>
+    }
+
+    return (
+      <div className="space-y-1.5 py-1">
+        <p className="text-xs text-muted-foreground">
+          {t("emailsCount", { count: state.total })}
+        </p>
+        <ul className="space-y-1">
+          {state.emails.map((item) => (
+            <li key={item.id} className="bg-muted/40 rounded px-2 py-1.5 text-xs">
+              <div className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-primary/70 flex-shrink-0" />
+                <span className="truncate">{item.address}</span>
+              </div>
+              <div className="pl-5 mt-0.5 text-muted-foreground">
+                {t("createdAt")}: {formatDateTime(item.createdAt)}
+                {" · "}
+                {t("expiresAt")}:{" "}
+                {isPermanentEmail(item.expiresAt) ? t("permanent") : formatDateTime(item.expiresAt)}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+
   return (
     <div>
       <div>
@@ -288,7 +418,6 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
                   <tr className="border-b text-left text-muted-foreground">
                     <th className="py-2 px-3 font-medium">{t("username")}</th>
                     <th className="py-2 px-3 font-medium">{t("email")}</th>
-                    <th className="py-2 px-3 font-medium">{t("role")}</th>
                     <th className="py-2 px-3 font-medium text-right">{t("actions")}</th>
                   </tr>
                 </thead>
@@ -297,95 +426,117 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
                     const isSelf = user.id === currentUserId
                     const isEmperor = user.role === ROLES.EMPEROR
                     const isUpdating = updatingRoleId === user.id
+                    const isExpanded = expandedIds.has(user.id)
                     const RoleIcon = roleIcons[(user.role as Role) ?? ROLES.CIVILIAN] ?? User2
                     return (
-                      <tr key={user.id} className="border-b last:border-0">
-                        <td className="py-3 px-3">
-                          <div className="flex items-center gap-2">
-                            <RoleIcon className="w-4 h-4 text-primary/70 flex-shrink-0" />
-                            <span className="font-medium truncate max-w-[160px]">
-                              {user.username || user.name || "-"}
-                            </span>
-                            {isSelf && (
-                              <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                                {t("you")}
+                      <Fragment key={user.id}>
+                        <tr className="border-b last:border-0">
+                          <td className="py-3 px-3">
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => toggleEmails(user.id)}
+                                className="flex-shrink-0 text-muted-foreground hover:text-primary"
+                                title={isExpanded ? t("collapse") : t("expand")}
+                                aria-expanded={isExpanded}
+                              >
+                                <ChevronDown
+                                  className={cn(
+                                    "w-4 h-4 transition-transform",
+                                    isExpanded && "rotate-180"
+                                  )}
+                                />
+                              </button>
+                              <RoleIcon className="w-4 h-4 text-primary/70 flex-shrink-0" />
+                              <span className="font-medium truncate max-w-[160px]">
+                                {user.username || user.name || "-"}
                               </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3 px-3 text-muted-foreground">
-                          <span className="truncate block max-w-[200px]">
-                            {user.email || "-"}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          {isEmperor || isSelf ? (
-                            <div className="flex items-center gap-1 text-sm">
-                              <RoleIcon className="w-4 h-4 text-primary" />
-                              {roleNames[(user.role as Role) ?? ROLES.CIVILIAN] ?? user.role}
+                              {isSelf && (
+                                <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                                  {t("you")}
+                                </span>
+                              )}
                             </div>
-                          ) : (
-                            <Select
-                              value={user.role ?? ROLES.CIVILIAN}
-                              disabled={isUpdating}
-                              onValueChange={(value) =>
-                                handleRoleChange(user, value as RoleWithoutEmperor)
-                              }
-                            >
-                              <SelectTrigger className="w-32 h-8">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value={ROLES.DUKE}>
-                                  <div className="flex items-center gap-2">
-                                    <Gem className="w-4 h-4" />
-                                    {roleNames[ROLES.DUKE]}
-                                  </div>
-                                </SelectItem>
-                                <SelectItem value={ROLES.KNIGHT}>
-                                  <div className="flex items-center gap-2">
-                                    <Sword className="w-4 h-4" />
-                                    {roleNames[ROLES.KNIGHT]}
-                                  </div>
-                                </SelectItem>
-                                <SelectItem value={ROLES.CIVILIAN}>
-                                  <div className="flex items-center gap-2">
-                                    <User2 className="w-4 h-4" />
-                                    {roleNames[ROLES.CIVILIAN]}
-                                  </div>
-                                </SelectItem>
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              disabled={isEmperor || isSelf || !user.username}
-                              title={t("changePassword")}
-                              onClick={() => {
-                                setPasswordTarget(user)
-                                setNewPassword("")
-                              }}
-                            >
-                              <KeyRound className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8"
-                              disabled={isEmperor || isSelf}
-                              title={t("delete")}
-                              onClick={() => setUserToDelete(user)}
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
+                          </td>
+                          <td className="py-3 px-3 text-muted-foreground">
+                            <span className="truncate block max-w-[200px]">
+                              {user.email || "-"}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3">
+                            <div className="flex items-center justify-end gap-1">
+                              {isEmperor || isSelf ? (
+                                <div className="flex items-center gap-1 text-sm w-32">
+                                  <RoleIcon className="w-4 h-4 text-primary" />
+                                  {roleNames[(user.role as Role) ?? ROLES.CIVILIAN] ?? user.role}
+                                </div>
+                              ) : (
+                                <Select
+                                  value={user.role ?? ROLES.CIVILIAN}
+                                  disabled={isUpdating}
+                                  onValueChange={(value) =>
+                                    handleRoleChange(user, value as RoleWithoutEmperor)
+                                  }
+                                >
+                                  <SelectTrigger className="w-32 h-8">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value={ROLES.DUKE}>
+                                      <div className="flex items-center gap-2">
+                                        <Gem className="w-4 h-4" />
+                                        {roleNames[ROLES.DUKE]}
+                                      </div>
+                                    </SelectItem>
+                                    <SelectItem value={ROLES.KNIGHT}>
+                                      <div className="flex items-center gap-2">
+                                        <Sword className="w-4 h-4" />
+                                        {roleNames[ROLES.KNIGHT]}
+                                      </div>
+                                    </SelectItem>
+                                    <SelectItem value={ROLES.CIVILIAN}>
+                                      <div className="flex items-center gap-2">
+                                        <User2 className="w-4 h-4" />
+                                        {roleNames[ROLES.CIVILIAN]}
+                                      </div>
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                disabled={isEmperor || isSelf || !user.username}
+                                title={t("changePassword")}
+                                onClick={() => {
+                                  setPasswordTarget(user)
+                                  setNewPassword("")
+                                }}
+                              >
+                                <KeyRound className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                                disabled={isEmperor || isSelf}
+                                title={t("delete")}
+                                onClick={() => setUserToDelete(user)}
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                        {isExpanded && (
+                          <tr className="border-b last:border-0">
+                            <td colSpan={3} className="px-3 pb-3 pt-0">
+                              {renderEmailsPanel(user.id)}
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
                     )
                   })}
                 </tbody>
@@ -398,32 +549,44 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
                 const isSelf = user.id === currentUserId
                 const isEmperor = user.role === ROLES.EMPEROR
                 const isUpdating = updatingRoleId === user.id
+                const isExpanded = expandedIds.has(user.id)
                 const RoleIcon = roleIcons[(user.role as Role) ?? ROLES.CIVILIAN] ?? User2
                 return (
                   <div
                     key={user.id}
                     className="border rounded-lg p-3 space-y-3"
                   >
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <RoleIcon className="w-4 h-4 text-primary/70 flex-shrink-0" />
-                          <span className="font-medium truncate">
-                            {user.username || user.name || "-"}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => toggleEmails(user.id)}
+                          className="flex-shrink-0 text-muted-foreground hover:text-primary"
+                          title={isExpanded ? t("collapse") : t("expand")}
+                          aria-expanded={isExpanded}
+                        >
+                          <ChevronDown
+                            className={cn(
+                              "w-4 h-4 transition-transform",
+                              isExpanded && "rotate-180"
+                            )}
+                          />
+                        </button>
+                        <RoleIcon className="w-4 h-4 text-primary/70 flex-shrink-0" />
+                        <span className="font-medium truncate">
+                          {user.username || user.name || "-"}
+                        </span>
+                        {isSelf && (
+                          <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
+                            {t("you")}
                           </span>
-                          {isSelf && (
-                            <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                              {t("you")}
-                            </span>
-                          )}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-1 truncate">
-                          {user.email || "-"}
-                        </div>
+                        )}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1 truncate">
+                        {user.email || "-"}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground w-12">{t("role")}</span>
+                    <div className="flex items-center gap-1">
                       {isEmperor || isSelf ? (
                         <div className="flex items-center gap-1 text-sm flex-1">
                           <RoleIcon className="w-4 h-4 text-primary" />
@@ -462,32 +625,33 @@ export function RolesManager({ currentUserId }: RolesManagerProps) {
                           </SelectContent>
                         </Select>
                       )}
-                    </div>
-                    <div className="flex items-center justify-end gap-1 pt-2 border-t">
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="gap-1"
+                        size="icon"
+                        className="h-8 w-8 flex-shrink-0"
                         disabled={isEmperor || isSelf || !user.username}
+                        title={t("changePassword")}
                         onClick={() => {
                           setPasswordTarget(user)
                           setNewPassword("")
                         }}
                       >
-                        <KeyRound className="w-4 h-4" />
-                        {t("changePassword")}
+                        <KeyRound className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
-                        size="sm"
-                        className="gap-1 text-destructive"
+                        size="icon"
+                        className="h-8 w-8 flex-shrink-0"
                         disabled={isEmperor || isSelf}
+                        title={t("delete")}
                         onClick={() => setUserToDelete(user)}
                       >
-                        <Trash2 className="w-4 h-4" />
-                        {tCommon("delete")}
+                        <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
+                    {isExpanded && (
+                      <div className="pt-2 border-t">{renderEmailsPanel(user.id)}</div>
+                    )}
                   </div>
                 )
               })}
