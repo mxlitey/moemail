@@ -37,7 +37,7 @@ export function MessageView({ emailId, messageId, messageType = 'received' }: Me
   const [error, setError] = useState<string | null>(null)
   const [viewMode, setViewMode] = useState<ViewMode>("html")
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
   const { toast } = useToast()
 
   useEffect(() => {
@@ -102,10 +102,10 @@ export function MessageView({ emailId, messageId, messageType = 'received' }: Me
                   padding: 0;
                   min-height: 100%;
                   font-family: system-ui, -apple-system, sans-serif;
-                  /* 正文固定渲染在浅色纸张上：多数邮件按浅底设计，若跟随暗色主题会出现深色文字压在深色底上不可读 */
+                  /* 暗色模式固定用浅色纸张渲染正文：多数邮件按浅底设计，深色文字压在深色底上不可读；亮色模式与外壳一致用白色 */
                   color-scheme: light;
                   color: #000;
-                  background: #ececef;
+                  background: ${resolvedTheme === 'dark' ? '#c4c4cc' : '#fff'};
                 }
                 body {
                   padding: 20px;
@@ -182,7 +182,7 @@ export function MessageView({ emailId, messageId, messageType = 'received' }: Me
   // 监听主题变化和内容变化
   useEffect(() => {
     updateIframeContent()
-  }, [message?.html, viewMode, theme])
+  }, [message?.html, viewMode, theme, resolvedTheme])
 
   if (loading) {
     return (

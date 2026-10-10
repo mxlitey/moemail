@@ -42,7 +42,7 @@ export function SharedMessageDetail({
 }: SharedMessageDetailProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("html")
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  const { theme } = useTheme()
+  const { theme, resolvedTheme } = useTheme()
 
   // 如果没有HTML内容，默认显示文本
   useEffect(() => {
@@ -73,10 +73,10 @@ export function SharedMessageDetail({
                   padding: 0;
                   min-height: 100%;
                   font-family: system-ui, -apple-system, sans-serif;
-                  /* 正文固定渲染在浅色纸张上：多数邮件按浅底设计，若跟随暗色主题会出现深色文字压在深色底上不可读 */
+                  /* 暗色模式固定用浅色纸张渲染正文：多数邮件按浅底设计，深色文字压在深色底上不可读；亮色模式与外壳一致用白色 */
                   color-scheme: light;
                   color: #000;
-                  background: #ececef;
+                  background: ${resolvedTheme === "dark" ? "#c4c4cc" : "#fff"};
                 }
                 body {
                   padding: 20px;
@@ -153,7 +153,7 @@ export function SharedMessageDetail({
 
   useEffect(() => {
     updateIframeContent()
-  }, [message?.html, viewMode, theme])
+  }, [message?.html, viewMode, theme, resolvedTheme])
 
   if (loading) {
     return (
