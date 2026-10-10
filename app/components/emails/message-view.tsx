@@ -105,7 +105,7 @@ export function MessageView({ emailId, messageId, messageType = 'received' }: Me
                   /* 正文固定渲染在浅色纸张上：多数邮件按浅底设计，若跟随暗色主题会出现深色文字压在深色底上不可读 */
                   color-scheme: light;
                   color: #000;
-                  background: #fafafa;
+                  background: #ececef;
                 }
                 body {
                   padding: 20px;
