@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Monitor, Moon, Sun } from "lucide-react"
+import { Moon, Sun, SunMoon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
@@ -28,8 +28,8 @@ export function ThemeToggle() {
   const renderIcon = () => {
     if (current === "light") return <Sun className="h-5 w-5" />
     if (current === "dark") return <Moon className="h-5 w-5" />
-    // 跟随系统时固定显示显示器图标：不随系统明暗变化，避免被误认为手动切换
-    return <Monitor className="h-5 w-5" />
+    // 跟随系统时固定显示半日半月图标：不随系统明暗变化，避免被误认为手动切换
+    return <SunMoon className="h-5 w-5" />
   }
 
   return (
