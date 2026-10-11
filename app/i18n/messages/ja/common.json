@@ -2,6 +2,11 @@
   "app": {
     "name": "MoeMail"
   },
+  "theme": {
+    "light": "ライト",
+    "dark": "ダーク",
+    "system": "システム設定"
+  },
   "actions": {
     "ok": "OK",
     "cancel": "キャンセル",

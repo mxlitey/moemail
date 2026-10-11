@@ -2,6 +2,11 @@
   "app": {
     "name": "MoeMail"
   },
+  "theme": {
+    "light": "浅色",
+    "dark": "深色",
+    "system": "跟随系统"
+  },
   "actions": {
     "ok": "确定",
     "cancel": "取消",
