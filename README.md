@@ -878,6 +878,13 @@ curl https://<your-domain>/api/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0.0"}}}'
 ```
 
+### 已知限制
+
+- 服务端不提供 SSE 长连接：`GET /api/mcp` 返回 405，客户端使用 `POST` 一次性响应即可。
+- `wait_for_email` 单次等待上限 25 秒（受边缘函数执行时长约束），超时返回 `status: timeout`，再次调用即可继续等待。
+- `?key=` 方式会把 API Key 暴露在 URL 与访问日志中，优先使用请求头传参。
+- 该端点只做邮箱相关操作，不暴露配置修改、角色管理等写接口。
+
 ## 环境变量
 
 本项目使用以下环境变量：

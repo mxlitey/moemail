@@ -469,7 +469,7 @@ const tools: McpToolDefinition[] = [
         const message = await db.query.messages.findFirst({
           where: and(
             eq(messages.emailId, email.id),
-            ne(messages.type, "sent"),
+            or(ne(messages.type, "sent"), isNull(messages.type)),
             gt(messages.receivedAt, since)
           ),
           orderBy: (table, { desc: descOrder }) => [descOrder(table.receivedAt), descOrder(table.id)],
