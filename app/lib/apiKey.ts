@@ -24,8 +24,10 @@ async function getUserByApiKey(key: string): Promise<User | null> {
   return apiKey.user
 }
 
+const API_KEY_ALLOWED_PREFIXES = ['/api/emails', '/api/config', '/api/mcp']
+
 export async function handleApiKeyAuth(apiKey: string, pathname: string) {
-  if (!pathname.startsWith('/api/emails') && !pathname.startsWith('/api/config')) {
+  if (!API_KEY_ALLOWED_PREFIXES.some(prefix => pathname.startsWith(prefix))) {
     return NextResponse.json(
       { error: "无权限查看" },
       { status: 403 }

@@ -817,6 +817,67 @@ const data = await res.json();
 console.log('分享链接:', `https://your-domain.com/shared/message/${data.token}`);
 ```
 
+## MCP（内置云端服务）
+
+本项目内置了一个与后端同域部署的 MCP 服务，随 Git 推送自动上线。客户端无需本地安装任何依赖，只需配置一个 URL 即可接入，支持 Trae、Claude Desktop、Cursor 等 MCP 客户端。
+
+- **端点**：`https://<your-domain>/api/mcp`
+- **传输方式**：Streamable HTTP（JSON-RPC 2.0），支持 `POST` 与 CORS 预检
+- **鉴权**：使用个人中心创建的 API Key，支持三种传递方式
+  - 请求头 `X-API-Key: <API_KEY>`
+  - 请求头 `Authorization: Bearer <API_KEY>`
+  - URL 查询参数 `?key=<API_KEY>`（仅当客户端不支持自定义请求头时使用）
+
+> API Key 的权限边界由所属用户角色决定：普通用户只能操作自己的邮箱；API Key 无法访问配置修改、角色管理等接口。
+
+### 工具列表
+
+| 工具 | 说明 |
+| --- | --- |
+| `get_config` | 读取站点配置（可用域名、邮箱上限、发件服务状态） |
+| `create_email` | 创建临时邮箱（1h / 24h / 3d / 7d / permanent） |
+| `list_emails` | 列出当前用户名下的临时邮箱 |
+| `list_messages` | 列出指定邮箱的邮件（received / sent / all） |
+| `read_message` | 读取单封邮件的纯文本与 HTML |
+| `wait_for_email` | 轮询等待新邮件（超时返回 `status: timeout`，可重复调用） |
+| `send_email` | 使用临时邮箱发件 |
+| `delete_message` | 删除单封邮件 |
+| `delete_email` | 删除临时邮箱 |
+
+### 客户端配置示例
+
+Claude Desktop / Cursor 等支持 `mcpServers` 配置的客户端：
+
+```json
+{
+  "mcpServers": {
+    "moemail": {
+      "url": "https://<your-domain>/api/mcp",
+      "headers": {
+        "X-API-Key": "YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+仅支持 URL 的客户端可把 Key 拼接在 URL 上：
+
+```
+https://<your-domain>/api/mcp?key=YOUR_API_KEY
+```
+
+Trae 等 IDE 客户端在 MCP 市场中添加自定义服务时，选择 `HTTP` / `Streamable HTTP` 类型并填入上述 URL 与请求头即可。
+
+### 自检
+
+```bash
+curl https://<your-domain>/api/mcp \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0.0"}}}'
+```
+
 ## 环境变量
 
 本项目使用以下环境变量：

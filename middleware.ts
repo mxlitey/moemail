@@ -24,10 +24,26 @@ export async function middleware(request: Request) {
       return NextResponse.next()
     }
 
+    // MCP 端点的 CORS 预检请求由路由自身处理（预检不携带 API Key）
+    if (pathname === '/api/mcp' && request.method === 'OPTIONS') {
+      return NextResponse.next()
+    }
+
     request.headers.delete("X-User-Id")
-    const apiKey = request.headers.get("X-API-Key")
+
+    // MCP 发现信息仅包含端点与工具名，允许匿名 GET，便于排查接入问题
+    if (pathname === '/api/mcp' && request.method === 'GET') {
+      return NextResponse.next()
+    }
+
+    const apiKey = extractApiKey(request, url)
     if (apiKey) {
       return handleApiKeyAuth(apiKey, pathname)
+    }
+
+    // MCP 端点缺少 API Key 时交由路由返回协议化错误信息
+    if (pathname === '/api/mcp') {
+      return NextResponse.next()
     }
 
     const session = await auth()
@@ -72,6 +88,25 @@ export async function middleware(request: Request) {
   }
 
   return NextResponse.next()
+}
+
+/**
+ * 从请求中提取 API Key：
+ * - 优先 X-API-Key 头
+ * - 其次 Authorization: Bearer <key>（Trae / Claude Desktop 等客户端常用）
+ * - 最后 ?key= 查询参数（部分客户端只支持 URL 配置）
+ */
+function extractApiKey(request: Request, url: URL): string | null {
+  const headerKey = request.headers.get("X-API-Key")
+  if (headerKey) return headerKey
+
+  const authorization = request.headers.get("Authorization")
+  if (authorization) {
+    const match = authorization.match(/^Bearer\s+(.+)$/i)
+    if (match?.[1]) return match[1].trim()
+  }
+
+  return url.searchParams.get("key")
 }
 
 function resolvePreferredLocale(cookieLocale: string | undefined, acceptLanguageHeader: string | null): Locale | null {
@@ -137,5 +172,6 @@ export const config = {
     '/api/roles/:path*',
     '/api/config/:path*',
     '/api/api-keys/:path*',
+    '/api/mcp/:path*',
   ]
 } 
