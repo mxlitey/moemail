@@ -107,6 +107,10 @@ export const {
           clientId: process.env.AUTH_GITHUB_ID,
           clientSecret: process.env.AUTH_GITHUB_SECRET,
           allowDangerousEmailAccountLinking: true,
+          // GitHub 会在 OAuth 回调中按 RFC 9207 带上 iss 参数，
+          // 而 @auth/core@0.37.x 对非 OIDC provider 默认用占位 issuer（https://authjs.dev）做校验，
+          // 不显式声明会导致回调报 CallbackRouteError，前端表现为 Server error / Configuration。
+          issuer: "https://github.com/login/oauth",
         })]
       : []),
     ...(process.env.AUTH_GOOGLE_ID && process.env.AUTH_GOOGLE_SECRET
