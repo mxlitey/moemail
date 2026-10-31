@@ -1,53 +1,43 @@
-
 <p align="center">
   <img src="public/icons/icon-192x192.png" alt="MoeMail Logo" width="100" height="100">
   <h1 align="center">MoeMail</h1>
 </p>
 
 <p align="center">
-  A cute temporary email service built with NextJS + Cloudflare technology stack 🎉
+  A cute temporary email service built with NextJS + Cloudflare 🎉
 </p>
 
 <p align="center">
-  <a href="./README.en.md">English</a> | 
+  <a href="./README.en.md">English</a> |
   <a href="./README.md">简体中文</a>
 </p>
 
 <p align="center">
-  <a href="#live-demo">Live Demo</a> •
-  <a href="#documentation">Documentation</a> •
+  <a href="https://moemail.app">Live Demo</a> •
+  <a href="https://docs.moemail.app">Documentation</a> •
   <a href="#features">Features</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#local-run">Local Run</a> •
+  <a href="#quick-start">Quick Start</a> •
   <a href="#deployment">Deployment</a> •
-  <a href="#email-domain-configuration">Email Domain Config</a> •
-  <a href="#permission-system">Permission System</a> •
-  <a href="#system-settings">System Settings</a> •
-  <a href="#sending-emails">Sending Emails</a> •
-  <a href="#webhook-integration">Webhook Integration</a> •
-  <a href="#openapi">OpenAPI</a> •
-  <a href="#environment-variables">Environment Variables</a> •
-  <a href="#github-oauth-app-configuration">Github OAuth Config</a> •
-  <a href="#google-oauth-app-configuration">Google OAuth Config</a> •
-  <a href="#contribution">Contribution</a> •
-  <a href="#license">License</a> •
-  <a href="#community">Community</a> •
-  <a href="#support">Support</a>
+  <a href="#configuration">Configuration</a> •
+  <a href="#feature-guide">Feature Guide</a> •
+  <a href="#api-reference">API Reference</a> •
+  <a href="#mcp-built-in-cloud-service">MCP</a> •
+  <a href="#contributing">Contributing</a>
 </p>
 
+---
+
 ## Live Demo
+
 [https://moemail.app](https://moemail.app)
+
+Full documentation is available at [https://docs.moemail.app](https://docs.moemail.app), including usage guides, API documentation, and deployment tutorials.
 
 ![Home](https://pic.otaku.ren/20241209/AQADwsUxG9k1uVZ-.jpg "Home")
 
 ![Mailbox](https://pic.otaku.ren/20241209/AQADw8UxG9k1uVZ-.jpg "Mailbox")
 
 ![Profile](https://pic.otaku.ren/20241227/AQADVsIxG7OzcFd-.jpg "Profile")
-
-## Documentation
-**Full Documentation**: [https://docs.moemail.app](https://docs.moemail.app)
-
-The documentation site contains detailed usage guides, API documentation, deployment tutorials, and other complete information.
 
 ## Features
 
@@ -57,7 +47,7 @@ The documentation site contains detailed usage guides, API documentation, deploy
 - 🎨 **Theme Switching**: Supports light and dark modes
 - 📱 **Responsive Design**: Perfectly adapted for desktop and mobile devices
 - 🔄 **Auto Cleanup**: Automatically cleans up expired mailboxes and emails
-- 📱 **PWA Support**: Support PWA installation
+- 📲 **PWA Support**: Support PWA installation
 - 💸 **Free Self-hosting**: Built on Cloudflare, capable of free self-hosting without any cost
 - 🎉 **Cute UI**: Simple and cute UI interface
 - 📤 **Sending Function**: Support sending emails using temporary addresses, based on Resend service
@@ -68,78 +58,92 @@ The documentation site contains detailed usage guides, API documentation, deploy
 
 ## Tech Stack
 
-- **Framework**: [Next.js](https://nextjs.org/) (App Router)
-- **Platform**: [Cloudflare Pages](https://pages.cloudflare.com/)
-- **Database**: [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite)
-- **Authentication**: [NextAuth](https://authjs.dev/getting-started/installation?framework=Next.js) with GitHub/Google Login
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI Components**: Custom components based on [Radix UI](https://www.radix-ui.com/)
-- **Email Handling**: [Cloudflare Email Workers](https://developers.cloudflare.com/email-routing/)
-- **Type Safety**: [TypeScript](https://www.typescriptlang.org/)
-- **ORM**: [Drizzle ORM](https://orm.drizzle.team/)
-- **Internationalization**: [next-intl](https://next-intl-docs.vercel.app/)
+| Category | Technology |
+| --- | --- |
+| Framework | [Next.js](https://nextjs.org/) (App Router) |
+| Platform | [Cloudflare Pages](https://pages.cloudflare.com/) |
+| Database | [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite) |
+| Authentication | [NextAuth](https://authjs.dev/getting-started/installation?framework=Next.js) with GitHub / Google login |
+| Styling | [Tailwind CSS](https://tailwindcss.com/) |
+| UI Components | Custom components based on [Radix UI](https://www.radix-ui.com/) |
+| Email Handling | [Cloudflare Email Workers](https://developers.cloudflare.com/email-routing/) |
+| Type Safety | [TypeScript](https://www.typescriptlang.org/) |
+| ORM | [Drizzle ORM](https://orm.drizzle.team/) |
+| Internationalization | [next-intl](https://next-intl-docs.vercel.app/) |
 
-## Local Run
+## Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
-- Pnpm
+- pnpm
 - Wrangler CLI
-- Cloudflare Account
+- Cloudflare account
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/beilunyang/moemail.git
 cd moemail
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
-3. Setup Wrangler:
+3. Set up Wrangler:
+
 ```bash
 cp wrangler.example.json wrangler.json
 cp wrangler.email.example.json wrangler.email.json
 cp wrangler.cleanup.example.json wrangler.cleanup.json
 ```
-Set Cloudflare D1 database name and database ID.
 
-4. Setup Environment Variables:
+Set the Cloudflare D1 database name and database ID.
+
+4. Set up environment variables:
+
 ```bash
 cp .env.example .env.local
 ```
-Set `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, `AUTH_SECRET`.
 
-5. Create local database schema:
+Set `AUTH_GITHUB_ID`, `AUTH_GITHUB_SECRET`, and `AUTH_SECRET`.
+
+5. Create the local database schema:
+
 ```bash
 pnpm db:migrate-local
 ```
 
 ### Development
 
-1. Start development server:
+1. Start the development server:
+
 ```bash
 pnpm dev
 ```
 
-2. Test Email Worker:
-Currently cannot run and test locally, please use Wrangler to deploy the email worker and test.
+2. Test the Email Worker:
+
+It cannot be run or tested locally yet. Please deploy the Email Worker with Wrangler and test it there.
+
 ```bash
 pnpm deploy:email
 ```
 
-3. Test Cleanup Worker:
+3. Test the Cleanup Worker:
+
 ```bash
 pnpm dev:cleanup
 pnpm test:cleanup
 ```
 
-4. Generate Mock Data (Mailboxes and Messages):
+4. Generate mock data (mailboxes and messages):
+
 ```bash
 pnpm generate-test-data
 ```
@@ -147,174 +151,245 @@ pnpm generate-test-data
 ## Deployment
 
 ### Video Tutorial
-https://www.youtube.com/watch?v=Vcw3nqsq2-E
+
+- English (YouTube): [https://www.youtube.com/watch?v=Vcw3nqsq2-E](https://www.youtube.com/watch?v=Vcw3nqsq2-E)
+
+### One-click Deployment
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/beilunyang/moemail)
 
 ### Local Wrangler Deployment
-1. Create .env file
+
+1. Create a `.env` file:
+
 ```bash
 cp .env.example .env
 ```
-2. Set [Environment Variables](#environment-variables) in the .env file.
 
-3. Run deployment script
+2. Set [environment variables](#environment-variables) in the `.env` file.
+
+3. Run the deployment script:
+
 ```bash
 pnpm dlx tsx ./scripts/deploy/index.ts
 ```
 
-### Github Actions Deployment
+### GitHub Actions Deployment
 
-This project supports automated deployment using GitHub Actions. It supports the following triggers:
+This project supports automated deployment with GitHub Actions. The following triggers are supported:
 
-1. **Auto Trigger**: Automatically triggers deployment flow when a new tag is pushed.
-2. **Manual Trigger**: Manually trigger in the GitHub Actions page.
+1. **Auto Trigger**: Automatically triggers the deployment flow when a new tag is pushed
+2. **Manual Trigger**: Manually trigger from the GitHub Actions page
 
 #### Deployment Steps
 
-1. Add the following Secrets in GitHub repository settings:
-   - `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
-   - `CLOUDFLARE_ACCOUNT_ID`: Cloudflare Account ID
-   - `AUTH_GITHUB_ID`: GitHub OAuth App ID
-   - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
-   - `AUTH_SECRET`: NextAuth Secret, used to encrypt session, please set a random string
-   - `CUSTOM_DOMAIN`: Custom domain for the website (Optional, if empty, uses Cloudflare Pages default domain)
-   - `PROJECT_NAME`: Pages project name (Optional, if empty, defaults to moemail)
-   - `DATABASE_NAME`: D1 database name (Optional, if empty, defaults to moemail-db)
-   - `KV_NAMESPACE_NAME`: Cloudflare KV namespace name, used for site settings (Optional, if empty, defaults to moemail-kv)
+1. Add the following Secrets in the GitHub repository settings:
 
-2. Choose trigger method:
+| Secret | Description |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID |
+| `AUTH_GITHUB_ID` | GitHub OAuth App ID |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth App Secret |
+| `AUTH_SECRET` | NextAuth Secret used to encrypt sessions; use a random string |
+| `CUSTOM_DOMAIN` | Custom domain for the website (optional; Cloudflare Pages default domain is used if empty) |
+| `PROJECT_NAME` | Pages project name (optional; defaults to `moemail`) |
+| `DATABASE_NAME` | D1 database name (optional; defaults to `moemail-db`) |
+| `KV_NAMESPACE_NAME` | Cloudflare KV namespace name for site settings (optional; defaults to `moemail-kv`) |
 
-   **Method 1: Push Tag Trigger**
-   ```bash
-   # Create a new tag
-   git tag v1.0.0
-   
-   # Push tag to remote repository
-   git push origin v1.0.0
-   ```
+2. Choose a trigger method:
 
-   **Method 2: Manual Trigger**
-   - Go to the Actions page of the repository
-   - Select "Deploy" workflow
-   - Click "Run workflow"
+**Method 1: Push a tag**
+
+```bash
+# Create a new tag
+git tag v1.0.0
+
+# Push the tag to the remote repository
+git push origin v1.0.0
+```
+
+**Method 2: Manual trigger**
+
+- Go to the Actions page of the repository
+- Select the "Deploy" workflow
+- Click "Run workflow"
 
 3. Deployment progress can be viewed in the Actions tab of the repository.
 
 #### Notes
-- Ensure all Secrets are set correctly.
-- When using tag trigger, the tag must start with `v` (e.g., v1.0.0).
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/beilunyang/moemail)
+- Ensure all Secrets are set correctly
+- When using the tag trigger, the tag must start with `v` (for example, `v1.0.0`)
 
+## Configuration
 
-## Email Domain Configuration
+### Email Domain Configuration
 
-In the MoeMail User Profile page, you can configure the site's email domains. Supports multiple domain configurations, separated by commas.
+In the MoeMail User Profile page you can configure the site's email domains. Multiple domains are supported, separated by commas.
+
 ![Email Domain Configuration](https://pic.otaku.ren/20241227/AQAD88AxG67zeVd-.jpg "Email Domain Configuration")
 
-### Cloudflare Email Routing Configuration
+#### Cloudflare Email Routing Configuration
 
 To make email domains effective, you also need to configure email routing in the Cloudflare console to forward received emails to the Email Worker.
 
-1. Login to [Cloudflare Console](https://dash.cloudflare.com/)
+1. Log in to the [Cloudflare Console](https://dash.cloudflare.com/)
 2. Select your domain
-3. Click "Email" -> "Email Routing" in the left menu
-4. If it shows "Email Routing is currently disabled", please click "Enable Email Routing"
+3. Click "Email" → "Email Routing" in the left menu
+4. If it shows "Email Routing is currently disabled", click "Enable Email Routing"
+
 ![Enable Email Routing](https://pic.otaku.ren/20241223/AQADNcQxG_K0SVd-.jpg "Enable Email Routing")
-5. After clicking, it will prompt you to add Email Routing DNS records, click "Add records and enable"
+
+5. After clicking, you will be prompted to add Email Routing DNS records. Click "Add records and enable"
+
 ![Add DNS Records](https://pic.otaku.ren/20241223/AQADN8QxG_K0SVd-.jpg "Add DNS Records")
-6. Configure Routing Rules:
-   - Catch-all address: Enable "Catch-all"
-   - Edit Catch-all address
-    - Action: Select "Send to Worker"
-    - Destination: Select the "email-receiver-worker" you just deployed
-    - Save
-  ![Configure Routing Rules](https://pic.otaku.ren/20241223/AQADNsQxG_K0SVd-.jpg "Configure Routing Rules")
 
-### Notes
-- Ensure domain DNS is hosted on Cloudflare.
-- Email Worker must be successfully deployed.
-- If Catch-All status is unavailable (stuck loading), please click `Destination addresses` next to `Routing rules`, and bind an email address there.
+6. Configure routing rules:
+   - Catch-all address: enable "Catch-all"
+   - Edit the Catch-all address:
+     - Action: select "Send to Worker"
+     - Destination: select the `email-receiver-worker` you just deployed
+     - Save
 
-## Permission System
+![Configure Routing Rules](https://pic.otaku.ren/20241223/AQADNsQxG_K0SVd-.jpg "Configure Routing Rules")
+
+#### Notes
+
+- Ensure the domain's DNS is hosted on Cloudflare
+- The Email Worker must be deployed successfully
+- If Catch-All status is unavailable (stuck loading), click `Destination addresses` next to `Routing rules` and bind an email address there
+
+### Environment Variables
+
+#### Authentication
+
+| Variable | Description |
+| --- | --- |
+| `AUTH_GITHUB_ID` | GitHub OAuth App ID |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth App Secret |
+| `AUTH_GOOGLE_ID` | Google OAuth App ID |
+| `AUTH_GOOGLE_SECRET` | Google OAuth App Secret |
+| `AUTH_SECRET` | NextAuth Secret used to encrypt sessions; use a random string |
+
+#### Cloudflare
+
+| Variable | Description |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID |
+| `DATABASE_NAME` | D1 database name |
+| `DATABASE_ID` | D1 database ID (optional; fetched automatically via the Cloudflare API if empty) |
+| `KV_NAMESPACE_NAME` | Cloudflare KV namespace name for site settings |
+| `KV_NAMESPACE_ID` | Cloudflare KV namespace ID for site settings (optional; fetched automatically via the Cloudflare API if empty) |
+| `CUSTOM_DOMAIN` | Custom domain, e.g. `moemail.app` (optional; Cloudflare Pages default domain is used if empty) |
+| `PROJECT_NAME` | Pages project name (optional; defaults to `moemail`) |
+
+### GitHub OAuth App Configuration
+
+1. Log in to [GitHub Developer](https://github.com/settings/developers) and create a new OAuth App
+2. Generate a new `Client ID` and `Client Secret`
+3. Configure:
+   - `Application name`: `<your-app-name>`
+   - `Homepage URL`: `https://<your-domain>`
+   - `Authorization callback URL`: `https://<your-domain>/api/auth/callback/github`
+
+### Google OAuth App Configuration
+
+1. Visit the [Google Cloud Console](https://console.cloud.google.com/) and create a project
+2. Configure the OAuth consent screen
+3. Create an OAuth Client ID
+   - Type: Web application
+   - Authorized JavaScript origins: `https://<your-domain>`
+   - Authorized redirect URIs: `https://<your-domain>/api/auth/callback/google`
+4. Get the `Client ID` and `Client Secret`
+5. Configure the `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET` environment variables
+
+## Feature Guide
+
+### Permission System
 
 The project uses a Role-Based Access Control (RBAC) system.
 
-### Role Configuration
+#### Role Configuration
 
 New user default roles are configured by the Emperor in the site settings in the User Profile:
-- Duke: New users get temporary email, Webhook config permissions, and API Key management permissions.
-- Knight: New users get temporary email and Webhook config permissions.
-- Civilian: New users have no permissions, need to wait for Emperor to promote to Knight or Duke.
 
-### Role Levels
+- **Duke**: New users get temporary email, Webhook configuration, and API Key management permissions
+- **Knight**: New users get temporary email and Webhook configuration permissions
+- **Civilian**: New users have no permissions and must wait for the Emperor to promote them to Knight or Duke
+
+#### Role Levels
 
 The system includes four role levels:
 
 1. **Emperor**
-   - Website Owner
+   - Website owner
    - Has all permissions
    - Only one Emperor per site
 
 2. **Duke**
-   - Super User
+   - Super user
    - Can use temporary email features
    - Can configure Webhook
-   - Can create API Key to call OpenAPI
-   - Can be demoted to Knight or Civilian by Emperor
+   - Can create API Keys to call OpenAPI
+   - Can be demoted to Knight or Civilian by the Emperor
 
 3. **Knight**
-   - Advanced User
+   - Advanced user
    - Can use temporary email features
    - Can configure Webhook
-   - Can be demoted to Civilian or promoted to Duke by Emperor
+   - Can be demoted to Civilian or promoted to Duke by the Emperor
 
 4. **Civilian**
-   - Regular User
+   - Regular user
    - No permissions
-   - Can be promoted to Knight or Duke by Emperor
+   - Can be promoted to Knight or Duke by the Emperor
 
-### Role Upgrade
+#### Role Upgrade
 
 1. **Become Emperor**
-   - The first user to visit `/api/roles/init-emperor` interface will become the Emperor (Website Owner).
-   - Once an Emperor exists, no other user can be promoted to Emperor.
+   - The first user to visit the `/api/roles/init-emperor` endpoint becomes the Emperor (website owner)
+   - Once an Emperor exists, no other user can be promoted to Emperor
 
 2. **Role Changes**
-   - The Emperor can set other users as Duke, Knight, or Civilian in the User Profile page.
+   - The Emperor can set other users as Duke, Knight, or Civilian in the User Profile page
 
-### Permission Details
+#### Permission Details
 
 - **Email Management**: Create and manage temporary emails
 - **Webhook Management**: Configure Webhooks for email notifications
 - **API Key Management**: Create and manage API access keys
-- **User Management**: Promote/Demote user roles
+- **User Management**: Promote/demote user roles
 - **System Settings**: Manage global system settings
 
-## System Settings
+### System Settings
 
 System settings are stored in Cloudflare KV, including:
 
-- `DEFAULT_ROLE`: Default role for new users, values: `CIVILIAN`, `KNIGHT`, `DUKE`
-- `EMAIL_DOMAINS`: Supported email domains, comma-separated
-- `ADMIN_CONTACT`: Administrator contact info
-- `MAX_EMAILS`: Maximum number of emails per user
+| Setting | Description |
+| --- | --- |
+| `DEFAULT_ROLE` | Default role for new users; values: `CIVILIAN`, `KNIGHT`, `DUKE` |
+| `EMAIL_DOMAINS` | Supported email domains, comma-separated |
+| `ADMIN_CONTACT` | Administrator contact information |
+| `MAX_EMAILS` | Maximum number of emails per user |
 
-**Emperor** role can configure these in the User Profile page.
+The **Emperor** role can configure these in the User Profile page.
 
-## Sending Emails
+### Sending Emails
 
-MoeMail supports sending emails using temporary addresses, based on [Resend](https://resend.com/) service.
+MoeMail supports sending emails using temporary addresses, based on the [Resend](https://resend.com/) service.
 
-### Features
+#### Features
 
-- 📨 **Send from Temp Email**: Use created temporary emails as sender
+- 📨 **Send from Temp Email**: Use created temporary emails as the sender
 - 🎯 **Role Limits**: Different roles have different daily sending limits
 - 💌 **HTML Support**: Supports rich text email format
 
-### Role Sending Limits
+#### Role Sending Limits
 
 | Role | Daily Limit | Description |
-|------|-------------|-------------|
+| --- | --- | --- |
 | Emperor | Unlimited | Admin has no limits |
 | Duke | 5/day | Default 5 emails per day |
 | Knight | 2/day | Default 2 emails per day |
@@ -322,57 +397,57 @@ MoeMail supports sending emails using temporary addresses, based on [Resend](htt
 
 > 💡 **Tip**: The Emperor can customize the daily limits for Dukes and Knights in the Mail Service Configuration.
 
-### Configure Sending Service
+#### Configure Sending Service
 
-1. **Get Resend API Key**
+1. **Get a Resend API Key**
    - Register at [Resend](https://resend.com/)
-   - Create API Key in console
-   - Copy API Key for later use
+   - Create an API Key in the console
+   - Copy the API Key for later use
 
-2. **Configure Service**
-   - Login as Emperor
-   - Go to User Profile
+2. **Configure the Service**
+   - Log in as Emperor
+   - Go to the User Profile
    - In "Resend Service Configuration":
-     - Enable Sending Service switch
-     - Enter Resend API Key
-     - Set daily limits for Duke and Knight (Optional)
-   - Save configuration
+     - Enable the Sending Service switch
+     - Enter the Resend API Key
+     - Set daily limits for Duke and Knight (optional)
+   - Save the configuration
 
-3. **Verify Configuration**
+3. **Verify the Configuration**
    - After saving, authorized users will see a "Send Email" button in the email list
-   - Click to open dialog and test
+   - Click it to open the dialog and test
 
-### How to Send
+#### How to Send
 
-1. **Create Temp Email**
-   - Create a new temporary email in Mailbox page
+1. **Create a Temp Email**
+   - Create a new temporary email on the Mailbox page
 
-2. **Send Email**
+2. **Send an Email**
    - Find the email in the list
-   - Click "Send Email" button next to it
+   - Click the "Send Email" button next to it
    - Fill in:
      - Recipient address
      - Subject
-     - Content (supports HTML)
+     - Content (HTML supported)
    - Click "Send"
 
 3. **View History**
    - Sent emails are saved in the message list of the corresponding mailbox
-   - View all sent/received emails in mailbox detail page
+   - View all sent and received emails in the mailbox detail page
 
-### Notes
+#### Notes
 
 - 📋 **Resend Limits**: Please note Resend's sending limits and pricing
 - 🔐 **Domain Verification**: Using custom domains requires verification in Resend
-- 🚫 **Anti-Spam**: Please follow email sending standards, avoid spamming
-- 📊 **Quota Monitoring**: System counts daily usage, stops sending when limit reached
-- 🔄 **Quota Reset**: Daily quota resets at 00:00
+- 🚫 **Anti-Spam**: Please follow email sending standards and avoid spam
+- 📊 **Quota Monitoring**: The system counts daily usage automatically and stops sending when the limit is reached
+- 🔄 **Quota Reset**: The daily quota resets at 00:00 every day
 
-## Webhook Integration
+### Webhook Integration
 
-When a new email is received, the system sends a POST request to the configured and enabled Webhook URL. Both the request body and the request headers are defined by the user in the profile page.
+When a new email is received, the system sends a POST request to the configured and enabled Webhook URL. Both the request body and headers are defined by the user in the profile page.
 
-### Request Body
+#### Request Body
 
 The request body is generated from the template the user provides, using placeholders to reference the email data:
 
@@ -400,7 +475,7 @@ Example template:
 }
 ```
 
-Placeholder values are JSON-escaped during rendering, so they can be safely placed inside JSON strings (quotes and line breaks in the email do not break the structure). For readability, JSON strings in the template may also contain real line breaks; before sending, the system strips the common indentation of continuation lines and escapes the line breaks to `\n`. When the template is left empty, the system sends the generic email data JSON:
+Placeholder values are JSON-escaped during rendering, so they can be safely placed inside JSON strings (quotes and line breaks in the email do not break the structure). For readability, JSON strings in the template may also contain real line breaks; before sending, the system strips the common indentation of continuation lines and escapes the line breaks to `\n`. When the template is left empty, the system sends the following generic email data JSON:
 
 ```json
 {
@@ -415,9 +490,9 @@ Placeholder values are JSON-escaped during rendering, so they can be safely plac
 }
 ```
 
-### Request Headers
+#### Request Headers
 
-Request headers are configured by the user as well. A `Content-Type: application/json` header is included by default and can be edited or removed. Header values also support the placeholders above; they are substituted as-is without JSON escaping.
+Request headers are also configured by the user. A `Content-Type: application/json` header is included by default and can be edited or removed. Header values support the placeholders above and are substituted as-is without JSON escaping.
 
 ```http
 Content-Type: application/json
@@ -426,15 +501,16 @@ Authorization: Bearer your-token
 
 Headers controlled by the runtime or forbidden by the spec, such as `Host`, `Content-Length`, `Connection`, and `User-Agent`, cannot be set.
 
-### Configuration
-1. Click avatar to enter User Profile
-2. Enable Webhook
-3. Set notification URL
-4. Fill in the request body template (optional) and request headers
-5. Click Test button
-6. Save to receive notifications
+#### Configuration
 
-### Testing
+1. Click your avatar to enter the User Profile
+2. Enable Webhook
+3. Set the notification URL
+4. Fill in the request body template (optional) and request headers
+5. Click the Test button to verify the configuration
+6. Save to start receiving new email notifications
+
+#### Testing
 
 The project provides a simple test server:
 
@@ -442,36 +518,57 @@ The project provides a simple test server:
 pnpm webhook-test-server
 ```
 
-The test server listens on port 3001 (http://localhost:3001) and prints received Webhook details.
+The test server starts a local HTTP server on port 3001 ([http://localhost:3001](http://localhost:3001)) and prints the details of received Webhook requests.
 
-For external testing, use Cloudflare Tunnel:
+For external testing, expose the service with Cloudflare Tunnel:
+
 ```bash
 pnpx cloudflared tunnel --url http://localhost:3001
 ```
 
-### Notes
-- Webhook must respond within 10 seconds
-- Non-2xx response triggers retry, up to 3 attempts
+#### Notes
+
+- The Webhook endpoint should respond within 10 seconds
+- Non-2xx responses trigger a retry, up to 3 attempts
 - When delivery ultimately fails, the system sends an in-app notification to the user (deduplicated per user within 24 hours)
 
-## OpenAPI
+## API Reference
 
-The project provides OpenAPI interfaces, accessible via API Key. API Keys can be created in User Profile (Requires Duke or Emperor role).
+The project provides OpenAPI endpoints accessible via API Key. API Keys can be created in the User Profile (requires the Duke or Emperor role).
 
-### Using API Key
+### Authentication
 
-Add API Key to request header:
+Add the API Key to the request header:
+
 ```http
 X-API-Key: YOUR_API_KEY
 ```
 
-### API Endpoints
+### Endpoint Overview
 
-#### Get System Config
+| Method | Path | Description |
+| --- | --- | --- |
+| `GET` | `/api/config` | Get system configuration |
+| `POST` | `/api/emails/generate` | Create a temporary email |
+| `GET` | `/api/emails` | List emails |
+| `DELETE` | `/api/emails/{emailId}` | Delete an email |
+| `GET` | `/api/emails/{emailId}` | List messages of an email |
+| `GET` | `/api/emails/{emailId}/{messageId}` | Get a single message |
+| `POST` | `/api/emails/{emailId}/share` | Create an email share link |
+| `GET` | `/api/emails/{emailId}/share` | List share links of an email |
+| `DELETE` | `/api/emails/{emailId}/share/{shareId}` | Delete an email share link |
+| `POST` | `/api/emails/{emailId}/messages/{messageId}/share` | Create a message share link |
+| `GET` | `/api/emails/{emailId}/messages/{messageId}/share` | List share links of a message |
+| `DELETE` | `/api/emails/{emailId}/messages/{messageId}/share/{shareId}` | Delete a message share link |
+
+### System Configuration
+
 ```http
 GET /api/config
 ```
+
 Response:
+
 ```json
 {
   "defaultRole": "CIVILIAN",
@@ -481,7 +578,17 @@ Response:
 }
 ```
 
-#### Generate Temp Email
+| Field | Description |
+| --- | --- |
+| `defaultRole` | Default role for new users; values: `CIVILIAN`, `KNIGHT`, `DUKE` |
+| `emailDomains` | Supported email domains, comma-separated |
+| `adminContact` | Administrator contact information |
+| `maxEmails` | Maximum number of emails per user |
+
+### Email Management
+
+#### Create a Temporary Email
+
 ```http
 POST /api/emails/generate
 Content-Type: application/json
@@ -492,12 +599,15 @@ Content-Type: application/json
   "domain": "moemail.app"
 }
 ```
-Params:
-- `name`: Prefix (optional)
-- `expiryTime`: Validity in ms. 3600000(1h), 86400000(24h), 604800000(7d), 0(Permanent)
-- `domain`: From config
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | No | Email prefix |
+| `expiryTime` | number | No | Validity in milliseconds: `3600000` (1 hour), `86400000` (1 day), `259200000` (3 days), `0` (permanent) |
+| `domain` | string | No | Email domain; available from `/api/config` |
 
 Response:
+
 ```json
 {
   "id": "email-uuid-123",
@@ -505,27 +615,143 @@ Response:
 }
 ```
 
-#### Get Email List
+| Field | Description |
+| --- | --- |
+| `id` | Unique identifier of the email |
+| `email` | Created email address |
+
+#### List Emails
+
 ```http
 GET /api/emails?cursor=xxx
 ```
 
-#### Get Messages for Email
-```http
-GET /api/emails/{emailId}?cursor=xxx
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `cursor` | string | No | Pagination cursor |
+
+Response:
+
+```json
+{
+  "emails": [
+    {
+      "id": "email-uuid-123",
+      "address": "test@moemail.app",
+      "createdAt": "2024-01-01T12:00:00.000Z",
+      "expiresAt": "2024-01-02T12:00:00.000Z",
+      "userId": "user-uuid-456"
+    }
+  ],
+  "nextCursor": "encoded-cursor-string",
+  "total": 5
+}
 ```
 
-#### Delete Email
+| Field | Description |
+| --- | --- |
+| `emails` | Array of emails |
+| `nextCursor` | Cursor for the next page |
+| `total` | Total number of emails |
+
+#### Delete an Email
+
 ```http
 DELETE /api/emails/{emailId}
 ```
 
-#### Get Single Message
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+
+Response:
+
+```json
+{
+  "success": true
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `success` | Whether the deletion succeeded |
+
+### Messages
+
+#### List Messages of an Email
+
+```http
+GET /api/emails/{emailId}?cursor=xxx
+```
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+| `cursor` | string | No | Pagination cursor |
+
+Response:
+
+```json
+{
+  "messages": [
+    {
+      "id": "message-uuid-789",
+      "from_address": "sender@example.com",
+      "subject": "Email Subject",
+      "received_at": 1704110400000
+    }
+  ],
+  "nextCursor": "encoded-cursor-string",
+  "total": 3
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `messages` | Array of messages |
+| `nextCursor` | Cursor for the next page |
+| `total` | Total number of messages |
+
+#### Get a Single Message
+
 ```http
 GET /api/emails/{emailId}/{messageId}
 ```
 
-#### Create Email Share Link
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+| `messageId` | string | Yes | Unique identifier of the message |
+
+Response:
+
+```json
+{
+  "message": {
+    "id": "message-uuid-789",
+    "from_address": "sender@example.com",
+    "subject": "Email Subject",
+    "content": "Email Text Content",
+    "html": "<p>Email HTML Content</p>",
+    "received_at": 1704110400000
+  }
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `message` | Message detail object |
+| `id` | Unique identifier of the message |
+| `from_address` | Sender email address |
+| `subject` | Email subject |
+| `content` | Plain text content |
+| `html` | HTML content |
+| `received_at` | Received time (timestamp) |
+
+### Share Links
+
+#### Create an Email Share Link
+
 ```http
 POST /api/emails/{emailId}/share
 Content-Type: application/json
@@ -535,17 +761,90 @@ Content-Type: application/json
 }
 ```
 
-#### Get Email Share Links
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+| `expiresIn` | number | No | Share link validity in milliseconds: `3600000` (1 hour), `86400000` (1 day), `259200000` (3 days), `0` (permanent) |
+
+Response:
+
+```json
+{
+  "id": "share-uuid-123",
+  "emailId": "email-uuid-123",
+  "token": "abc123def456",
+  "expiresAt": "2024-01-02T12:00:00.000Z",
+  "createdAt": "2024-01-01T12:00:00.000Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `id` | Unique identifier of the share record |
+| `emailId` | ID of the associated email |
+| `token` | Access token of the share link |
+| `expiresAt` | Expiry time of the share link; `null` means permanent |
+| `createdAt` | Creation time |
+
+Share link URL: `https://your-domain.com/shared/{token}`
+
+#### List Email Share Links
+
 ```http
 GET /api/emails/{emailId}/share
 ```
 
-#### Delete Email Share Link
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+
+Response:
+
+```json
+{
+  "shares": [
+    {
+      "id": "share-uuid-123",
+      "emailId": "email-uuid-123",
+      "token": "abc123def456",
+      "expiresAt": "2024-01-02T12:00:00.000Z",
+      "createdAt": "2024-01-01T12:00:00.000Z"
+    }
+  ],
+  "total": 1
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `shares` | Array of share links |
+| `total` | Total number of share links |
+
+#### Delete an Email Share Link
+
 ```http
 DELETE /api/emails/{emailId}/share/{shareId}
 ```
 
-#### Create Message Share Link
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+| `shareId` | string | Yes | Unique identifier of the share record |
+
+Response:
+
+```json
+{
+  "success": true
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `success` | Whether the deletion succeeded |
+
+#### Create a Message Share Link
+
 ```http
 POST /api/emails/{emailId}/messages/{messageId}/share
 Content-Type: application/json
@@ -555,56 +854,214 @@ Content-Type: application/json
 }
 ```
 
-#### Get Message Share Links
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+| `messageId` | string | Yes | Unique identifier of the message |
+| `expiresIn` | number | No | Share link validity in milliseconds: `3600000` (1 hour), `86400000` (1 day), `259200000` (3 days), `0` (permanent) |
+
+Response:
+
+```json
+{
+  "id": "share-uuid-456",
+  "messageId": "message-uuid-789",
+  "token": "xyz789ghi012",
+  "expiresAt": "2024-01-02T12:00:00.000Z",
+  "createdAt": "2024-01-01T12:00:00.000Z"
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `id` | Unique identifier of the share record |
+| `messageId` | ID of the associated message |
+| `token` | Access token of the share link |
+| `expiresAt` | Expiry time of the share link; `null` means permanent |
+| `createdAt` | Creation time |
+
+Share link URL: `https://your-domain.com/shared/message/{token}`
+
+#### List Message Share Links
+
 ```http
 GET /api/emails/{emailId}/messages/{messageId}/share
 ```
 
-#### Delete Message Share Link
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+| `messageId` | string | Yes | Unique identifier of the message |
+
+Response:
+
+```json
+{
+  "shares": [
+    {
+      "id": "share-uuid-456",
+      "messageId": "message-uuid-789",
+      "token": "xyz789ghi012",
+      "expiresAt": "2024-01-02T12:00:00.000Z",
+      "createdAt": "2024-01-01T12:00:00.000Z"
+    }
+  ],
+  "total": 1
+}
+```
+
+| Field | Description |
+| --- | --- |
+| `shares` | Array of share links |
+| `total` | Total number of share links |
+
+#### Delete a Message Share Link
+
 ```http
 DELETE /api/emails/{emailId}/messages/{messageId}/share/{shareId}
 ```
 
-## Environment Variables
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `emailId` | string | Yes | Unique identifier of the email |
+| `messageId` | string | Yes | Unique identifier of the message |
+| `shareId` | string | Yes | Unique identifier of the share record |
 
-### Authentication
-- `AUTH_GITHUB_ID`: GitHub OAuth App ID
-- `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
-- `AUTH_GOOGLE_ID`: Google OAuth App ID
-- `AUTH_GOOGLE_SECRET`: Google OAuth App Secret
-- `AUTH_SECRET`: NextAuth Secret
+Response:
 
-### Cloudflare
-- `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare Account ID
-- `DATABASE_NAME`: D1 Database Name
-- `DATABASE_ID`: D1 Database ID (Optional, auto-fetched if empty)
-- `KV_NAMESPACE_NAME`: KV Name
-- `KV_NAMESPACE_ID`: KV ID (Optional, auto-fetched if empty)
-- `CUSTOM_DOMAIN`: Custom domain
-- `PROJECT_NAME`: Pages Project Name
+```json
+{
+  "success": true
+}
+```
 
-## Github OAuth App Configuration
+| Field | Description |
+| --- | --- |
+| `success` | Whether the deletion succeeded |
 
-1. Login [Github Developer](https://github.com/settings/developers) create new OAuth App
-2. Generate `Client ID` and `Client Secret`
-3. Configure:
-   - `Application name`: `<your-app-name>`
-   - `Homepage URL`: `https://<your-domain>`
-   - `Authorization callback URL`: `https://<your-domain>/api/auth/callback/github`
+### Usage Examples
 
-## Google OAuth App Configuration
+Create a temporary email with curl:
 
-1. Visit [Google Cloud Console](https://console.cloud.google.com/) create project
-2. Configure OAuth consent screen
-3. Create OAuth Client ID
-   - Type: Web application
-   - Authorized Javascript origins: `https://<your-domain>`
-   - Authorized redirect URIs: `https://<your-domain>/api/auth/callback/google`
-4. Get `Client ID` and `Client Secret`
-5. Configure env vars `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`
+```bash
+curl -X POST https://your-domain.com/api/emails/generate \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "test",
+    "expiryTime": 3600000,
+    "domain": "moemail.app"
+  }'
+```
 
-## Contribution
+Get the message list with JavaScript:
+
+```javascript
+const res = await fetch('https://your-domain.com/api/emails/your-email-id', {
+  headers: {
+    'X-API-Key': 'YOUR_API_KEY'
+  }
+});
+const data = await res.json();
+```
+
+Create an email share link with curl:
+
+```bash
+curl -X POST https://your-domain.com/api/emails/your-email-id/share \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "expiresIn": 86400000
+  }'
+```
+
+Create a message share link with JavaScript:
+
+```javascript
+const res = await fetch('https://your-domain.com/api/emails/your-email-id/messages/your-message-id/share', {
+  method: 'POST',
+  headers: {
+    'X-API-Key': 'YOUR_API_KEY',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    expiresIn: 0  // permanent
+  })
+});
+const data = await res.json();
+console.log('Share link:', `https://your-domain.com/shared/message/${data.token}`);
+```
+
+## MCP Built-in Cloud Service
+
+The project includes an MCP service deployed alongside the backend on the same domain. It goes live automatically when you push to Git. Clients need no local dependencies; just configure a URL to connect. It supports MCP clients such as Trae, Claude Desktop, and Cursor.
+
+- **Endpoint**: `https://<your-domain>/api/mcp`
+- **Transport**: Streamable HTTP (JSON-RPC 2.0), supports `POST` and CORS preflight
+- **Authentication**: use an API Key created in the User Profile, passed in one of three ways
+  - Header `X-API-Key: <API_KEY>`
+  - Header `Authorization: Bearer <API_KEY>`
+  - URL query parameter `?key=<API_KEY>` (only when the client does not support custom headers)
+
+> The permission scope of an API Key is determined by the owner's role: regular users can only operate their own mailboxes; API Keys cannot access configuration changes, role management, or similar endpoints.
+
+### Tools
+
+| Tool | Description |
+| --- | --- |
+| `get_config` | Read site configuration (available domains, email limit, sending service status) |
+| `create_email` | Create a temporary email (1h / 24h / 3d / permanent) |
+| `list_emails` | List temporary emails owned by the current user |
+| `list_messages` | List messages of an email (received / sent / all) |
+| `read_message` | Read the plain text and HTML of a single message |
+| `wait_for_email` | Poll for a new email (returns `status: timeout` on timeout; can be called again) |
+| `send_email` | Send an email from a temporary email |
+| `delete_message` | Delete a single message |
+| `delete_email` | Delete a temporary email |
+
+### Client Configuration Examples
+
+For clients that support `mcpServers` configuration, such as Claude Desktop and Cursor:
+
+```json
+{
+  "mcpServers": {
+    "moemail": {
+      "url": "https://<your-domain>/api/mcp",
+      "headers": {
+        "X-API-Key": "YOUR_API_KEY"
+      }
+    }
+  }
+}
+```
+
+For clients that only support a URL, append the Key to the URL:
+
+```text
+https://<your-domain>/api/mcp?key=YOUR_API_KEY
+```
+
+For IDE clients such as Trae, add a custom service in the MCP marketplace, choose the `HTTP` / `Streamable HTTP` type, and fill in the URL and headers above.
+
+### Self-check
+
+```bash
+curl https://<your-domain>/api/mcp \
+  -H "X-API-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0.0"}}}'
+```
+
+### Known Limitations
+
+- The server does not provide SSE long connections: `GET /api/mcp` returns 405; clients can use `POST` with a one-shot response
+- `wait_for_email` waits up to 25 seconds per call (limited by edge function execution time); on timeout it returns `status: timeout`, and another call continues waiting
+- The `?key=` method exposes the API Key in URLs and access logs; prefer passing it in headers
+- The endpoint only performs mailbox-related operations and does not expose write endpoints such as configuration changes or role management
+
+## Contributing
 
 Welcome to submit Pull Requests or Issues to help improve this project.
 
@@ -613,6 +1070,7 @@ Welcome to submit Pull Requests or Issues to help improve this project.
 [MIT](LICENSE)
 
 ## Community
+
 <table>
   <tr style="max-width: 360px">
     <td>
@@ -624,21 +1082,21 @@ Welcome to submit Pull Requests or Issues to help improve this project.
   </tr>
   <tr style="max-width: 360px">
     <td>
-      Follow official account for more project updates, AI, Blockchain, and Indie Dev news.
+      Follow the official account for more project updates and news about AI, blockchain, and indie development.
     </td>
     <td>
-      Add WeChat, remark "MoeMail" to join the WeChat community group.
+      Add the WeChat contact and mention "MoeMail" to join the WeChat community group.
     </td>
   </tr>
 </table>
 
 ## Support
 
-If you like this project, please give it a Star ⭐️
-Or sponsor it
+If you like this project, please give it a Star ⭐️, or sponsor it.
+
 <br />
 <br />
-<img src="https://pic.otaku.ren/20240212/AQADPrgxGwoIWFZ-.jpg" style="width: 400px;"/>
+<img src="https://pic.otaku.ren/20240212/AQADPrgxGwoIWFZ-.jpg" style="width: 400px;" />
 <br />
 <br />
 <a href="https://www.buymeacoffee.com/beilunyang" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="width: 400px;" ></a>
