@@ -20,7 +20,8 @@ export async function middleware(request: Request) {
   const pathname = url.pathname
 
   if (pathname.startsWith('/api')) {
-    if (pathname.startsWith('/api/auth')) {
+    // 分享链接的接口由路由自身校验 token，允许匿名访问
+    if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/shared')) {
       return NextResponse.next()
     }
 
