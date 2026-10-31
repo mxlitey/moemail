@@ -4,50 +4,40 @@
 </p>
 
 <p align="center">
-  一个基于 NextJS + Cloudflare 技术栈构建的可爱临时邮箱服务🎉
+  一个基于 NextJS + Cloudflare 技术栈构建的可爱临时邮箱服务 🎉
 </p>
 
 <p align="center">
-  <a href="./README.md">简体中文</a> | 
-  <a href="./README.en.md">English</a> 
+  <a href="./README.md">简体中文</a> |
+  <a href="./README.en.md">English</a>
 </p>
 
 <p align="center">
-  <a href="#在线演示">在线演示</a> •
-  <a href="#文档">文档</a> •
+  <a href="https://moemail.app">在线演示</a> •
+  <a href="https://docs.moemail.app">完整文档</a> •
   <a href="#特性">特性</a> •
-  <a href="#技术栈">技术栈</a> •
-  <a href="#本地运行">本地运行</a> •
+  <a href="#快速开始">快速开始</a> •
   <a href="#部署">部署</a> •
-  <a href="#邮箱域名配置">邮箱域名配置</a> •
-  <a href="#权限系统">权限系统</a> •
-  <a href="#系统设置">系统设置</a> •
-  <a href="#发件功能">发件功能</a> •
-  <a href="#Webhook 集成">Webhook 集成</a> •
-  <a href="#OpenAPI">OpenAPI</a> •
-  <a href="#环境变量">环境变量</a> •
-  <a href="#Github OAuth App 配置">Github OAuth App 配置</a> •
-  <a href="#Google OAuth App 配置">Google OAuth App 配置</a> •
-  <a href="#贡献">贡献</a> •
-  <a href="#许可证">许可证</a> •
-  <a href="#交流群">交流群</a> •
-  <a href="#支持">支持</a>
+  <a href="#配置指南">配置指南</a> •
+  <a href="#功能说明">功能说明</a> •
+  <a href="#api-参考">API 参考</a> •
+  <a href="#mcp-内置云端服务">MCP</a> •
+  <a href="#贡献">贡献</a>
 </p>
+
+---
 
 ## 在线演示
+
 [https://moemail.app](https://moemail.app)
 
-![首页](https://pic.otaku.ren/20241209/AQADwsUxG9k1uVZ-.jpg "首页")
+完整文档见 [https://docs.moemail.app](https://docs.moemail.app)，包含详细的使用指南、API 文档和部署教程。
 
+![首页](https://pic.otaku.ren/20241209/AQADwsUxG9k1uVZ-.jpg "首页")
 
 ![邮箱](https://pic.otaku.ren/20241209/AQADw8UxG9k1uVZ-.jpg "邮箱")
 
 ![个人中心](https://pic.otaku.ren/20241227/AQADVsIxG7OzcFd-.jpg "个人中心")
-
-## 文档
-**完整文档**: [https://docs.moemail.app](https://docs.moemail.app)
-
-文档站点包含详细的使用指南、API 文档、部署教程等完整信息。
 
 ## 特性
 
@@ -57,65 +47,80 @@
 - 🎨 **主题切换**：支持亮色和暗色模式
 - 📱 **响应式设计**：完美适配桌面和移动设备
 - 🔄 **自动清理**：自动清理过期的邮箱和邮件
-- 📱 **PWA 支持**：支持 PWA 安装
-- 💸 **免费自部署**：基于 Cloudflare 构建, 可实现免费自部署，无需任何费用
+- 📲 **PWA 支持**：支持 PWA 安装
+- 💸 **免费自部署**：基于 Cloudflare 构建，可实现免费自部署，无需任何费用
 - 🎉 **可爱的 UI**：简洁可爱萌萌哒 UI 界面
 - 📤 **发件功能**：支持使用临时邮箱发送邮件，基于 Resend 服务
-- 🔔 **Webhook 通知**：支持通过 webhook 接收新邮件通知
+- 🔔 **Webhook 通知**：支持通过 Webhook 接收新邮件通知
 - 🛡️ **权限系统**：支持基于角色的权限控制系统
 - 🔑 **OpenAPI**：支持通过 API Key 访问 OpenAPI
-- 🌍 **多语言支持**：支持中文和英文界面，可自由切换
+- 🔗 **邮箱分享**：支持为邮箱或单封邮件生成分享链接，未登录也可访问
+- 👤 **账号体系**：支持 OAuth 与用户名/密码登录，以及注册、恢复邮箱和密码重置
+- 📬 **通知中心**：内置系统收件箱，接收角色变更、配额调整、域名变更等站内通知
+- 📣 **站内广播**：皇帝可按角色或全站发布系统公告
+- 🌍 **多语言支持**：支持简体中文、繁体中文、English、日本語、한국어
 
 ## 技术栈
 
-- **框架**: [Next.js](https://nextjs.org/) (App Router)
-- **平台**: [Cloudflare Pages](https://pages.cloudflare.com/)
-- **数据库**: [Cloudflare D1](https://developers.cloudflare.com/d1/) (SQLite)
-- **认证**: [NextAuth](https://authjs.dev/getting-started/installation?framework=Next.js) 配合 GitHub 登录
-- **样式**: [Tailwind CSS](https://tailwindcss.com/)
-- **UI 组件**: 基于 [Radix UI](https://www.radix-ui.com/) 的自定义组件
-- **邮件处理**: [Cloudflare Email Workers](https://developers.cloudflare.com/email-routing/)
-- **类型安全**: [TypeScript](https://www.typescriptlang.org/)
-- **ORM**: [Drizzle ORM](https://orm.drizzle.team/)
-- **国际化**: [next-intl](https://next-intl-docs.vercel.app/) 支持多语言
+| 类别 | 技术 |
+| --- | --- |
+| 框架 | [Next.js](https://nextjs.org/)（App Router） |
+| 平台 | [Cloudflare Pages](https://pages.cloudflare.com/) |
+| 数据库 | [Cloudflare D1](https://developers.cloudflare.com/d1/)（SQLite） |
+| 认证 | [NextAuth](https://authjs.dev/getting-started/installation?framework=Next.js)，支持 GitHub / Google OAuth 与用户名密码登录 |
+| 人机验证 | [Cloudflare Turnstile](https://developers.cloudflare.com/turnstile/)（可选） |
+| 样式 | [Tailwind CSS](https://tailwindcss.com/) |
+| UI 组件 | 基于 [Radix UI](https://www.radix-ui.com/) 的自定义组件 |
+| 邮件处理 | [Cloudflare Email Workers](https://developers.cloudflare.com/email-routing/) + [Resend](https://resend.com/) |
+| 类型安全 | [TypeScript](https://www.typescriptlang.org/) |
+| ORM | [Drizzle ORM](https://orm.drizzle.team/) |
+| 国际化 | [next-intl](https://next-intl-docs.vercel.app/)，内置 5 种语言 |
 
-## 本地运行
+## 快速开始
 
 ### 前置要求
 
 - Node.js 18+
-- Pnpm
+- pnpm
 - Wrangler CLI
 - Cloudflare 账号
+- Bun（可选，仅运行 `pnpm webhook-test-server` 时需要）
 
 ### 安装
 
 1. 克隆仓库：
+
 ```bash
 git clone https://github.com/beilunyang/moemail.git
 cd moemail
 ```
 
 2. 安装依赖：
+
 ```bash
 pnpm install
 ```
 
-3. 设置 wrangler：
+3. 配置 Wrangler：
+
 ```bash
 cp wrangler.example.json wrangler.json
 cp wrangler.email.example.json wrangler.email.json
 cp wrangler.cleanup.example.json wrangler.cleanup.json
 ```
-设置 Cloudflare D1 数据库名以及数据库 ID
 
-4. 设置环境变量：
+设置 Cloudflare D1 数据库名以及数据库 ID。
+
+4. 配置环境变量：
+
 ```bash
 cp .env.example .env.local
 ```
-设置 AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, AUTH_SECRET
 
-5. 创建本地数据库表结构
+设置 `AUTH_SECRET`；如需 OAuth 登录，再配置 `AUTH_GITHUB_ID` / `AUTH_GITHUB_SECRET` 或 `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`。未配置 OAuth 时仍可使用用户名/密码注册登录。
+
+5. 创建本地数据库表结构：
+
 ```bash
 pnpm db:migrate-local
 ```
@@ -123,129 +128,226 @@ pnpm db:migrate-local
 ### 开发
 
 1. 启动开发服务器：
+
 ```bash
 pnpm dev
 ```
 
-2. 测试邮件 worker：
-目前无法本地运行并测试，请使用 wrangler 部署邮件 worker 并测试
+2. 测试邮件 Worker：
+
+目前无法本地运行并测试，请使用 Wrangler 部署邮件 Worker 并测试。
+
 ```bash
 pnpm deploy:email
 ```
 
-3. 测试清理 worker：
+3. 测试清理 Worker：
+
 ```bash
 pnpm dev:cleanup
 pnpm test:cleanup
 ```
 
-4. 生成 Mock 数据（邮箱以及邮件消息）
+4. 生成 Mock 数据（邮箱以及邮件消息）：
+
 ```bash
 pnpm generate-test-data
 ```
+
 ## 部署
 
-### 视频版保姆级部署教程
-https://www.bilibili.com/video/BV19wrXY2ESM/
+### 视频教程
+
+- 中文（Bilibili）：[https://www.bilibili.com/video/BV19wrXY2ESM/](https://www.bilibili.com/video/BV19wrXY2ESM/)
+
+### 一键部署
+
+[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/beilunyang/moemail)
 
 ### 本地 Wrangler 部署
-1. 创建 .env 文件
+
+1. 创建 `.env` 文件：
+
 ```bash
 cp .env.example .env
 ```
-2. 在 .env 文件中设置[环境变量](#环境变量)
 
-3. 运行部署脚本
+2. 在 `.env` 文件中设置[环境变量](#环境变量)。
+
+3. 运行部署脚本：
+
 ```bash
 pnpm dlx tsx ./scripts/deploy/index.ts
 ```
 
-### Github Actions 部署
+### GitHub Actions 部署
 
-本项目可使用 GitHub Actions 实现自动化部署。支持以下触发方式：
+本项目可使用 GitHub Actions 实现自动化部署，支持以下触发方式：
 
-1. **自动触发**：推送新的 tag 时自动触发部署流程
+1. **自动触发**：推送到 `main` 分支，或推送新的 tag 时自动触发部署流程
 2. **手动触发**：在 GitHub Actions 页面手动触发
 
 #### 部署步骤
 
 1. 在 GitHub 仓库设置中添加以下 Secrets：
-   - `CLOUDFLARE_API_TOKEN`: Cloudflare API 令牌
-   - `CLOUDFLARE_ACCOUNT_ID`: Cloudflare 账户 ID
-   - `AUTH_GITHUB_ID`: GitHub OAuth App ID
-   - `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
-   - `AUTH_SECRET`: NextAuth Secret，用来加密 session，请设置一个随机字符串
-   - `CUSTOM_DOMAIN`: 网站自定义域名，用于访问 MoeMail (可选， 如果不填, 则会使用 Cloudflare Pages 默认域名)
-   - `PROJECT_NAME`: Pages 项目名 （可选，如果不填，则为 moemail） 
-   - `DATABASE_NAME`: D1 数据库名称 (可选，如果不填，则为 moemail-db)
-   - `KV_NAMESPACE_NAME`: Cloudflare KV namespace 名称，用于存储网站配置 （可选，如果不填，则为 moemail-kv）
+
+| Secret | 说明 |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API 令牌 |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 账户 ID |
+| `AUTH_GITHUB_ID` | GitHub OAuth App ID（可选） |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth App Secret（可选） |
+| `AUTH_GOOGLE_ID` | Google OAuth App ID（可选） |
+| `AUTH_GOOGLE_SECRET` | Google OAuth App Secret（可选） |
+| `AUTH_SECRET` | NextAuth Secret，用来加密 session，请设置一个随机字符串 |
+| `DATABASE_ID` | D1 数据库 ID（可选，不填则自动创建或按名称查询） |
+| `KV_NAMESPACE_ID` | Cloudflare KV namespace ID（可选，不填则自动创建或按名称查询） |
+| `CUSTOM_DOMAIN` | 网站自定义域名（可选，不填则使用 Cloudflare Pages 默认域名） |
+| `PROJECT_NAME` | Pages 项目名（可选，不填则为 `moemail`） |
+| `DATABASE_NAME` | D1 数据库名称（可选，不填则为 `moemail-db`） |
+| `KV_NAMESPACE_NAME` | Cloudflare KV namespace 名称，用于存储网站配置（可选，不填则为 `moemail-kv`） |
 
 2. 选择触发方式：
 
-   **方式一：推送 tag 触发**
-   ```bash
-   # 创建新的 tag
-   git tag v1.0.0
-   
-   # 推送 tag 到远程仓库
-   git push origin v1.0.0
-   ```
+**方式一：推送 tag 触发**
 
-   **方式二：手动触发**
-   - 进入仓库的 Actions 页面
-   - 选择 "Deploy" workflow
-   - 点击 "Run workflow"
+```bash
+# 创建新的 tag
+git tag v1.0.0
 
-3. 部署进度可以在仓库的 Actions 标签页查看
+# 推送 tag 到远程仓库
+git push origin v1.0.0
+```
+
+**方式二：手动触发**
+
+- 进入仓库的 Actions 页面
+- 选择 "Deploy" workflow
+- 点击 "Run workflow"
+
+3. 部署进度可以在仓库的 Actions 标签页查看。
 
 #### 注意事项
+
 - 确保所有 Secrets 都已正确设置
-- 使用 tag 触发时，tag 必须以 `v` 开头（例如：v1.0.0）
+- 使用 tag 触发时，tag 必须以 `v` 开头（例如 `v1.0.0`）
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/beilunyang/moemail)
+## 配置指南
 
+### 邮箱域名配置
 
-## 邮箱域名配置
+在 MoeMail 个人中心页面可以配置网站的邮箱域名，支持多域名配置，多个域名用逗号分隔。
 
-在 MoeMail 个人中心页面，可以配置网站的邮箱域名，支持多域名配置，多个域名用逗号分隔
 ![邮箱域名配置](https://pic.otaku.ren/20241227/AQAD88AxG67zeVd-.jpg "邮箱域名配置")
 
-### Cloudflare 邮件路由配置
+#### Cloudflare 邮件路由配置
 
 为了使邮箱域名生效，还需要在 Cloudflare 控制台配置邮件路由，将收到的邮件转发给 Email Worker 处理。
 
 1. 登录 [Cloudflare 控制台](https://dash.cloudflare.com/)
 2. 选择您的域名
-3. 点击左侧菜单的 "电子邮件" -> "电子邮件路由"
-4. 如果显示 “电子邮件路由当前被禁用，没有在路由电子邮件”，请点击 "启用电子邮件路由"
-![启用电子邮件路由](https://pic.otaku.ren/20241223/AQADNcQxG_K0SVd-.jpg "启用电子邮件路由")
-5. 点击后，会提示你添加电子邮件路由 DNS 记录，点击 “添加记录并启用” 即可
-![添加电子邮件路由 DNS 记录](https://pic.otaku.ren/20241223/AQADN8QxG_K0SVd-.jpg "添加电子邮件路由 DNS 记录")
-6. 配置路由规则：
-   - Catch-all 地址: 启用 "Catch-all"
-   - 编辑 Catch-all 地址
-    - 操作: 选择 "发送到 Worker"
-    - 目标位置: 选择刚刚部署的 "email-receiver-worker"
-    - 保存
-  ![配置路由规则](https://pic.otaku.ren/20241223/AQADNsQxG_K0SVd-.jpg "配置路由规则")
+3. 点击左侧菜单的 "电子邮件" → "电子邮件路由"
+4. 如果显示 "电子邮件路由当前被禁用，没有在路由电子邮件"，请点击 "启用电子邮件路由"
 
-### 注意事项
+![启用电子邮件路由](https://pic.otaku.ren/20241223/AQADNcQxG_K0SVd-.jpg "启用电子邮件路由")
+
+5. 点击后，会提示你添加电子邮件路由 DNS 记录，点击 "添加记录并启用" 即可
+
+![添加电子邮件路由 DNS 记录](https://pic.otaku.ren/20241223/AQADN8QxG_K0SVd-.jpg "添加电子邮件路由 DNS 记录")
+
+6. 配置路由规则：
+   - Catch-all 地址：启用 "Catch-all"
+   - 编辑 Catch-all 地址：
+     - 操作：选择 "发送到 Worker"
+     - 目标位置：选择刚刚部署的 `email-receiver-worker`
+     - 保存
+
+![配置路由规则](https://pic.otaku.ren/20241223/AQADNsQxG_K0SVd-.jpg "配置路由规则")
+
+#### 注意事项
+
 - 确保域名的 DNS 托管在 Cloudflare
 - Email Worker 必须已经部署成功
-- 如果 Catch-All 状态不可用(一直 loading)，请点击`路由规则`旁边的`目标地址`, 进去绑定一个邮箱
+- 如果 Catch-All 状态不可用（一直 loading），请点击 `路由规则` 旁边的 `目标地址`，进去绑定一个邮箱
 
-## 权限系统
+### 环境变量
+
+#### 认证相关
+
+| 变量 | 说明 |
+| --- | --- |
+| `AUTH_GITHUB_ID` | GitHub OAuth App ID |
+| `AUTH_GITHUB_SECRET` | GitHub OAuth App Secret |
+| `AUTH_GOOGLE_ID` | Google OAuth App ID |
+| `AUTH_GOOGLE_SECRET` | Google OAuth App Secret |
+| `AUTH_SECRET` | NextAuth Secret，用来加密 session，请设置一个随机字符串 |
+
+#### Cloudflare 配置
+
+| 变量 | 说明 |
+| --- | --- |
+| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare Account ID |
+| `DATABASE_NAME` | D1 数据库名称 |
+| `DATABASE_ID` | D1 数据库 ID（可选，不填则会自动通过 Cloudflare API 获取） |
+| `KV_NAMESPACE_NAME` | Cloudflare KV namespace 名称，用于存储网站配置 |
+| `KV_NAMESPACE_ID` | Cloudflare KV namespace ID，用于存储网站配置（可选，不填则会自动通过 Cloudflare API 获取） |
+| `CUSTOM_DOMAIN` | 网站自定义域名，如 `moemail.app`（可选，不填则会使用 Cloudflare Pages 默认域名） |
+| `PROJECT_NAME` | Pages 项目名（可选，不填则为 `moemail`） |
+| `NEXT_PUBLIC_BASE_URL` | 站点公开访问地址，用于生成 metadata 等绝对链接（可选，不填则为 `https://moemail.app`） |
+
+### GitHub OAuth App 配置
+
+1. 登录 [GitHub Developer](https://github.com/settings/developers)，创建一个新的 OAuth App
+2. 生成一个新的 `Client ID` 和 `Client Secret`
+3. 配置参数：
+   - `Application name`：`<your-app-name>`
+   - `Homepage URL`：`https://<your-domain>`
+   - `Authorization callback URL`：`https://<your-domain>/api/auth/callback/github`
+
+### Google OAuth App 配置
+
+1. 访问 [Google Cloud Console](https://console.cloud.google.com/) 创建项目
+2. 配置 OAuth 同意屏幕
+3. 创建 OAuth 客户端 ID
+   - 应用类型：Web 应用
+   - 已获授权的 JavaScript 来源：`https://<your-domain>`
+   - 已获授权的重定向 URI：`https://<your-domain>/api/auth/callback/google`
+4. 获取 `Client ID` 和 `Client Secret`
+5. 配置环境变量 `AUTH_GOOGLE_ID` 和 `AUTH_GOOGLE_SECRET`
+
+### Turnstile 人机验证（可选）
+
+登录和注册支持 Cloudflare Turnstile 人机验证，默认关闭。
+
+1. 在 [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile) 创建站点，获取 `Site Key` 与 `Secret Key`
+2. 皇帝进入个人中心的网站设置，启用 Turnstile 并填入两个 Key
+3. 启用后，用户名/密码登录与注册都需要先完成人机验证
+
+## 功能说明
+
+### 账号与登录
+
+支持两类登录方式：
+
+- **OAuth**：配置了 `AUTH_GITHUB_*` 或 `AUTH_GOOGLE_*` 后，登录页会显示对应的第三方登录入口
+- **用户名 / 密码**：无需配置 OAuth 即可使用，支持注册、登录和修改密码
+
+注册时可绑定**恢复邮箱**，用于忘记密码时接收重置链接。重置链接有效期 30 分钟，同一账号 60 秒内只会发送一次。未绑定恢复邮箱的账号需联系皇帝重置密码；皇帝可在用户管理中重置非皇帝用户的密码，也可查看用户名下的邮箱。
+
+### 权限系统
 
 本项目采用基于角色的权限控制系统（RBAC）。
 
-### 角色配置
+#### 角色配置
 
 新用户默认角色由皇帝在个人中心的网站设置中配置：
-- 公爵：新用户将获得临时邮箱、Webhook 配置权限以及 API Key 管理权限
-- 骑士：新用户将获得临时邮箱和 Webhook 配置权限
-- 平民：新用户无任何权限，需要等待皇帝册封为骑士或公爵
 
-### 角色等级
+- **公爵**：新用户将获得临时邮箱、Webhook 配置权限以及 API Key 管理权限
+- **骑士**：新用户将获得临时邮箱和 Webhook 配置权限
+- **平民**：新用户无任何权限，需要等待皇帝册封为骑士或公爵
+
+#### 角色等级
 
 系统包含四个角色等级：
 
@@ -254,7 +356,7 @@ pnpm dlx tsx ./scripts/deploy/index.ts
    - 拥有所有权限
    - 每个站点只能有一个皇帝
 
-2. **公爵（Duke）**  
+2. **公爵（Duke）**
    - 超级用户
    - 可以使用临时邮箱功能
    - 可以配置 Webhook
@@ -267,12 +369,12 @@ pnpm dlx tsx ./scripts/deploy/index.ts
    - 可以配置 Webhook
    - 可以被皇帝贬为平民或册封为公爵
 
-3. **平民（Civilian）**
+4. **平民（Civilian）**
    - 普通用户
    - 无任何权限
    - 可以被皇帝册封为骑士或者公爵
 
-### 角色升级
+#### 角色升级
 
 1. **成为皇帝**
    - 第一个访问 `/api/roles/init-emperor` 接口的用户将成为皇帝，即网站所有者
@@ -281,85 +383,93 @@ pnpm dlx tsx ./scripts/deploy/index.ts
 2. **角色变更**
    - 皇帝可以在个人中心页面将其他用户设为公爵、骑士或平民
 
-### 权限说明
+#### 权限说明
 
 - **邮箱管理**：创建和管理临时邮箱
 - **Webhook 管理**：配置邮件通知的 Webhook
 - **API Key 管理**：创建和管理 API 访问密钥
-- **用户管理**：升降用户角色
+- **用户管理**：升降用户角色，查看用户名下的邮箱，重置非皇帝用户的密码，删除非皇帝用户
 - **系统设置**：管理系统全局设置
 
-## 系统设置
+### 系统设置
 
 系统设置存储在 Cloudflare KV 中，包括以下内容：
 
-- `DEFAULT_ROLE`: 新注册用户默认角色，可选值为 `CIVILIAN`、`KNIGHT`、`DUKE`
-- `EMAIL_DOMAINS`: 支持的邮箱域名，多个域名用逗号分隔
-- `ADMIN_CONTACT`: 管理员联系方式
-- `MAX_EMAILS`: 每个用户可创建的最大邮箱数量
+| 配置项 | 说明 |
+| --- | --- |
+| `DEFAULT_ROLE` | 新注册用户默认角色，可选值为 `CIVILIAN`、`KNIGHT`、`DUKE` |
+| `EMAIL_DOMAINS` | 支持的邮箱域名，多个域名用逗号分隔 |
+| `ADMIN_CONTACT` | 管理员联系方式 |
+| `MAX_EMAILS` | 每个用户可创建的最大邮箱数量（默认 30） |
+| `TURNSTILE_ENABLED` / `TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | Turnstile 人机验证开关与密钥 |
+| `EMAIL_SERVICE_ENABLED` | 是否启用 Resend 发件服务 |
+| `RESEND_API_KEYS` | 域名到 Resend API Key 的映射（JSON） |
+| `EMAIL_ROLE_LIMITS` | 公爵、骑士的自定义每日发件上限（JSON） |
+| 通知模板相关 Key | 欢迎、角色变更、密码重置、配额调整、域名变更等站内通知模板，以及重置密码邮件的发件地址和模板 |
 
-**皇帝**角色可以在个人中心页面设置
+**皇帝**角色可以在个人中心页面设置，无需手动修改 KV。
 
-## 发件功能
+### 发件功能
 
 MoeMail 支持使用临时邮箱发送邮件，基于 [Resend](https://resend.com/) 服务。
 
-### 功能特性
+#### 功能特性
 
 - 📨 **临时邮箱发件**：可以使用创建的临时邮箱作为发件人发送邮件
 - 🎯 **角色权限控制**：不同角色有不同的每日发件限制
 - 💌 **支持 HTML**：支持发送富文本格式邮件
 
-### 角色发件权限
+#### 角色发件权限
 
 | 角色 | 每日发件限制 | 说明 |
-|------|-------------|------|
-| 皇帝 (Emperor) | 无限制 | 网站管理员，无发件限制 |
-| 公爵 (Duke) | 5封/天 | 默认每日可发送5封邮件 |
-| 骑士 (Knight) | 2封/天 | 默认每日可发送2封邮件 |
-| 平民 (Civilian) | 禁止发件 | 无发件权限 |
+| --- | --- | --- |
+| 皇帝（Emperor） | 无限制 | 网站管理员，无发件限制 |
+| 公爵（Duke） | 5 封/天 | 默认每日可发送 5 封邮件 |
+| 骑士（Knight） | 2 封/天 | 默认每日可发送 2 封邮件 |
+| 平民（Civilian） | 禁止发件 | 无发件权限 |
 
 > 💡 **提示**：皇帝可以在个人中心的邮件服务配置中自定义公爵和骑士的每日发件限制。
 
-### 配置发件服务
+#### 配置发件服务
 
 1. **获取 Resend API Key**
    - 访问 [Resend 官网](https://resend.com/) 注册账号
-   - 在控制台中创建 API Key
+   - 在控制台中为需要发件的域名创建 API Key
    - 复制 API Key 供后续配置使用
 
 2. **配置发件服务**
    - 皇帝角色登录 MoeMail
    - 进入个人中心页面
-   - 在"Resend 发件服务配置"部分：
+   - 在邮件服务配置区域：
      - 启用发件服务开关
-     - 填入 Resend API Key
+     - 为每个邮箱域名填写对应的 Resend API Key（按域名映射）
      - 设置公爵和骑士的每日发件限制（可选）
+   - 在通知中心配置中可设置重置密码邮件的发件地址与模板
    - 点击保存配置
 
 3. **验证配置**
-   - 配置保存后，有权限的用户在邮箱列表页面会看到"发送邮件"按钮
+   - 配置保存后，有权限的用户在邮箱列表页面会看到 "发送邮件" 按钮
    - 点击按钮可以打开发件对话框进行测试
 
-### 使用发件功能
+#### 使用发件功能
 
 1. **创建临时邮箱**
    - 在邮箱页面创建一个新的临时邮箱
 
 2. **发送邮件**
    - 在邮箱列表中找到要使用的邮箱
-   - 点击邮箱旁边的"发送邮件"按钮
+   - 点击邮箱旁边的 "发送邮件" 按钮
    - 在弹出的对话框中填写：
      - 收件人邮箱地址
      - 邮件主题
      - 邮件内容（支持 HTML 格式）
-   - 点击"发送"按钮
+   - 点击 "发送" 按钮
 
 3. **查看发送记录**
    - 发送的邮件会自动保存到对应邮箱的消息列表中
    - 可以在邮箱详情页面查看所有发送和接收的邮件
 
-### 注意事项
+#### 注意事项
 
 - 📋 **Resend 限制**：请注意 Resend 服务的发送限制和定价政策
 - 🔐 **域名验证**：使用自定义域名发件需要在 Resend 中验证域名
@@ -367,11 +477,11 @@ MoeMail 支持使用临时邮箱发送邮件，基于 [Resend](https://resend.co
 - 📊 **配额监控**：系统会自动统计每日发件数量，达到限额后将无法继续发送
 - 🔄 **配额重置**：每日发件配额在每天 00:00 自动重置
 
-## Webhook 集成
+### Webhook 集成
 
 当收到新邮件时，系统会向用户配置并且已启用的 Webhook URL 发送 POST 请求。请求体与请求头均由用户在个人中心自定义。
 
-### 请求体
+#### 请求体
 
 请求体来自用户填写的模板，模板中使用占位符引用邮件数据：
 
@@ -414,7 +524,7 @@ MoeMail 支持使用临时邮箱发送邮件，基于 [Resend](https://resend.co
 }
 ```
 
-### 请求头
+#### 请求头
 
 请求头同样由用户配置，默认包含一行 `Content-Type: application/json`，可修改或删除。头值也支持上述占位符，替换时按原样写入，不做 JSON 转义。
 
@@ -425,7 +535,8 @@ Authorization: Bearer your-token
 
 `Host`、`Content-Length`、`Connection`、`User-Agent` 等由运行时控制或规范禁用的请求头无法设置。
 
-### 配置说明
+#### 配置说明
+
 1. 点击个人头像，进入个人中心
 2. 在个人中心启用 Webhook
 3. 设置接收通知的 URL
@@ -433,59 +544,139 @@ Authorization: Bearer your-token
 5. 点击测试按钮验证配置
 6. 保存配置后即可接收新邮件通知
 
-### 测试
+#### 测试
 
-项目提供了一个简单的测试服务器, 可以通过如下命令运行:
+项目提供了一个简单的测试服务器，可以通过如下命令运行：
 
 ```bash
 pnpm webhook-test-server
 ```
 
-测试服务器会在本地启动一个 HTTP 服务器，监听 3001 端口（http://localhost:3001）, 并打印收到的 Webhook 消息详情。
+测试服务器会在本地启动一个 HTTP 服务器，监听 3001 端口（[http://localhost:3001](http://localhost:3001)），并打印收到的 Webhook 消息详情。
 
 如果需要进行外网测试，可以通过 Cloudflare Tunnel 将服务暴露到外网：
+
 ```bash
 pnpx cloudflared tunnel --url http://localhost:3001
 ```
 
-### 注意事项
+#### 注意事项
+
 - Webhook 接口应在 10 秒内响应
-- 非 2xx 响应码会触发重试，最多 3 次
-- 投递最终失败时，系统会向用户发送站内通知（同一用户 24 小时内去重）
+- 请求失败或返回非 2xx 响应码时会重试，最多尝试 3 次
+- 投递失败只记录日志，不会自动重发或转为站内通知
 
-## OpenAPI
+### 通知中心与广播
 
-本项目提供了 OpenAPI 接口，支持通过 API Key 进行访问。API Key 可以在个人中心页面创建（需要是公爵或皇帝角色）。
+用户首次登录时会自动创建**系统收件箱**。系统收件箱固定显示在邮箱列表顶部，不占用邮箱数量额度，也不可删除。
 
-### 使用 API Key
+系统收件箱用于接收以下站内通知：
+
+- 欢迎消息
+- 角色变更
+- 密码重置
+- 发件配额调整
+- 可用域名变更
+
+皇帝可以在个人中心向全站或指定角色发布**系统广播**，发送过程按 100 人一批分页执行，避免单次请求过长。
+
+### 邮箱分享
+
+邮箱详情和单封邮件都支持生成分享链接：
+
+- 有效期可选 1 小时、24 小时、3 天或永久
+- 分享链接可匿名访问，无需登录
+- 访问时只校验分享 token，链接不存在返回 404，已过期返回 410
+- 在分享管理中可以查看并删除已生成的链接，删除后立即失效
+
+## API 参考
+
+本项目提供 OpenAPI 接口，支持通过 API Key 访问。API Key 可以在个人中心页面创建（需要公爵或皇帝角色）。
+
+API Key 仅能访问 `/api/emails`、`/api/config` 和 `/api/mcp`；角色管理、API Key 管理、Webhook 配置等接口只支持登录会话，不接受 API Key。
+
+### 鉴权
 
 在请求头中添加 API Key：
+
 ```http
 X-API-Key: YOUR_API_KEY
 ```
 
-### API 接口
+### 接口总览
 
-#### 获取系统配置
+| 方法 | 路径 | 说明 |
+| --- | --- | --- |
+| `GET` | `/api/config` | 获取系统配置 |
+| `POST` | `/api/config` | 更新系统配置（需要系统设置权限） |
+| `POST` | `/api/emails/generate` | 创建临时邮箱 |
+| `GET` | `/api/emails` | 获取邮箱列表（`?type=system` 仅返回系统收件箱） |
+| `DELETE` | `/api/emails/{emailId}` | 删除邮箱 |
+| `GET` | `/api/emails/{emailId}` | 获取指定邮箱的邮件列表（`?type=sent` 仅返回已发送） |
+| `GET` | `/api/emails/{emailId}/{messageId}` | 获取单封邮件内容 |
+| `DELETE` | `/api/emails/{emailId}/{messageId}` | 删除单封邮件 |
+| `POST` | `/api/emails/{emailId}/share` | 创建邮箱分享链接 |
+| `GET` | `/api/emails/{emailId}/share` | 获取邮箱的所有分享链接 |
+| `DELETE` | `/api/emails/{emailId}/share/{shareId}` | 删除邮箱分享链接 |
+| `POST` | `/api/emails/{emailId}/messages/{messageId}/share` | 创建邮件分享链接 |
+| `GET` | `/api/emails/{emailId}/messages/{messageId}/share` | 获取邮件的所有分享链接 |
+| `DELETE` | `/api/emails/{emailId}/messages/{messageId}/share/{shareId}` | 删除邮件分享链接 |
+
+### 系统配置
+
 ```http
 GET /api/config
 ```
+
 返回响应：
+
 ```json
 {
   "defaultRole": "CIVILIAN",
   "emailDomains": "moemail.app,example.com",
   "adminContact": "admin@example.com",
-  "maxEmails": "10"
+  "maxEmails": "10",
+  "turnstile": {
+    "enabled": false,
+    "siteKey": "",
+    "secretKey": ""
+  }
 }
 ```
-响应字段说明：
-- `defaultRole`: 新用户默认角色，可选值：`CIVILIAN`（平民）、`KNIGHT`（骑士）、`DUKE`（公爵）
-- `emailDomains`: 支持的邮箱域名，多个域名用逗号分隔
-- `adminContact`: 管理员联系方式
-- `maxEmails`: 每个用户可创建的最大邮箱数量
+
+| 字段 | 说明 |
+| --- | --- |
+| `defaultRole` | 新用户默认角色，可选值：`CIVILIAN`（平民）、`KNIGHT`（骑士）、`DUKE`（公爵） |
+| `emailDomains` | 支持的邮箱域名，多个域名用逗号分隔 |
+| `adminContact` | 管理员联系方式 |
+| `maxEmails` | 每个用户可创建的最大邮箱数量 |
+| `turnstile` | Turnstile 配置，仅对具备系统设置权限的调用者返回 |
+
+#### 更新系统配置
+
+```http
+POST /api/config
+Content-Type: application/json
+
+{
+  "defaultRole": "CIVILIAN",
+  "emailDomains": "moemail.app,example.com",
+  "adminContact": "admin@example.com",
+  "maxEmails": "10",
+  "turnstile": {
+    "enabled": false,
+    "siteKey": "",
+    "secretKey": ""
+  }
+}
+```
+
+需要系统设置权限。返回 `{ "success": true }`。
+
+### 邮箱管理
 
 #### 创建临时邮箱
+
 ```http
 POST /api/emails/generate
 Content-Type: application/json
@@ -496,30 +687,40 @@ Content-Type: application/json
   "domain": "moemail.app"
 }
 ```
-参数说明：
-- `name`: 邮箱前缀，可选
-- `expiryTime`: 有效期（毫秒），可选值：3600000（1小时）、86400000（1天）、604800000（7天）、0（永久）
-- `domain`: 邮箱域名，可通过 `/api/config` 接口获取
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `name` | string | 否 | 邮箱前缀 |
+| `expiryTime` | number | 否 | 有效期（毫秒），可选值：`3600000`（1 小时）、`86400000`（1 天）、`259200000`（3 天）、`0`（永久） |
+| `domain` | string | 否 | 邮箱域名，可通过 `/api/config` 接口获取 |
 
 返回响应：
+
 ```json
 {
   "id": "email-uuid-123",
   "email": "test@moemail.app"
 }
 ```
-响应字段说明：
-- `id`: 邮箱的唯一标识符
-- `email`: 创建的邮箱地址
+
+| 字段 | 说明 |
+| --- | --- |
+| `id` | 邮箱的唯一标识符 |
+| `email` | 创建的邮箱地址 |
 
 #### 获取邮箱列表
+
 ```http
 GET /api/emails?cursor=xxx
 ```
-参数说明：
-- `cursor`: 分页游标，可选
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `cursor` | string | 否 | 分页游标 |
+| `type` | string | 否 | 传 `system` 时仅返回系统收件箱 |
 
 返回响应：
+
 ```json
 {
   "emails": [
@@ -535,27 +736,62 @@ GET /api/emails?cursor=xxx
   "total": 5
 }
 ```
-响应字段说明：
-- `emails`: 邮箱列表数组
-- `nextCursor`: 下一页游标，用于分页请求
-- `total`: 邮箱总数量
+
+| 字段 | 说明 |
+| --- | --- |
+| `emails` | 邮箱列表数组 |
+| `nextCursor` | 下一页游标，用于分页请求 |
+| `total` | 邮箱总数量 |
+
+#### 删除邮箱
+
+```http
+DELETE /api/emails/{emailId}
+```
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+
+返回响应：
+
+```json
+{
+  "success": true
+}
+```
+
+| 字段 | 说明 |
+| --- | --- |
+| `success` | 删除操作是否成功 |
+
+### 邮件
 
 #### 获取指定邮箱邮件列表
+
 ```http
 GET /api/emails/{emailId}?cursor=xxx
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
-- `cursor`: 分页游标，可选
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `cursor` | string | 否 | 分页游标 |
+| `type` | string | 否 | 传 `sent` 时仅返回已发送邮件，需要具备发件权限 |
 
 返回响应：
+
 ```json
 {
   "messages": [
     {
       "id": "message-uuid-789",
       "from_address": "sender@example.com",
+      "to_address": "test@moemail.app",
       "subject": "邮件主题",
+      "content": "邮件文本内容",
+      "html": "<p>邮件HTML内容</p>",
+      "sent_at": 1704110400000,
       "received_at": 1704110400000
     }
   ],
@@ -563,58 +799,97 @@ GET /api/emails/{emailId}?cursor=xxx
   "total": 3
 }
 ```
-响应字段说明：
-- `messages`: 邮件列表数组
-- `nextCursor`: 下一页游标，用于分页请求
-- `total`: 邮件总数量
 
-#### 删除邮箱
-```http
-DELETE /api/emails/{emailId}
-```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
+| 字段 | 说明 |
+| --- | --- |
+| `messages` | 邮件列表数组，每页最多 20 条 |
+| `nextCursor` | 下一页游标，用于分页请求 |
+| `total` | 邮件总数量 |
 
-返回响应：
-```json
-{
-  "success": true
-}
-```
-响应字段说明：
-- `success`: 删除操作是否成功
+每条邮件的字段：
+
+| 字段 | 说明 |
+| --- | --- |
+| `id` | 邮件的唯一标识符 |
+| `from_address` | 发件人邮箱地址 |
+| `to_address` | 收件人邮箱地址 |
+| `subject` | 邮件主题 |
+| `content` | 邮件纯文本内容 |
+| `html` | 邮件 HTML 内容 |
+| `sent_at` | 发送时间（时间戳） |
+| `received_at` | 接收时间（时间戳） |
+
+> 使用 `?type=sent` 查询已发送邮件时，需要具备发件权限。
 
 #### 获取单封邮件内容
+
 ```http
 GET /api/emails/{emailId}/{messageId}
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
-- `messageId`: 邮件的唯一标识符，必填
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `messageId` | string | 是 | 邮件的唯一标识符 |
 
 返回响应：
+
 ```json
 {
   "message": {
     "id": "message-uuid-789",
     "from_address": "sender@example.com",
+    "to_address": "test@moemail.app",
     "subject": "邮件主题",
     "content": "邮件文本内容",
     "html": "<p>邮件HTML内容</p>",
-    "received_at": 1704110400000
+    "received_at": 1704110400000,
+    "sent_at": 1704110400000,
+    "type": "received"
   }
 }
 ```
-响应字段说明：
-- `message`: 邮件详细信息对象
-- `id`: 邮件的唯一标识符
-- `from_address`: 发件人邮箱地址
-- `subject`: 邮件主题
-- `content`: 邮件纯文本内容
-- `html`: 邮件HTML内容
-- `received_at`: 接收时间（时间戳）
+
+| 字段 | 说明 |
+| --- | --- |
+| `message` | 邮件详细信息对象 |
+| `id` | 邮件的唯一标识符 |
+| `from_address` | 发件人邮箱地址 |
+| `to_address` | 收件人邮箱地址 |
+| `subject` | 邮件主题 |
+| `content` | 邮件纯文本内容 |
+| `html` | 邮件 HTML 内容 |
+| `received_at` | 接收时间（时间戳） |
+| `sent_at` | 发送时间（时间戳） |
+| `type` | 邮件类型：`received`（接收）或 `sent`（发送） |
+
+#### 删除单封邮件
+
+```http
+DELETE /api/emails/{emailId}/{messageId}
+```
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `messageId` | string | 是 | 邮件的唯一标识符 |
+
+返回响应：
+
+```json
+{
+  "success": true
+}
+```
+
+| 字段 | 说明 |
+| --- | --- |
+| `success` | 删除操作是否成功 |
+
+### 分享链接
 
 #### 创建邮箱分享链接
+
 ```http
 POST /api/emails/{emailId}/share
 Content-Type: application/json
@@ -623,11 +898,14 @@ Content-Type: application/json
   "expiresIn": 86400000
 }
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
-- `expiresIn`: 分享链接有效期（毫秒），0 表示永久有效，可选
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `expiresIn` | number | 否 | 分享链接有效期（毫秒），`3600000`（1 小时）、`86400000`（1 天）、`259200000`（3 天）、`0`（永久） |
 
 返回响应：
+
 ```json
 {
   "id": "share-uuid-123",
@@ -637,23 +915,29 @@ Content-Type: application/json
   "createdAt": "2024-01-01T12:00:00.000Z"
 }
 ```
-响应字段说明：
-- `id`: 分享记录的唯一标识符
-- `emailId`: 关联的邮箱 ID
-- `token`: 分享链接的访问令牌
-- `expiresAt`: 分享链接过期时间，null 表示永久有效
-- `createdAt`: 创建时间
+
+| 字段 | 说明 |
+| --- | --- |
+| `id` | 分享记录的唯一标识符 |
+| `emailId` | 关联的邮箱 ID |
+| `token` | 分享链接的访问令牌 |
+| `expiresAt` | 分享链接过期时间，`null` 表示永久有效 |
+| `createdAt` | 创建时间 |
 
 分享链接访问地址：`https://your-domain.com/shared/{token}`
 
 #### 获取邮箱的所有分享链接
+
 ```http
 GET /api/emails/{emailId}/share
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
 
 返回响应：
+
 ```json
 {
   "shares": [
@@ -668,28 +952,37 @@ GET /api/emails/{emailId}/share
   "total": 1
 }
 ```
-响应字段说明：
-- `shares`: 分享链接列表数组
-- `total`: 分享链接总数
+
+| 字段 | 说明 |
+| --- | --- |
+| `shares` | 分享链接列表数组 |
+| `total` | 分享链接总数 |
 
 #### 删除邮箱分享链接
+
 ```http
 DELETE /api/emails/{emailId}/share/{shareId}
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
-- `shareId`: 分享记录的唯一标识符，必填
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `shareId` | string | 是 | 分享记录的唯一标识符 |
 
 返回响应：
+
 ```json
 {
   "success": true
 }
 ```
-响应字段说明：
-- `success`: 删除操作是否成功
+
+| 字段 | 说明 |
+| --- | --- |
+| `success` | 删除操作是否成功 |
 
 #### 创建邮件分享链接
+
 ```http
 POST /api/emails/{emailId}/messages/{messageId}/share
 Content-Type: application/json
@@ -698,12 +991,15 @@ Content-Type: application/json
   "expiresIn": 86400000
 }
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
-- `messageId`: 邮件的唯一标识符，必填
-- `expiresIn`: 分享链接有效期（毫秒），0 表示永久有效，可选
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `messageId` | string | 是 | 邮件的唯一标识符 |
+| `expiresIn` | number | 否 | 分享链接有效期（毫秒），`3600000`（1 小时）、`86400000`（1 天）、`259200000`（3 天）、`0`（永久） |
 
 返回响应：
+
 ```json
 {
   "id": "share-uuid-456",
@@ -713,24 +1009,30 @@ Content-Type: application/json
   "createdAt": "2024-01-01T12:00:00.000Z"
 }
 ```
-响应字段说明：
-- `id`: 分享记录的唯一标识符
-- `messageId`: 关联的邮件 ID
-- `token`: 分享链接的访问令牌
-- `expiresAt`: 分享链接过期时间，null 表示永久有效
-- `createdAt`: 创建时间
+
+| 字段 | 说明 |
+| --- | --- |
+| `id` | 分享记录的唯一标识符 |
+| `messageId` | 关联的邮件 ID |
+| `token` | 分享链接的访问令牌 |
+| `expiresAt` | 分享链接过期时间，`null` 表示永久有效 |
+| `createdAt` | 创建时间 |
 
 分享链接访问地址：`https://your-domain.com/shared/message/{token}`
 
 #### 获取邮件的所有分享链接
+
 ```http
 GET /api/emails/{emailId}/messages/{messageId}/share
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
-- `messageId`: 邮件的唯一标识符，必填
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `messageId` | string | 是 | 邮件的唯一标识符 |
 
 返回响应：
+
 ```json
 {
   "shares": [
@@ -745,31 +1047,40 @@ GET /api/emails/{emailId}/messages/{messageId}/share
   "total": 1
 }
 ```
-响应字段说明：
-- `shares`: 分享链接列表数组
-- `total`: 分享链接总数
+
+| 字段 | 说明 |
+| --- | --- |
+| `shares` | 分享链接列表数组 |
+| `total` | 分享链接总数 |
 
 #### 删除邮件分享链接
+
 ```http
 DELETE /api/emails/{emailId}/messages/{messageId}/share/{shareId}
 ```
-参数说明：
-- `emailId`: 邮箱的唯一标识符，必填
-- `messageId`: 邮件的唯一标识符，必填
-- `shareId`: 分享记录的唯一标识符，必填
+
+| 参数 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `emailId` | string | 是 | 邮箱的唯一标识符 |
+| `messageId` | string | 是 | 邮件的唯一标识符 |
+| `shareId` | string | 是 | 分享记录的唯一标识符 |
 
 返回响应：
+
 ```json
 {
   "success": true
 }
 ```
-响应字段说明：
-- `success`: 删除操作是否成功
+
+| 字段 | 说明 |
+| --- | --- |
+| `success` | 删除操作是否成功 |
 
 ### 使用示例
 
 使用 curl 创建临时邮箱：
+
 ```bash
 curl -X POST https://your-domain.com/api/emails/generate \
   -H "X-API-Key: YOUR_API_KEY" \
@@ -782,6 +1093,7 @@ curl -X POST https://your-domain.com/api/emails/generate \
 ```
 
 使用 JavaScript 获取邮件列表：
+
 ```javascript
 const res = await fetch('https://your-domain.com/api/emails/your-email-id', {
   headers: {
@@ -792,6 +1104,7 @@ const data = await res.json();
 ```
 
 使用 curl 创建邮箱分享链接：
+
 ```bash
 curl -X POST https://your-domain.com/api/emails/your-email-id/share \
   -H "X-API-Key: YOUR_API_KEY" \
@@ -802,6 +1115,7 @@ curl -X POST https://your-domain.com/api/emails/your-email-id/share \
 ```
 
 使用 JavaScript 创建邮件分享链接：
+
 ```javascript
 const res = await fetch('https://your-domain.com/api/emails/your-email-id/messages/your-message-id/share', {
   method: 'POST',
@@ -817,7 +1131,7 @@ const data = await res.json();
 console.log('分享链接:', `https://your-domain.com/shared/message/${data.token}`);
 ```
 
-## MCP（内置云端服务）
+## MCP 内置云端服务
 
 本项目内置了一个与后端同域部署的 MCP 服务，随 Git 推送自动上线。客户端无需本地安装任何依赖，只需配置一个 URL 即可接入，支持 Trae、Claude Desktop、Cursor 等 MCP 客户端。
 
@@ -828,18 +1142,18 @@ console.log('分享链接:', `https://your-domain.com/shared/message/${data.toke
   - 请求头 `Authorization: Bearer <API_KEY>`
   - URL 查询参数 `?key=<API_KEY>`（仅当客户端不支持自定义请求头时使用）
 
-> API Key 的权限边界由所属用户角色决定：普通用户只能操作自己的邮箱；API Key 无法访问配置修改、角色管理等接口。
+> API Key 的权限边界由所属用户角色决定：普通用户只能操作自己的邮箱；角色管理、用户管理等接口仍然只接受登录会话，配置修改则需要相应的系统设置权限。
 
 ### 工具列表
 
 | 工具 | 说明 |
 | --- | --- |
 | `get_config` | 读取站点配置（可用域名、邮箱上限、发件服务状态） |
-| `create_email` | 创建临时邮箱（1h / 24h / 3d / 7d / permanent） |
+| `create_email` | 创建临时邮箱（1h / 24h / 3d / permanent） |
 | `list_emails` | 列出当前用户名下的临时邮箱 |
 | `list_messages` | 列出指定邮箱的邮件（received / sent / all） |
 | `read_message` | 读取单封邮件的纯文本与 HTML |
-| `wait_for_email` | 轮询等待新邮件（超时返回 `status: timeout`，可重复调用） |
+| `wait_for_email` | 轮询等待新邮件（默认最长 20 秒，可通过 `timeout_seconds` 调整，最大 25 秒；超时返回 `status: timeout`，可重复调用） |
 | `send_email` | 使用临时邮箱发件 |
 | `delete_message` | 删除单封邮件 |
 | `delete_email` | 删除临时邮箱 |
@@ -863,7 +1177,7 @@ Claude Desktop / Cursor 等支持 `mcpServers` 配置的客户端：
 
 仅支持 URL 的客户端可把 Key 拼接在 URL 上：
 
-```
+```text
 https://<your-domain>/api/mcp?key=YOUR_API_KEY
 ```
 
@@ -880,63 +1194,21 @@ curl https://<your-domain>/api/mcp \
 
 ### 已知限制
 
-- 服务端不提供 SSE 长连接：`GET /api/mcp` 返回 405，客户端使用 `POST` 一次性响应即可。
-- `wait_for_email` 单次等待上限 25 秒（受边缘函数执行时长约束），超时返回 `status: timeout`，再次调用即可继续等待。
-- `?key=` 方式会把 API Key 暴露在 URL 与访问日志中，优先使用请求头传参。
-- 该端点只做邮箱相关操作，不暴露配置修改、角色管理等写接口。
-
-## 环境变量
-
-本项目使用以下环境变量：
-
-### 认证相关
-- `AUTH_GITHUB_ID`: GitHub OAuth App ID
-- `AUTH_GITHUB_SECRET`: GitHub OAuth App Secret
-- `AUTH_GOOGLE_ID`: Google OAuth App ID
-- `AUTH_GOOGLE_SECRET`: Google OAuth App Secret
-- `AUTH_SECRET`: NextAuth Secret，用来加密 session，请设置一个随机字符串
-
-### Cloudflare 配置
-- `CLOUDFLARE_API_TOKEN`: Cloudflare API Token
-- `CLOUDFLARE_ACCOUNT_ID`: Cloudflare Account ID
-- `DATABASE_NAME`: D1 数据库名称
-- `DATABASE_ID`: D1 数据库 ID (可选, 如果不填, 则会自动通过 Cloudflare API 获取)
-- `KV_NAMESPACE_NAME`: Cloudflare KV namespace 名称，用于存储网站配置
-- `KV_NAMESPACE_ID`: Cloudflare KV namespace ID，用于存储网站配置 （可选， 如果不填, 则会自动通过 Cloudflare API 获取）
-- `CUSTOM_DOMAIN`: 网站自定义域名, 如：moemail.app (可选， 如果不填, 则会使用 Cloudflare Pages 默认域名)
-- `PROJECT_NAME`: Pages 项目名 （可选，如果不填，则为 moemail） 
-
-## Github OAuth App 配置
-
-1. 登录 [Github Developer](https://github.com/settings/developers) 创建一个新的 OAuth App
-2. 生成一个新的 `Client ID` 和 `Client Secret`
-3. 配置参数：
-   - `Application name`: `<your-app-name>`
-   - `Homepage URL`: `https://<your-domain>`
-   - `Authorization callback URL`: `https://<your-domain>/api/auth/callback/github`
-
-## Google OAuth App 配置
-
-1. 访问 [Google Cloud Console](https://console.cloud.google.com/) 创建项目
-2. 配置 OAuth 同意屏幕
-3. 创建 OAuth 客户端 ID
-   - 应用类型：Web 应用
-   - 已获授权的 Javascript 来源：`https://<your-domain>`
-   - 已获授权的重定向 URI：`https://<your-domain>/api/auth/callback/google`
-4. 获取 `Client ID` 和 `Client Secret`
-5. 配置环境变量 `AUTH_GOOGLE_ID` 和 `AUTH_GOOGLE_SECRET`
-
-
+- 服务端不提供 SSE 长连接：`GET /api/mcp` 返回 405，客户端使用 `POST` 一次性响应即可
+- `wait_for_email` 默认等待 20 秒，单次上限 25 秒（受边缘函数执行时长约束），超时返回 `status: timeout`，再次调用即可继续等待
+- `?key=` 方式会把 API Key 暴露在 URL 与访问日志中，优先使用请求头传参
+- 该端点只做邮箱相关操作，不暴露配置修改、角色管理等写接口
 
 ## 贡献
 
-欢迎提交 Pull Request 或者 Issue 来帮助改进这个项目
+欢迎提交 Pull Request 或者 Issue 来帮助改进这个项目。
 
 ## 许可证
 
-本项目采用 [MIT](LICENSE) 许可证
+本项目采用 [MIT](LICENSE) 许可证。
 
 ## 交流
+
 <table>
   <tr style="max-width: 360px">
     <td>
@@ -948,7 +1220,7 @@ curl https://<your-domain>/api/mcp \
   </tr>
   <tr style="max-width: 360px">
     <td>
-      关注公众号，了解更多项目进展以及AI，区块链，独立开发资讯
+      关注公众号，了解更多项目进展以及 AI、区块链、独立开发资讯
     </td>
     <td>
       添加微信，备注 "MoeMail" 拉你进微信交流群
@@ -958,11 +1230,11 @@ curl https://<your-domain>/api/mcp \
 
 ## 支持
 
-如果你喜欢这个项目，欢迎给它一个 Star ⭐️
-或者进行赞助
+如果你喜欢这个项目，欢迎给它一个 Star ⭐️，或者进行赞助。
+
 <br />
 <br />
-<img src="https://pic.otaku.ren/20240212/AQADPrgxGwoIWFZ-.jpg" style="width: 400px;"/>
+<img src="https://pic.otaku.ren/20240212/AQADPrgxGwoIWFZ-.jpg" style="width: 400px;" />
 <br />
 <br />
 <a href="https://www.buymeacoffee.com/beilunyang" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-blue.png" alt="Buy Me A Coffee" style="width: 400px;" ></a>
